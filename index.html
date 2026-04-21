@@ -277,6 +277,11 @@ textarea.form-input{resize:vertical;min-height:60px;}
   .cost-table{min-width:760px;}
 }
 
+
+.dep-jump{color:var(--accent3);text-decoration:underline;cursor:pointer;text-underline-offset:2px;transition:color .15s;}
+.dep-jump:hover{color:var(--accent);}
+.row-jump-highlight td{background:rgba(212,245,60,.08)!important;box-shadow:inset 0 0 0 1px rgba(212,245,60,.35);}
+
 </style>
 </head>
 <body>
@@ -2285,7 +2290,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function dependencyReason(task){
     const blocked = getBlockedBy(task);
     if(!blocked.length) return '';
-    return blocked.map(dep => `#${dep.id} ${dep.title}`).join(' • ');
+    return blocked.map(dep => dependencyLinkHtml(dep)).join(' • ');
   }
 
   const __baseTaskWithDefaults = taskWithDefaults;
@@ -2403,7 +2408,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             ${t.riskNote ? `<div style="font-size:10px;color:var(--warn);margin-top:2px;">⚠ ${t.riskNote}</div>` : ''}
             ${deps.length ? `<div class="dep-meta"><span class="dep-badge ${blocked.length ? 'blocked' : ''}">⛓ ${dependencyLabel(t)}</span></div>` : ''}
-            ${blocked.length ? `<div class="dep-line blocked">Waiting on: ${blocked.map(dep => `#${dep.id} ${dep.title}`).join(' • ')}</div>` : deps.length ? `<div class="dep-line">Dependencies cleared: ${deps.map(dep => `#${dep.id}`).join(', ')}</div>` : ''}
+            ${blocked.length ? `<div class="dep-line blocked">Waiting on: ${blocked.map(dep => dependencyLinkHtml(dep)).join(' • ')}</div>` : deps.length ? `<div class="dep-line">Dependencies cleared: ${deps.map(dep => dependencyLinkHtml(dep, true)).join(', ')}</div>` : ''}
           </td>
           <td><span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span></td>
           <td><span class="owner-badge">${t.owner}</span></td>
@@ -2477,7 +2482,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const sc = statusClass(eStatus) + (blocked.length ? ' dependency-blocked' : '');
       return `<tr>
         <td class="task-id">${t.id}</td>
-        <td><div style="font-size:12px;max-width:340px;line-height:1.3;">${t.title}${blocked.length ? `<div class="dep-line blocked">Waiting on ${blocked.map(dep => `#${dep.id}`).join(', ')}</div>` : ''}</div></td>
+        <td><div style="font-size:12px;max-width:340px;line-height:1.3;">${t.title}${blocked.length ? `<div class="dep-line blocked">Waiting on ${blocked.map(dep => dependencyLinkHtml(dep, true)).join(', ')}</div>` : ''}</div></td>
         <td><span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span></td>
         <td><span class="owner-badge">${t.owner}</span></td>
         <td class="date-cell ${overdue?'overdue':''}">${t.endDate||'—'}${overdue?' ⚠':''}</td>
@@ -2726,7 +2731,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isChild = depth > 0;
     const childHint = !isChild && asArray(task.subtasks).length ? `<div class="child-add-hint">${task.subtasks.length} line item${task.subtasks.length>1?'s':''} linked</div>` : '';
     const cpLabel = task.criticalPath ? '🔴 YES' : '—';
-    const depLine = blocked.length ? `<div class="dep-line blocked">Waiting on ${blocked.map(dep => `#${dep.id}`).join(', ')}</div>` : '';
+    const depLine = blocked.length ? `<div class="dep-line blocked">Waiting on ${blocked.map(dep => dependencyLinkHtml(dep, true)).join(', ')}</div>` : '';
     const riskLine = task.riskNote ? `<div style="font-size:10px;color:var(--warn);margin-top:2px;">⚠ ${task.riskNote}</div>` : '';
     const lineItemTag = isChild ? `<span class="lineitem-tag">Line Item</span>` : '';
     const indent = `<span class="subtask-indent" style="width:${depth*18}px;"></span>`;
