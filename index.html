@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Be. IHFF 2026 - The War Room</title>
+<title>Be. IHFF 2026 — War Room</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap');
 :root {
@@ -178,6 +178,15 @@ textarea.form-input{resize:vertical;min-height:60px;}
 .stat-pill.s-blocked{background:rgba(255,59,59,.12);color:var(--crit);}
 .stat-pill.s-done{background:rgba(0,230,118,.08);color:var(--ok);}
 .stat-count{font-weight:600;font-size:11px;}
+.progress-slider{width:96px;display:block;margin-top:4px;background:transparent;-webkit-appearance:none;appearance:none;touch-action:pan-x;cursor:pointer;}
+.progress-slider:focus{outline:none;}
+.progress-slider::-webkit-slider-runnable-track{height:4px;background:var(--s3);border-radius:999px;border:1px solid var(--border);}
+.progress-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);border:1px solid #000;margin-top:-6px;box-shadow:0 0 0 1px rgba(212,245,60,.2);}
+.progress-slider::-moz-range-track{height:4px;background:var(--s3);border-radius:999px;border:1px solid var(--border);}
+.progress-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);border:1px solid #000;}
+.progress-slider:hover::-webkit-slider-thumb{transform:scale(1.05);}
+.progress-slider:hover::-moz-range-thumb{transform:scale(1.05);}
+.row-jump-target{box-shadow:inset 0 0 0 1px var(--accent3), 0 0 0 1px rgba(56,182,255,.35);background:rgba(56,182,255,.08)!important;transition:background .25s ease, box-shadow .25s ease;}
 
 
 /* IMPORT / EXPORT */
@@ -1037,8 +1046,8 @@ function renderDashboard() {
     </div>
     <div class="kpi purple">
       <div class="kpi-label">Pending Cost</div>
-      <div class="kpi-val" style="font-size:20px;">${formatCurrency(totalPending)}</div>
-      <div class="kpi-sub">${formatCurrency(totalPaid)} paid</div>
+      <div class="kpi-val" style="font-size:20px;">${formatCurrency(totalPendingCombined)}</div>
+      <div class="kpi-sub">${formatCurrency(totalPaidCombined)} paid</div>
     </div>
     <div class="kpi red">
       <div class="kpi-label">Blocked</div>
@@ -1129,60 +1138,6 @@ function populateFiltersFresh() {
 
 function populateFilters() {
   populateFiltersFresh();
-}
-
-const BASE_OWNER_OPTIONS = ['Atul','Angela','Deeksha','Tejal','TBD'];
-
-function getAllOwnerOptions() {
-  const pool = new Set(BASE_OWNER_OPTIONS);
-  const collect = arr => (Array.isArray(arr) ? arr : []).forEach(item => {
-    if (!item || typeof item !== 'object') return;
-    if (item.owner) pool.add(item.owner);
-    if (Array.isArray(item.subtasks)) collect(item.subtasks);
-  });
-  collect(tasks);
-  if (typeof talent !== 'undefined' && Array.isArray(talent)) talent.forEach(item => item && item.owner && pool.add(item.owner));
-  if (typeof manpower !== 'undefined' && Array.isArray(manpower)) manpower.forEach(item => item && item.owner && pool.add(item.owner));
-  if (typeof vendors !== 'undefined' && Array.isArray(vendors)) vendors.forEach(item => item && item.owner && pool.add(item.owner));
-  return Array.from(pool).filter(Boolean).sort((a,b) => {
-    const ai = BASE_OWNER_OPTIONS.indexOf(a), bi = BASE_OWNER_OPTIONS.indexOf(b);
-    if (ai !== -1 && bi !== -1) return ai - bi;
-    if (ai !== -1) return -1;
-    if (bi !== -1) return 1;
-    return a.localeCompare(b);
-  });
-}
-
-function populateOwnerSelect(selectedValue) {
-  const ownerEl = document.getElementById('f-owner-in');
-  if (!ownerEl) return;
-  const current = selectedValue || ownerEl.value || 'Atul';
-  const owners = getAllOwnerOptions();
-  if (current && !owners.includes(current)) owners.push(current);
-  ownerEl.innerHTML = '';
-  owners.forEach(owner => {
-    const option = document.createElement('option');
-    option.value = owner;
-    option.textContent = owner;
-    ownerEl.appendChild(option);
-  });
-  const addOption = document.createElement('option');
-  addOption.value = '__new_owner__';
-  addOption.textContent = '+ New Owner';
-  ownerEl.appendChild(addOption);
-  ownerEl.value = current && owners.includes(current) ? current : 'Atul';
-}
-
-function handleOwnerSelectChange() {
-  const ownerEl = document.getElementById('f-owner-in');
-  if (!ownerEl || ownerEl.value !== '__new_owner__') return;
-  const entered = prompt('Enter new owner name');
-  const clean = entered ? entered.trim() : '';
-  if (!clean) {
-    populateOwnerSelect('Atul');
-    return;
-  }
-  populateOwnerSelect(clean);
 }
 
 // ─── TASK TABLE ──────────────────────────────────────────────────────────────
@@ -1305,7 +1260,7 @@ function renderTaskTable(list) {
             <div class="prog-bar"><div class="prog-fill" style="width:${t.progress||0}%"></div></div>
             <span class="prog-num">${t.progress||0}%</span>
           </div>
-          <input type="range" min="0" max="100" value="${t.progress||0}" style="width:80px;accent-color:var(--accent);height:2px;display:block;margin-top:3px;" oninput="updateProgress(${t.id}, this.value)">
+          <input type="range" min="0" max="100" value="${t.progress||0}" class="progress-slider" oninput="liveUpdateProgress(${t.id}, this.value, this)" onchange="commitProgress(${t.id}, this.value)">
         </td>
         <td><span class="${t.criticalPath ? 'cp-yes' : 'cp-no'}">${t.criticalPath ? '🔴 YES' : '—'}</span></td>
         <td>${t.riskNote ? `<span class="risk-flag" title="${t.riskNote}">⚠ Risk</span>` : '—'}</td>
@@ -1348,21 +1303,47 @@ function updateStatus(id, val) {
   }
 }
 
-function updateProgress(id, val) {
-  const t = tasks.find(x => x.id === id);
-  if (t) {
-    t.progress = parseInt(val);
-    if (t.progress === 100) t.status = 'Done';
-    saveData();
-    renderDashboard();
-    const row = document.getElementById(`row-${id}`);
-    if (row) {
-      const fill = row.querySelector('.prog-fill');
-      const num = row.querySelector('.prog-num');
-      if (fill) fill.style.width = val + '%';
-      if (num) num.textContent = val + '%';
-    }
-  }
+function getTaskRecordForProgress(id){
+  if (typeof findTaskRecord === 'function') return findTaskRecord(id);
+  const item = (tasks || []).find(x => x.id === id);
+  return item ? {item} : null;
+}
+
+function syncProgressRow(id, val, inputEl){
+  const row = inputEl ? inputEl.closest('tr') : document.getElementById(`row-${id}`);
+  if (!row) return;
+  const fill = row.querySelector('.prog-fill');
+  const num = row.querySelector('.prog-num');
+  if (fill) fill.style.width = val + '%';
+  if (num) num.textContent = val + '%';
+}
+
+function liveUpdateProgress(id, val, inputEl){
+  const rec = getTaskRecordForProgress(id);
+  const t = rec && rec.item;
+  if (!t) return;
+  const nextVal = Math.max(0, Math.min(100, parseInt(val) || 0));
+  t.progress = nextVal;
+  if (nextVal < 100 && t.status === 'Done') t.status = 'In Progress';
+  syncProgressRow(id, nextVal, inputEl);
+}
+
+function commitProgress(id, val){
+  const rec = getTaskRecordForProgress(id);
+  const t = rec && rec.item;
+  if (!t) return;
+  const nextVal = Math.max(0, Math.min(100, parseInt(val) || 0));
+  t.progress = nextVal;
+  if (nextVal === 100) t.status = 'Done';
+  if (nextVal < 100 && t.status === 'Done') t.status = 'In Progress';
+  saveData();
+  renderDashboard();
+  if (typeof renderCostView === 'function') renderCostView();
+  if (typeof applyFilters === 'function') applyFilters();
+}
+
+function updateProgress(id, val){
+  commitProgress(id, val);
 }
 
 // ─── CRITICAL PATH VIEW ─────────────────────────────────────────────────────
@@ -1543,17 +1524,17 @@ function renderCostView() {
       </div>
       <div class="cost-card">
         <div class="cost-card-label">Total Actual</div>
-        <div class="cost-card-value">${formatCurrency(totalActual)}</div>
+        <div class="cost-card-value">${formatCurrency(totalActualCombined)}</div>
         <div class="cost-card-sub">Filled actual values</div>
       </div>
       <div class="cost-card">
         <div class="cost-card-label">Total Paid</div>
-        <div class="cost-card-value">${formatCurrency(totalPaid)}</div>
+        <div class="cost-card-value">${formatCurrency(totalPaidCombined)}</div>
         <div class="cost-card-sub">From paid amount / fully-paid tasks</div>
       </div>
       <div class="cost-card">
         <div class="cost-card-label">Total Pending</div>
-        <div class="cost-card-value">${formatCurrency(totalPending)}</div>
+        <div class="cost-card-value">${formatCurrency(totalPendingCombined)}</div>
         <div class="cost-card-sub">Remaining to be closed</div>
       </div>
     </div>
@@ -1607,6 +1588,62 @@ function renderCostView() {
       </table>
     ` : `<div class="cost-empty">No costs added yet. Edit any task to add estimated cost, actual cost, vendor, and payment status.</div>`}
   `;
+}
+
+// ─── OWNER OPTIONS ──────────────────────────────────────────────────────────
+const OWNER_OPTIONS_KEY = 'ihff2026_owner_options';
+let customOwnerOptions = [];
+
+function loadOwnerOptions(){
+  try { customOwnerOptions = JSON.parse(localStorage.getItem(OWNER_OPTIONS_KEY) || '[]'); } catch(e){ customOwnerOptions = []; }
+  if(!Array.isArray(customOwnerOptions)) customOwnerOptions = [];
+}
+
+function saveOwnerOptions(){
+  localStorage.setItem(OWNER_OPTIONS_KEY, JSON.stringify([...new Set(customOwnerOptions.filter(Boolean))]));
+}
+
+function getAvailableOwners(){
+  const seeded = ['Atul','Angela','Deeksha','Tejal','TBD'];
+  const taskOwners = (tasks || []).map(t => t && t.owner).filter(Boolean);
+  const talentOwners = (typeof talentItems !== 'undefined' && Array.isArray(talentItems)) ? talentItems.map(t => t && t.owner).filter(Boolean) : [];
+  const manpowerOwners = (typeof manpowerItems !== 'undefined' && Array.isArray(manpowerItems)) ? manpowerItems.map(t => t && t.owner).filter(Boolean) : [];
+  const vendorOwners = (typeof vendorItems !== 'undefined' && Array.isArray(vendorItems)) ? vendorItems.map(v => v && v.owner).filter(Boolean) : [];
+  return [...new Set([...seeded, ...customOwnerOptions, ...taskOwners, ...talentOwners, ...manpowerOwners, ...vendorOwners])].sort((a,b) => a.localeCompare(b));
+}
+
+function populateOwnerSelect(selectedValue){
+  const ownerEl = document.getElementById('f-owner-in');
+  if(!ownerEl) return;
+  const current = selectedValue || ownerEl.value || 'Atul';
+  ownerEl.innerHTML = '';
+  getAvailableOwners().forEach(owner => {
+    const opt = document.createElement('option');
+    opt.value = owner;
+    opt.textContent = owner;
+    ownerEl.appendChild(opt);
+  });
+  const addOpt = document.createElement('option');
+  addOpt.value = '__new_owner__';
+  addOpt.textContent = '+ New Owner';
+  ownerEl.appendChild(addOpt);
+  ownerEl.value = getAvailableOwners().includes(current) ? current : 'Atul';
+}
+
+function handleOwnerSelectChange(){
+  const ownerEl = document.getElementById('f-owner-in');
+  if(!ownerEl || ownerEl.value !== '__new_owner__') return;
+  const typed = window.prompt('Enter new owner name');
+  const clean = (typed || '').trim();
+  if(!clean){
+    populateOwnerSelect('Atul');
+    return;
+  }
+  if(!customOwnerOptions.includes(clean)) {
+    customOwnerOptions.push(clean);
+    saveOwnerOptions();
+  }
+  populateOwnerSelect(clean);
 }
 
 // ─── MODAL ──────────────────────────────────────────────────────────────────
@@ -1772,6 +1809,7 @@ function showToast(msg) {
 
 // ─── INIT ─────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  loadOwnerOptions();
   loadData();
   updateCountdown();
   setInterval(updateCountdown, 60000);
@@ -1782,6 +1820,9 @@ document.addEventListener('DOMContentLoaded', () => {
   renderManpower();
   renderCostView();
   applyFilters();
+  const ownerSelect = document.getElementById('f-owner-in');
+  if (ownerSelect) ownerSelect.addEventListener('change', handleOwnerSelectChange);
+  populateOwnerSelect('Atul');
   const importInput = document.getElementById('json-import-input');
   if (importInput) {
     importInput.addEventListener('change', function(e) {
@@ -1789,9 +1830,6 @@ document.addEventListener('DOMContentLoaded', () => {
       importJsonFile(file);
     });
   }
-  const ownerSelect = document.getElementById('f-owner-in');
-  if (ownerSelect) ownerSelect.addEventListener('change', handleOwnerSelectChange);
-  populateOwnerSelect('Atul');
 });
 
 // Close modal on overlay click
@@ -2123,8 +2161,8 @@ function renderVendors(){
     <div class="module-summary">
       <div class="module-card"><div class="module-card-label">Vendors Tracked</div><div class="module-card-val">${vendors.length}</div></div>
       <div class="module-card"><div class="module-card-label">Vendor Estimated</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(totalEstimated)}</div></div>
-      <div class="module-card"><div class="module-card-label">Vendor Actual</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(totalActual)}</div></div>
-      <div class="module-card"><div class="module-card-label">Vendor Pending</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(totalPending)}</div></div>
+      <div class="module-card"><div class="module-card-label">Vendor Actual</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(totalActualCombined)}</div></div>
+      <div class="module-card"><div class="module-card-label">Vendor Pending</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(totalPendingCombined)}</div></div>
       <div class="module-card"><div class="module-card-label">Overdue Payments</div><div class="module-card-val">${overdueVendorPayments}</div></div>
     </div>
     <div class="module-section-title">Vendor Entities</div>`; }
@@ -2483,7 +2521,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="prog-bar"><div class="prog-fill" style="width:${t.progress||0}%"></div></div>
               <span class="prog-num">${t.progress||0}%</span>
             </div>
-            <input type="range" min="0" max="100" value="${t.progress||0}" style="width:80px;accent-color:var(--accent);height:2px;display:block;margin-top:3px;" oninput="updateProgress(${t.id}, this.value)">
+            <input type="range" min="0" max="100" value="${t.progress||0}" class="progress-slider" oninput="liveUpdateProgress(${t.id}, this.value, this)" onchange="commitProgress(${t.id}, this.value)">
           </td>
           <td><span class="${t.criticalPath ? 'cp-yes' : 'cp-no'}">${t.criticalPath ? '🔴 YES' : '—'}</span></td>
           <td>${blocked.length ? `<span class="risk-flag" title="${dependencyReason(t).replace(/"/g,'&quot;')}">⛓ Dependency</span>` : t.riskNote ? `<span class="risk-flag" title="${(t.riskNote||'').replace(/"/g,'&quot;')}">⚠ Risk</span>` : '—'}</td>
@@ -2820,7 +2858,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="prog-bar"><div class="prog-fill" style="width:${task.progress||0}%"></div></div>
             <span class="prog-num">${task.progress||0}%</span>
           </div>
-          <input type="range" min="0" max="100" value="${task.progress||0}" style="width:80px;accent-color:var(--accent);height:2px;display:block;margin-top:3px;" oninput="updateProgress(${task.id}, this.value)">
+          <input type="range" min="0" max="100" value="${task.progress||0}" class="progress-slider" oninput="liveUpdateProgress(${task.id}, this.value, this)" onchange="commitProgress(${task.id}, this.value)">
         </td>
         <td><span class="${task.criticalPath ? 'cp-yes' : 'cp-no'}">${cpLabel}</span></td>
         <td>${task.riskNote ? `<span class="risk-flag" title="${task.riskNote}">⚠ Risk</span>` : (blocked.length ? `<span class="risk-flag" title="${blocked.map(dep => dep.title).join(' • ')}">⛓ Blocked</span>` : '—')}</td>
@@ -3022,17 +3060,17 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="cost-card">
           <div class="cost-card-label">Total Actual</div>
-          <div class="cost-card-value">${formatCurrency(totalActual)}</div>
+          <div class="cost-card-value">${formatCurrency(totalActualCombined)}</div>
           <div class="cost-card-sub">Rolled up from line items</div>
         </div>
         <div class="cost-card">
           <div class="cost-card-label">Total Paid</div>
-          <div class="cost-card-value">${formatCurrency(totalPaid)}</div>
+          <div class="cost-card-value">${formatCurrency(totalPaidCombined)}</div>
           <div class="cost-card-sub">Parent-level event spend</div>
         </div>
         <div class="cost-card">
           <div class="cost-card-label">Total Pending</div>
-          <div class="cost-card-value">${formatCurrency(totalPending)}</div>
+          <div class="cost-card-value">${formatCurrency(totalPendingCombined)}</div>
           <div class="cost-card-sub">${flatCostItems.length} cost-linked rows</div>
         </div>
       </div>
@@ -3151,7 +3189,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('f-title').value = '';
     document.getElementById('f-phase-in').value = parent.phase || '';
     document.getElementById('f-ws-in').value = parent.workstream || '';
-    populateOwnerSelect(parent.owner || 'Atul');
+    document.getElementById('f-owner-in').value = parent.owner || 'Atul';
     document.getElementById('f-priority-in').value = parent.priority || 'MEDIUM';
     document.getElementById('f-start').value = parent.startDate || '';
     document.getElementById('f-end').value = parent.endDate || '';
@@ -3247,7 +3285,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (typeof applyDependencyDefaults === 'function') applyDependencyDefaults();
     saveData();
-    populateOwnerSelect(document.getElementById('f-owner-in').value);
     populateFiltersFresh();
     closeModal();
     applyFilters();
@@ -3288,18 +3325,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast(`${rec.parent ? 'Line item' : 'Task'} ${id} → ${val}`);
   };
 
-  updateProgress = function(id, val) {
-    const rec = findTaskRecord(id);
-    const t = rec && rec.item;
-    if (!t) return;
-    t.progress = parseInt(val)||0;
-    if (t.progress === 100) t.status = 'Done';
-    if (t.progress < 100 && t.status === 'Done') t.status = 'In Progress';
-    saveData();
-    renderDashboard();
-    renderCostView();
-    applyFilters();
-  };
+  updateProgress = function(id, val) { commitProgress(id, val); };
 
   injectChildItemStyles();
   if (ensureStructuredParents()) saveData();
@@ -3307,6 +3333,445 @@ document.addEventListener('DOMContentLoaded', () => {
   renderDashboard();
   renderCostView();
   applyFilters();
+})();
+</script>
+
+
+<script>
+// --- ENTITY MODULE PATCH: persistent Merchandise + Samples modules with no task duplication ---
+(function(){
+  const ENTITY_SCHEMA_VERSION = 8;
+  const MERCH_STORAGE_KEY = 'ihff2026_merchandise_module';
+  const SAMPLES_STORAGE_KEY = 'ihff2026_samples_module';
+  const STAGE_OPTIONS = ['Not Started','In Progress','Review','Blocked','Done'];
+  const SAMPLE_STAGE_OPTIONS = ['Not Started','In Progress','Review','Blocked','Done'];
+
+  function numSafe(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
+  function hasAnyCostLike(item){ return numSafe(item.estimatedCost) || numSafe(item.actualCost) || numSafe(item.paidAmount); }
+  function uid(prefix='item'){ return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`; }
+  function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+  function text(v){ return v == null ? '' : String(v); }
+  function list(v){ return Array.isArray(v) ? v : []; }
+  function defaultPaymentStatus(v){ return v || 'Pending'; }
+
+  const DEFAULT_MERCH = [
+    {id:'merch-tshirts', itemName:'T-shirts', quantity:700, designStatus:'Not Started', sampleStatus:'Not Started', productionStatus:'Not Started', qcStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'merch-shakers', itemName:'Shakers', quantity:500, designStatus:'Not Started', sampleStatus:'In Progress', productionStatus:'Not Started', qcStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'merch-ganjis', itemName:'Ganjis', quantity:300, designStatus:'Not Started', sampleStatus:'Not Started', productionStatus:'Not Started', qcStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'merch-shoppingbags', itemName:'Shopping Bags', quantity:0, designStatus:'Not Started', sampleStatus:'In Progress', productionStatus:'Not Started', qcStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'merch-stickers', itemName:'Stickers', quantity:0, designStatus:'Not Started', sampleStatus:'Not Started', productionStatus:'Not Started', qcStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''}
+  ];
+
+  const DEFAULT_SAMPLES = [
+    {id:'sample-alpha', itemName:'Alpha', quantity:2500, packagingStatus:'Not Started', productionStatus:'Not Started', dispatchStatus:'Not Started', readinessStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'sample-sexyjmc', itemName:'Sexy JMC', quantity:2500, packagingStatus:'Not Started', productionStatus:'Not Started', dispatchStatus:'Not Started', readinessStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'sample-sexyvegan', itemName:'Sexy Vegan', quantity:2500, packagingStatus:'Not Started', productionStatus:'Not Started', dispatchStatus:'Not Started', readinessStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'sample-creatine', itemName:'Creatine', quantity:2500, packagingStatus:'Not Started', productionStatus:'Not Started', dispatchStatus:'Not Started', readinessStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'sample-protein', itemName:'Protein', quantity:2500, packagingStatus:'Not Started', productionStatus:'Not Started', dispatchStatus:'Not Started', readinessStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'sample-triplemagnesium', itemName:'Triple Magnesium', quantity:2500, packagingStatus:'Not Started', productionStatus:'Not Started', dispatchStatus:'Not Started', readinessStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'sample-dnd', itemName:'DND', quantity:2500, packagingStatus:'Blocked', productionStatus:'Not Started', dispatchStatus:'Not Started', readinessStatus:'Blocked', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:'Pill-format packaging unresolved is a critical blocker.'}
+  ];
+
+  function merchWithDefaults(item={}){
+    return {
+      id: item.id || uid('merch'),
+      itemName: text(item.itemName || item.title || ''),
+      quantity: numSafe(item.quantity),
+      designStatus: item.designStatus || item.status || 'Not Started',
+      sampleStatus: item.sampleStatus || 'Not Started',
+      productionStatus: item.productionStatus || 'Not Started',
+      qcStatus: item.qcStatus || 'Not Started',
+      estimatedCost: numSafe(item.estimatedCost),
+      actualCost: numSafe(item.actualCost),
+      paidAmount: numSafe(item.paidAmount),
+      vendorName: text(item.vendorName),
+      paymentStatus: defaultPaymentStatus(item.paymentStatus),
+      notes: text(item.notes)
+    };
+  }
+
+  function sampleWithDefaults(item={}){
+    return {
+      id: item.id || uid('sample'),
+      itemName: text(item.itemName || item.title || ''),
+      quantity: numSafe(item.quantity),
+      packagingStatus: item.packagingStatus || item.status || 'Not Started',
+      productionStatus: item.productionStatus || 'Not Started',
+      dispatchStatus: item.dispatchStatus || 'Not Started',
+      readinessStatus: item.readinessStatus || 'Not Started',
+      estimatedCost: numSafe(item.estimatedCost),
+      actualCost: numSafe(item.actualCost),
+      paidAmount: numSafe(item.paidAmount),
+      vendorName: text(item.vendorName),
+      paymentStatus: defaultPaymentStatus(item.paymentStatus),
+      notes: text(item.notes)
+    };
+  }
+
+  function readStore(key, defaults, normalizer){
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return defaults.map(normalizer);
+      const parsed = JSON.parse(raw);
+      const arr = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.items) ? parsed.items : []);
+      return (arr.length ? arr : defaults).map(normalizer);
+    } catch(e){
+      console.error(e);
+      return defaults.map(normalizer);
+    }
+  }
+  function writeStore(key, items){ localStorage.setItem(key, JSON.stringify({version:ENTITY_SCHEMA_VERSION, items})); }
+  function getMerchData(){ return readStore(MERCH_STORAGE_KEY, DEFAULT_MERCH, merchWithDefaults); }
+  function saveMerchData(items){ writeStore(MERCH_STORAGE_KEY, items.map(merchWithDefaults)); }
+  function getSamplesData(){ return readStore(SAMPLES_STORAGE_KEY, DEFAULT_SAMPLES, sampleWithDefaults); }
+  function saveSamplesData(items){ writeStore(SAMPLES_STORAGE_KEY, items.map(sampleWithDefaults)); }
+
+  function sumEst(list){ return list.reduce((a,x)=>a+numSafe(x.estimatedCost),0); }
+  function sumActual(list){ return list.reduce((a,x)=>a+numSafe(x.actualCost),0); }
+  function sumPaid(list){ return list.reduce((a,x)=>a+numSafe(x.paidAmount),0); }
+  function sumPending(list){ return list.reduce((a,x)=>a+Math.max(Math.max(numSafe(x.actualCost), numSafe(x.estimatedCost)) - numSafe(x.paidAmount), 0),0); }
+
+  function injectEntityStyles(){
+    if(document.getElementById('entity-module-style-patch')) return;
+    const style = document.createElement('style');
+    style.id = 'entity-module-style-patch';
+    style.textContent = `
+      .module-wrap{padding:16px 20px;}
+      .module-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+      .module-title{font-family:var(--fh);font-weight:700;font-size:18px;}
+      .module-sub{color:var(--t2);font-size:11px;margin-top:4px;max-width:860px;line-height:1.5;}
+      .module-actions{display:flex;gap:8px;flex-wrap:wrap;}
+      .module-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:14px;}
+      .module-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;}
+      .module-card-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);margin-bottom:6px;}
+      .module-card-val{font-family:var(--fh);font-weight:800;font-size:22px;line-height:1;}
+      .module-card-sub{font-size:10px;color:var(--t2);margin-top:4px;}
+      .module-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;background:var(--surface);}
+      .module-table{width:100%;border-collapse:collapse;min-width:1180px;}
+      .module-table th,.module-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+      .module-table th{background:var(--s2);text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);white-space:nowrap;}
+      .module-small{font-size:10px;color:var(--t2);}
+      .module-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;border:1px solid var(--border2);font-size:9px;text-transform:uppercase;letter-spacing:.6px;background:var(--s3);color:var(--t2);}
+      .module-linked{margin-top:14px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.02);}
+      .module-linked-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+      .module-linked-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;border:1px solid var(--border2);background:var(--s3);font-size:10px;color:var(--text);cursor:pointer;}
+      .module-linked-chip:hover{border-color:var(--accent);color:var(--accent);}
+      @media (max-width: 900px){ .module-table{min-width:980px;} }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function findTaskByPattern(testFn){ return (window.tasks || []).filter(t => testFn(t)); }
+  function linkedMerchTasks(){ return findTaskByPattern(t => t.workstream === 'Merch'); }
+  function linkedSampleTasks(){ return findTaskByPattern(t => t.workstream === 'Sampling'); }
+  function jumpToTask(id){ if(typeof jumpToTaskById==='function') return jumpToTaskById(id); if(typeof switchTab==='function') switchTab('tasks'); setTimeout(()=>{const row=document.getElementById(`row-${id}`); if(row){ row.scrollIntoView({behavior:'smooth',block:'center'}); row.classList.add('row-jump-target'); setTimeout(()=>row.classList.remove('row-jump-target'),1800);} },120); }
+
+  function statusSel(value, options, action){
+    return `<select class="status-sel" onchange="${action}">${options.map(opt=>`<option ${opt===value?'selected':''}>${opt}</option>`).join('')}</select>`;
+  }
+
+  function renderMerchandiseModule(){
+    const items = getMerchData();
+    const linked = linkedMerchTasks();
+    const doneStages = items.filter(i => i.designStatus==='Done' && i.productionStatus==='Done' && i.qcStatus==='Done').length;
+    const wrap = document.getElementById('merchandise-list'); if(!wrap) return;
+    wrap.innerHTML = `
+      <div class="module-grid">
+        <div class="module-card"><div class="module-card-label">Items</div><div class="module-card-val">${items.length}</div><div class="module-card-sub">Persistent merch entities</div></div>
+        <div class="module-card"><div class="module-card-label">Estimated</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(sumEst(items))}</div><div class="module-card-sub">Across all merch items</div></div>
+        <div class="module-card"><div class="module-card-label">Pending</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(sumPending(items))}</div><div class="module-card-sub">${formatCurrency(sumPaid(items))} paid</div></div>
+        <div class="module-card"><div class="module-card-label">QC Ready</div><div class="module-card-val">${doneStages}/${items.length}</div><div class="module-card-sub">Design + production + QC done</div></div>
+      </div>
+      <div class="module-table-wrap">
+        <table class="module-table">
+          <thead><tr><th>Item</th><th>Qty</th><th>Design</th><th>Sample</th><th>Production</th><th>QC</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Vendor</th><th>Payment</th><th>Notes</th><th>Actions</th></tr></thead>
+          <tbody>${items.map(i => `
+            <tr>
+              <td><div style="font-size:12px;line-height:1.35;">${i.itemName}</div></td>
+              <td>${i.quantity||'—'}</td>
+              <td>${statusSel(i.designStatus, STAGE_OPTIONS, `updateMerchStage('${i.id}','designStatus',this.value)`)}</td>
+              <td>${statusSel(i.sampleStatus, STAGE_OPTIONS, `updateMerchStage('${i.id}','sampleStatus',this.value)`)}</td>
+              <td>${statusSel(i.productionStatus, STAGE_OPTIONS, `updateMerchStage('${i.id}','productionStatus',this.value)`)}</td>
+              <td>${statusSel(i.qcStatus, STAGE_OPTIONS, `updateMerchStage('${i.id}','qcStatus',this.value)`)}</td>
+              <td>${formatCurrency(i.estimatedCost)}</td>
+              <td>${formatCurrency(i.actualCost)}</td>
+              <td>${formatCurrency(i.paidAmount)}</td>
+              <td>${formatCurrency(Math.max(Math.max(numSafe(i.actualCost), numSafe(i.estimatedCost)) - numSafe(i.paidAmount),0))}</td>
+              <td>${i.vendorName || '—'}</td>
+              <td><span class="cost-badge ${paymentClass(i.paymentStatus)}">${i.paymentStatus}</span></td>
+              <td><div class="module-small" style="max-width:220px;line-height:1.4;">${i.notes || '—'}</div></td>
+              <td><div class="action-btns" style="opacity:1;"><button class="act-btn" onclick="editMerchItem('${i.id}')" title="Edit">✏</button><button class="act-btn danger" onclick="deleteMerchItem('${i.id}')" title="Delete">✕</button></div></td>
+            </tr>`).join('')}</tbody>
+        </table>
+      </div>
+      <div class="module-linked">
+        <div class="module-card-label">Linked master tasks</div>
+        <div class="module-sub">These remain milestones in the main task system. Merchandise data lives only here, so there is no duplicate cost entry across multiple tasks.</div>
+        <div class="module-linked-list">${linked.map(t => `<span class="module-linked-chip" onclick="jumpToTask(${t.id})">#${t.id} ${t.title}</span>`).join('') || '<span class="module-small">No merch tasks found in master task list.</span>'}</div>
+      </div>`;
+  }
+
+  function renderSamplesModule(){
+    const items = getSamplesData();
+    const linked = linkedSampleTasks();
+    const ready = items.filter(i => i.readinessStatus==='Done').length;
+    const wrap = document.getElementById('samples-list'); if(!wrap) return;
+    wrap.innerHTML = `
+      <div class="module-grid">
+        <div class="module-card"><div class="module-card-label">Sample SKUs</div><div class="module-card-val">${items.length}</div><div class="module-card-sub">Persistent sampling entities</div></div>
+        <div class="module-card"><div class="module-card-label">Estimated</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(sumEst(items))}</div><div class="module-card-sub">Across all sample items</div></div>
+        <div class="module-card"><div class="module-card-label">Pending</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(sumPending(items))}</div><div class="module-card-sub">${formatCurrency(sumPaid(items))} paid</div></div>
+        <div class="module-card"><div class="module-card-label">Event Ready</div><div class="module-card-val">${ready}/${items.length}</div><div class="module-card-sub">Readiness status complete</div></div>
+      </div>
+      <div class="module-table-wrap">
+        <table class="module-table">
+          <thead><tr><th>Item</th><th>Qty</th><th>Packaging</th><th>Production</th><th>Dispatch</th><th>Readiness</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Vendor</th><th>Payment</th><th>Notes</th><th>Actions</th></tr></thead>
+          <tbody>${items.map(i => `
+            <tr>
+              <td><div style="font-size:12px;line-height:1.35;">${i.itemName}</div></td>
+              <td>${i.quantity||'—'}</td>
+              <td>${statusSel(i.packagingStatus, SAMPLE_STAGE_OPTIONS, `updateSampleStage('${i.id}','packagingStatus',this.value)`)}</td>
+              <td>${statusSel(i.productionStatus, SAMPLE_STAGE_OPTIONS, `updateSampleStage('${i.id}','productionStatus',this.value)`)}</td>
+              <td>${statusSel(i.dispatchStatus, SAMPLE_STAGE_OPTIONS, `updateSampleStage('${i.id}','dispatchStatus',this.value)`)}</td>
+              <td>${statusSel(i.readinessStatus, SAMPLE_STAGE_OPTIONS, `updateSampleStage('${i.id}','readinessStatus',this.value)`)}</td>
+              <td>${formatCurrency(i.estimatedCost)}</td>
+              <td>${formatCurrency(i.actualCost)}</td>
+              <td>${formatCurrency(i.paidAmount)}</td>
+              <td>${formatCurrency(Math.max(Math.max(numSafe(i.actualCost), numSafe(i.estimatedCost)) - numSafe(i.paidAmount),0))}</td>
+              <td>${i.vendorName || '—'}</td>
+              <td><span class="cost-badge ${paymentClass(i.paymentStatus)}">${i.paymentStatus}</span></td>
+              <td><div class="module-small" style="max-width:220px;line-height:1.4;">${i.notes || '—'}</div></td>
+              <td><div class="action-btns" style="opacity:1;"><button class="act-btn" onclick="editSampleItem('${i.id}')" title="Edit">✏</button><button class="act-btn danger" onclick="deleteSampleItem('${i.id}')" title="Delete">✕</button></div></td>
+            </tr>`).join('')}</tbody>
+        </table>
+      </div>
+      <div class="module-linked">
+        <div class="module-card-label">Linked master tasks</div>
+        <div class="module-sub">Sampling data lives only here. The master Sampling tasks remain execution milestones and do not hold separate SKU-by-SKU cost data.</div>
+        <div class="module-linked-list">${linked.map(t => `<span class="module-linked-chip" onclick="jumpToTask(${t.id})">#${t.id} ${t.title}</span>`).join('') || '<span class="module-small">No sampling tasks found in master task list.</span>'}</div>
+      </div>`;
+  }
+
+  function migrateTaskSubtasksToEntities(){
+    let merch = getMerchData();
+    let samples = getSamplesData();
+    let changed = false;
+    (window.tasks || []).forEach(task => {
+      if (task.workstream === 'Merch' && Array.isArray(task.subtasks) && task.subtasks.length) {
+        task.subtasks.forEach(st => {
+          const key = text(st.title).trim().toLowerCase();
+          if (!merch.some(x => x.itemName.trim().toLowerCase() === key)) merch.push(merchWithDefaults({...st, itemName: st.title}));
+        });
+        task.subtasks = [];
+        changed = true;
+      }
+      if (task.workstream === 'Sampling' && Array.isArray(task.subtasks) && task.subtasks.length) {
+        task.subtasks.forEach(st => {
+          const key = text(st.title).trim().toLowerCase();
+          if (!samples.some(x => x.itemName.trim().toLowerCase() === key)) samples.push(sampleWithDefaults({...st, itemName: st.title}));
+        });
+        task.subtasks = [];
+        changed = true;
+      }
+    });
+    saveMerchData(merch);
+    saveSamplesData(samples);
+    if (changed && typeof saveData === 'function') saveData();
+  }
+
+  function ensureEntityTabsAndViews(){
+    const tabBar = document.querySelector('.hdr-tabs');
+    if (tabBar && !tabBar.querySelector(".tab[onclick=\"switchTab('merchandise')\"]")) {
+      const merchTab = document.createElement('div'); merchTab.className='tab'; merchTab.setAttribute('onclick',"switchTab('merchandise')"); merchTab.textContent='Merchandise';
+      const samplesTab = document.createElement('div'); samplesTab.className='tab'; samplesTab.setAttribute('onclick',"switchTab('samples')"); samplesTab.textContent='Samples';
+      const talentTab = tabBar.querySelector(".tab[onclick=\"switchTab('talent')\"]") || tabBar.querySelector(".tab[onclick=\"switchTab('costs')\"]");
+      if(talentTab){ tabBar.insertBefore(samplesTab, talentTab); tabBar.insertBefore(merchTab, samplesTab); }
+      else { tabBar.appendChild(merchTab); tabBar.appendChild(samplesTab); }
+    }
+    if(!document.getElementById('view-merchandise')){
+      const view = document.createElement('div'); view.className='view'; view.id='view-merchandise';
+      view.innerHTML = `<div class="module-wrap"><div class="module-head"><div><div class="module-title">Merchandise Module</div><div class="module-sub">One persistent merchandise source of truth. Tasks like design, ordering, and QC stay in the master task list, while item-level quantities, costs, vendors, and stage statuses live here only.</div></div><div class="module-actions"><button class="btn btn-accent" onclick="addMerchItem()">+ Add Item</button></div></div><div id="merchandise-list"></div></div>`;
+      const anchor = document.getElementById('view-talent') || document.getElementById('view-costs');
+      if(anchor && anchor.parentNode) anchor.parentNode.insertBefore(view, anchor);
+      else document.body.appendChild(view);
+    }
+    if(!document.getElementById('view-samples')){
+      const view = document.createElement('div'); view.className='view'; view.id='view-samples';
+      view.innerHTML = `<div class="module-wrap"><div class="module-head"><div><div class="module-title">Samples Module</div><div class="module-sub">One persistent sampling source of truth. SKU-level quantities, packaging readiness, dispatch readiness, vendors, and costs live here only. Sampling tasks remain milestones in the master task system.</div></div><div class="module-actions"><button class="btn btn-accent" onclick="addSampleItem()">+ Add Item</button></div></div><div id="samples-list"></div></div>`;
+      const anchor = document.getElementById('view-talent') || document.getElementById('view-costs');
+      if(anchor && anchor.parentNode) anchor.parentNode.insertBefore(view, anchor);
+      else document.body.appendChild(view);
+    }
+  }
+
+  window.updateMerchStage = function(id, field, value){ const data=getMerchData(); const item=data.find(x=>x.id===id); if(!item) return; item[field]=value; saveMerchData(data); renderMerchandiseModule(); renderDashboard(); renderCostView(); };
+  window.updateSampleStage = function(id, field, value){ const data=getSamplesData(); const item=data.find(x=>x.id===id); if(!item) return; item[field]=value; saveSamplesData(data); renderSamplesModule(); renderDashboard(); renderCostView(); };
+
+  window.addMerchItem = function(){
+    const name = prompt('Merchandise item name'); if(!name) return;
+    const qty = prompt('Quantity', '0');
+    const data = getMerchData();
+    data.push(merchWithDefaults({itemName:name, quantity:numSafe(qty)}));
+    saveMerchData(data); renderMerchandiseModule(); renderDashboard(); renderCostView(); showToast('Merchandise item added');
+  };
+  window.editMerchItem = function(id){
+    const data=getMerchData(); const item=data.find(x=>x.id===id); if(!item) return;
+    const itemName = prompt('Item name', item.itemName); if(itemName===null) return; item.itemName=itemName;
+    const quantity = prompt('Quantity', item.quantity||0); if(quantity!==null) item.quantity=numSafe(quantity);
+    const vendor = prompt('Vendor name', item.vendorName||''); if(vendor!==null) item.vendorName=vendor;
+    const est = prompt('Estimated cost (₹)', item.estimatedCost||0); if(est!==null) item.estimatedCost=numSafe(est);
+    const actual = prompt('Actual cost (₹)', item.actualCost||0); if(actual!==null) item.actualCost=numSafe(actual);
+    const paid = prompt('Paid amount (₹)', item.paidAmount||0); if(paid!==null) item.paidAmount=numSafe(paid);
+    const payment = prompt('Payment status', item.paymentStatus||'Pending'); if(payment!==null) item.paymentStatus=payment || 'Pending';
+    const notes = prompt('Notes', item.notes||''); if(notes!==null) item.notes=notes;
+    saveMerchData(data); renderMerchandiseModule(); renderDashboard(); renderCostView(); showToast('Merchandise item updated');
+  };
+  window.deleteMerchItem = function(id){ if(!confirm('Delete this merchandise item?')) return; const data=getMerchData().filter(x=>x.id!==id); saveMerchData(data); renderMerchandiseModule(); renderDashboard(); renderCostView(); showToast('Merchandise item deleted'); };
+
+  window.addSampleItem = function(){
+    const name = prompt('Sample item name'); if(!name) return;
+    const qty = prompt('Quantity', '0');
+    const data = getSamplesData();
+    data.push(sampleWithDefaults({itemName:name, quantity:numSafe(qty)}));
+    saveSamplesData(data); renderSamplesModule(); renderDashboard(); renderCostView(); showToast('Sample item added');
+  };
+  window.editSampleItem = function(id){
+    const data=getSamplesData(); const item=data.find(x=>x.id===id); if(!item) return;
+    const itemName = prompt('Item name', item.itemName); if(itemName===null) return; item.itemName=itemName;
+    const quantity = prompt('Quantity', item.quantity||0); if(quantity!==null) item.quantity=numSafe(quantity);
+    const vendor = prompt('Vendor name', item.vendorName||''); if(vendor!==null) item.vendorName=vendor;
+    const est = prompt('Estimated cost (₹)', item.estimatedCost||0); if(est!==null) item.estimatedCost=numSafe(est);
+    const actual = prompt('Actual cost (₹)', item.actualCost||0); if(actual!==null) item.actualCost=numSafe(actual);
+    const paid = prompt('Paid amount (₹)', item.paidAmount||0); if(paid!==null) item.paidAmount=numSafe(paid);
+    const payment = prompt('Payment status', item.paymentStatus||'Pending'); if(payment!==null) item.paymentStatus=payment || 'Pending';
+    const notes = prompt('Notes', item.notes||''); if(notes!==null) item.notes=notes;
+    saveSamplesData(data); renderSamplesModule(); renderDashboard(); renderCostView(); showToast('Sample item updated');
+  };
+  window.deleteSampleItem = function(id){ if(!confirm('Delete this sample item?')) return; const data=getSamplesData().filter(x=>x.id!==id); saveSamplesData(data); renderSamplesModule(); renderDashboard(); renderCostView(); showToast('Sample item deleted'); };
+
+  const __baseSwitchTabEntity = window.switchTab;
+  window.switchTab = function(id){
+    __baseSwitchTabEntity(id);
+    if(id==='merchandise') renderMerchandiseModule();
+    if(id==='samples') renderSamplesModule();
+  };
+
+  const __baseRenderDashboardEntity = window.renderDashboard;
+  window.renderDashboard = function(){
+    __baseRenderDashboardEntity();
+    const merch = getMerchData(), samples = getSamplesData();
+    const entityEst = sumEst(merch) + sumEst(samples);
+    const entityPending = sumPending(merch) + sumPending(samples);
+    const entityCount = merch.length + samples.length;
+    const grid = document.getElementById('kpi-grid');
+    if(grid){
+      const estCard = Array.from(grid.querySelectorAll('.kpi')).find(el => el.querySelector('.kpi-label') && el.querySelector('.kpi-label').textContent.trim() === 'Total Estimated');
+      if(estCard){
+        const taskEstimated = (window.tasks || []).filter(hasTaskCost).reduce((a,t)=>a+getTaskEstimated(t),0); const val = estCard.querySelector('.kpi-val'); if(val) val.textContent = formatCurrency(taskEstimated + entityEst);
+        const sub = estCard.querySelector('.kpi-sub'); if(sub) sub.textContent = `${entityCount} merch + sample items included`;
+      }
+      const pendingCard = Array.from(grid.querySelectorAll('.kpi')).find(el => el.querySelector('.kpi-label') && el.querySelector('.kpi-label').textContent.trim() === 'Pending Cost');
+      if(pendingCard){
+        const taskPending = (window.tasks || []).filter(hasTaskCost).reduce((a,t)=>a+getTaskPending(t),0);
+        const val = pendingCard.querySelector('.kpi-val'); if(val) val.textContent = formatCurrency(taskPending + entityPending);
+        const sub = pendingCard.querySelector('.kpi-sub'); if(sub) sub.textContent = `${formatCurrency(sumPaid(merch)+sumPaid(samples))} paid in merch + samples`; 
+      }
+      Array.from(grid.querySelectorAll('.entity-kpi')).forEach(el => el.remove());
+      grid.insertAdjacentHTML('beforeend', `<div class="kpi green entity-kpi"><div class="kpi-label">Merch + Samples</div><div class="kpi-val">${entityCount}</div><div class="kpi-sub">Persistent item entities tracked</div></div>`);
+    }
+  };
+
+  window.renderCostView = function(){
+    const costTasks = (window.tasks || []).filter(hasTaskCost);
+    const merch = getMerchData().filter(hasAnyCostLike);
+    const samples = getSamplesData().filter(hasAnyCostLike);
+    const vendors = typeof getVendorsData === 'function' ? getVendorsData() : [];
+
+    const totalEstimatedTasks = costTasks.reduce((a,t) => a + getTaskEstimated(t), 0);
+    const totalActualTasks = costTasks.reduce((a,t) => a + getTaskActual(t), 0);
+    const totalPaidTasks = costTasks.reduce((a,t) => a + getTaskPaid(t), 0);
+    const totalPendingTasks = costTasks.reduce((a,t) => a + getTaskPending(t), 0);
+    const totalEstimated = totalEstimatedTasks + sumEst(merch) + sumEst(samples);
+    const totalActualCombined = totalActualTasks + sumActual(merch) + sumActual(samples);
+    const totalPaidCombined = totalPaidTasks + sumPaid(merch) + sumPaid(samples);
+    const totalPendingCombined = totalPendingTasks + sumPending(merch) + sumPending(samples);
+
+    const summary = document.getElementById('cost-summary');
+    const tableView = document.getElementById('cost-table-view');
+    if(!summary || !tableView) return;
+
+    summary.innerHTML = `
+      <div class="cost-grid">
+        <div class="cost-card"><div class="cost-card-label">Total Estimated</div><div class="cost-card-value">${formatCurrency(totalEstimated)}</div><div class="cost-card-sub">Tasks + merchandise + samples</div></div>
+        <div class="cost-card"><div class="cost-card-label">Total Actual</div><div class="cost-card-value">${formatCurrency(totalActualCombined)}</div><div class="cost-card-sub">Filled actual values only</div></div>
+        <div class="cost-card"><div class="cost-card-label">Total Paid</div><div class="cost-card-value">${formatCurrency(totalPaidCombined)}</div><div class="cost-card-sub">Across task and entity layers</div></div>
+        <div class="cost-card"><div class="cost-card-label">Total Pending</div><div class="cost-card-value">${formatCurrency(totalPendingCombined)}</div><div class="cost-card-sub">Vendor totals remain separately listed below</div></div>
+      </div>`;
+
+    const taskRows = costTasks.map(t => `<tr><td>Task</td><td><div style="font-size:11px;line-height:1.3;">#${t.id} ${t.title}</div></td><td>${t.workstream}</td><td>${formatCurrency(getTaskEstimated(t))}</td><td>${formatCurrency(getTaskActual(t))}</td><td>${formatCurrency(getTaskPaid(t))}</td><td>${formatCurrency(getTaskPending(t))}</td><td>${t.vendorName||'—'}</td><td><span class="cost-badge ${paymentClass(t.paymentStatus)}">${t.paymentStatus||'Not Applicable'}</span></td></tr>`).join('');
+    const merchRows = merch.map(i => `<tr><td>Merchandise</td><td>${i.itemName}</td><td>Merchandise Module</td><td>${formatCurrency(i.estimatedCost)}</td><td>${formatCurrency(i.actualCost)}</td><td>${formatCurrency(i.paidAmount)}</td><td>${formatCurrency(Math.max(Math.max(numSafe(i.actualCost), numSafe(i.estimatedCost)) - numSafe(i.paidAmount),0))}</td><td>${i.vendorName||'—'}</td><td><span class="cost-badge ${paymentClass(i.paymentStatus)}">${i.paymentStatus}</span></td></tr>`).join('');
+    const sampleRows = samples.map(i => `<tr><td>Samples</td><td>${i.itemName}</td><td>Samples Module</td><td>${formatCurrency(i.estimatedCost)}</td><td>${formatCurrency(i.actualCost)}</td><td>${formatCurrency(i.paidAmount)}</td><td>${formatCurrency(Math.max(Math.max(numSafe(i.actualCost), numSafe(i.estimatedCost)) - numSafe(i.paidAmount),0))}</td><td>${i.vendorName||'—'}</td><td><span class="cost-badge ${paymentClass(i.paymentStatus)}">${i.paymentStatus}</span></td></tr>`).join('');
+    const vendorRows = vendors.map(v => `<tr><td>Vendor</td><td>${v.vendorName}</td><td>${v.category||'Vendor'}</td><td>${formatCurrency(v.estimatedCost)}</td><td>${formatCurrency(v.actualCost)}</td><td>${formatCurrency(v.paidAmount)}</td><td>${formatCurrency(getVendorPending(v))}</td><td>${v.contactPerson||'—'}</td><td><span class="cost-badge ${paymentClass(v.paymentStatus)}">${v.paymentStatus}</span></td></tr>`).join('');
+
+    tableView.innerHTML = `
+      <table class="cost-table">
+        <thead><tr><th>Layer</th><th>Name</th><th>Context</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Vendor / Contact</th><th>Payment</th></tr></thead>
+        <tbody>${taskRows || ''}${merchRows || ''}${sampleRows || ''}${vendorRows || ''}</tbody>
+      </table>`;
+  };
+
+  const __baseExportJsonEntity = window.exportJson;
+  window.exportJson = function(){
+    const payload = {
+      version: ENTITY_SCHEMA_VERSION,
+      exportedAt: new Date().toISOString(),
+      event: 'Be. IHFF 2026 — War Room',
+      tasks: window.tasks || [],
+      products: typeof getProductsData === 'function' ? getProductsData() : [],
+      talent: typeof getTalentData === 'function' ? getTalentData() : [],
+      manpower: typeof getManpowerData === 'function' ? getManpowerData() : [],
+      vendors: typeof getVendorsData === 'function' ? getVendorsData() : [],
+      merchandise: getMerchData(),
+      samplesModule: getSamplesData()
+    };
+    const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `ihff-war-room-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
+    showToast('JSON exported');
+  };
+
+  window.importJsonFile = function(file){
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e){
+      try{
+        const payload = JSON.parse(e.target.result);
+        const norm = typeof normalizeImportedPayload === 'function' ? normalizeImportedPayload(payload) : payload;
+        window.tasks = (norm.tasks || []).map(taskWithDefaults);
+        if(typeof applyDependencyDefaults === 'function') applyDependencyDefaults();
+        if(typeof saveData === 'function') saveData();
+        if(typeof saveProductsData === 'function') { const mappedProducts = (norm.products || []).map(p => (typeof productWithDefaults === 'function' ? productWithDefaults(p) : p)); saveProductsData(mappedProducts); }
+        if(typeof saveTalentData === 'function' && typeof talentWithDefaults === 'function') saveTalentData((norm.talent || []).map(talentWithDefaults));
+        if(typeof saveManpowerData === 'function' && typeof manpowerWithDefaults === 'function') saveManpowerData((norm.manpower || []).map(manpowerWithDefaults));
+        if(typeof saveVendorsData === 'function' && typeof vendorWithDefaults === 'function') saveVendorsData((norm.vendors || []).map(vendorWithDefaults));
+        saveMerchData((payload.merchandise || payload.merch || []).length ? (payload.merchandise || payload.merch).map(merchWithDefaults) : DEFAULT_MERCH.map(merchWithDefaults));
+        saveSamplesData((payload.samplesModule || payload.samples || []).length ? (payload.samplesModule || payload.samples).map(sampleWithDefaults) : DEFAULT_SAMPLES.map(sampleWithDefaults));
+        migrateTaskSubtasksToEntities();
+        const input = document.getElementById('json-import-input'); if(input) input.value='';
+        if (typeof populateFiltersFresh === 'function') populateFiltersFresh();
+        renderDashboard(); if(typeof applyFilters==='function') applyFilters(); if(typeof renderCriticalPath==='function') renderCriticalPath(); if(typeof renderBlockers==='function') renderBlockers(); if(typeof renderProducts==='function') renderProducts(); if(typeof renderTalent==='function') renderTalent(); if(typeof renderManpower==='function') renderManpower(); if(typeof renderVendors==='function') renderVendors(); renderMerchandiseModule(); renderSamplesModule(); renderCostView();
+        showToast('JSON imported and upgraded');
+      }catch(err){ console.error(err); showToast('Invalid JSON file'); }
+    };
+    reader.readAsText(file);
+  };
+
+  injectEntityStyles();
+  ensureEntityTabsAndViews();
+  migrateTaskSubtasksToEntities();
+  renderMerchandiseModule();
+  renderSamplesModule();
+  renderDashboard();
+  renderCostView();
 })();
 </script>
 
