@@ -1,0 +1,4031 @@
+const EVENT_DATE = new Date('2026-06-12');
+const RAW_TASKS = [
+ {id:1,phase:"March 2026",workstream:"Stand",title:"Confirm IHFF stand space booking and request corner/end-of-aisle position",owner:"Atul",priority:"CRITICAL",endDate:"2026-03-31",status:"To Do",budgetImpact:"High",notes:"Confirm with IHFF organisers",riskNote:"Locked-in stand position critical for all downstream design work",criticalPath:true},
+ {id:2,phase:"March 2026",workstream:"Stand",title:"Issue design brief to 3 stand designers; request concepts and quotes",owner:"Angela",priority:"CRITICAL",endDate:"2026-04-07",status:"To Do",budgetImpact:"High",notes:"Allow 1 week for responses",riskNote:"",criticalPath:true},
+ {id:3,phase:"March 2026",workstream:"Athletes",title:"Build longlist of 15–20 athletes with initial audience audit",owner:"Angela",priority:"HIGH",endDate:"2026-04-01",status:"To Do",budgetImpact:"High",notes:"Check engagement rate, audience demo, prior brand work",riskNote:"",criticalPath:false},
+ {id:4,phase:"March 2026",workstream:"B2B",title:"Finalise trade pricing and margin structure across all SKUs",owner:"Atul",priority:"CRITICAL",endDate:"2026-04-15",status:"To Do",budgetImpact:"None",notes:"Needed for B2B rate card",riskNote:"",criticalPath:true},
+ {id:5,phase:"March 2026",workstream:"Social",title:"Post IHFF 2026 announcement across all channels",owner:"Angela",priority:"HIGH",endDate:"2026-03-17",status:"To Do",budgetImpact:"Low",notes:"Pillar 2 — IHFF Build-Up begins",riskNote:"OVERDUE — should have been posted",criticalPath:false},
+ {id:6,phase:"March 2026",workstream:"Famous Friends",title:"Map 30 target 'Famous Friends' with agent / direct contacts",owner:"Angela",priority:"HIGH",endDate:"2026-04-01",status:"To Do",budgetImpact:"None",notes:"Bollywood, nutritionists, creators",riskNote:"",criticalPath:false},
+ {id:7,phase:"March 2026",workstream:"Mumbai",title:"Map top 30 Mumbai B2B targets (gyms, retailers, distributors)",owner:"Deeksha",priority:"HIGH",endDate:"2026-04-01",status:"To Do",budgetImpact:"None",notes:"Foundation for Mumbai trips in April/May",riskNote:"",criticalPath:false},
+ {id:8,phase:"March 2026",workstream:"Photo",title:"Appoint photographer and art director; confirm brief",owner:"Angela",priority:"HIGH",endDate:"2026-04-01",status:"To Do",budgetImpact:"High",notes:"Brief should cover all 6 SKUs + athlete shoots",riskNote:"",criticalPath:true},
+ {id:9,phase:"April 2026 — Wk 1",workstream:"Athletes",title:"Begin athlete outreach and contract negotiation",owner:"Angela",priority:"CRITICAL",endDate:"2026-04-07",status:"To Do",budgetImpact:"High",notes:"Aim for Hero + 4 Category athletes minimum",riskNote:"5 athletes total: 3 male long-term + 2 female IHFF-only",criticalPath:true},
+ {id:10,phase:"April 2026 — Wk 1",workstream:"Famous Friends",title:"Begin Famous Friends outreach; target 5 confirmed appearances",owner:"Angela",priority:"HIGH",endDate:"2026-04-30",status:"To Do",budgetImpact:"Low",notes:"Also brief on pre-show co-created content",riskNote:"",criticalPath:false},
+ {id:11,phase:"April 2026 — Wk 1",workstream:"Stand",title:"Select stand designer and approve initial concept",owner:"Atul",priority:"CRITICAL",endDate:"2026-04-20",status:"To Do",budgetImpact:"High",notes:"Push for custom build, not shell scheme",riskNote:"First design already rejected — redesign ongoing — HIGH RISK",criticalPath:true},
+ {id:12,phase:"April 2026 — Wk 1",workstream:"Photo",title:"Book shoot dates and locations (studio + outdoor; aim 2-day shoot)",owner:"Angela",priority:"HIGH",endDate:"2026-04-10",status:"To Do",budgetImpact:"High",notes:"Combine with video production days where possible",riskNote:"",criticalPath:true},
+ {id:13,phase:"April 2026 — Wk 1",workstream:"Mumbai",title:"Schedule and book Mumbai sales trips for April and May",owner:"Deeksha",priority:"HIGH",endDate:"2026-04-07",status:"To Do",budgetImpact:"Medium",notes:"Two separate trips recommended",riskNote:"",criticalPath:false},
+ {id:14,phase:"April 2026 — Wk 2",workstream:"Merch",title:"Finalise all merchandise designs (aligned with photoshoot visuals)",owner:"Angela",priority:"HIGH",endDate:"2026-04-15",status:"To Do",budgetImpact:"High",notes:"Shaker, tote, sample pack, tee, VIP kit",riskNote:"T-shirts (700) and Ganjis (300) design still pending",criticalPath:true},
+ {id:15,phase:"April 2026 — Wk 2",workstream:"B2B",title:"Design and commission B2B rate card and product dossier",owner:"Deeksha",priority:"HIGH",endDate:"2026-04-15",status:"To Do",budgetImpact:"Low",notes:"Rate card: MRP, dist price, margin per SKU",riskNote:"",criticalPath:false},
+ {id:16,phase:"April 2026 — Wk 2",workstream:"Social",title:"Athlete #1 (Hero Ambassador) reveal post",owner:"Angela",priority:"HIGH",endDate:"2026-04-21",status:"To Do",budgetImpact:"None",notes:"Pillar 3 — Athletes & People",riskNote:"Depends on athlete contracts being signed",criticalPath:false},
+ {id:17,phase:"April 2026 — Wk 3",workstream:"Athletes",title:"All athlete contracts signed",owner:"Angela",priority:"CRITICAL",endDate:"2026-04-30",status:"To Do",budgetImpact:"High",notes:"Include image rights, IHFF appearance obligations",riskNote:"5 athletes: 3 long-term males, 2 IHFF-only females — all must be locked",criticalPath:true},
+ {id:18,phase:"April 2026 — Wk 3",workstream:"Famous Friends",title:"Minimum 5 Famous Friends confirmed for show appearances",owner:"Angela",priority:"HIGH",endDate:"2026-04-30",status:"To Do",budgetImpact:"Low",notes:"Agree content plan and IHFF slot timing",riskNote:"",criticalPath:false},
+ {id:19,phase:"April 2026 — Wk 3",workstream:"Photo",title:"Confirm all athletes and models; issue shoot brief to each",owner:"Angela",priority:"HIGH",endDate:"2026-04-20",status:"To Do",budgetImpact:"None",notes:"Send brand deck and styling guide",riskNote:"",criticalPath:false},
+ {id:20,phase:"April 2026 — Wk 3",workstream:"Merch",title:"Place ALL merchandise orders (shakers, totes, tees, VIP kits, sample packs)",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-04-20",status:"To Do",budgetImpact:"High",notes:"⚠️ Allow 6–8 weeks production. MUST order by Apr 20.",riskNote:"Shakers (500) samples still pending — blocks order placement",criticalPath:true},
+ {id:21,phase:"April 2026 — Wk 4",workstream:"Video",title:"Script and storyboard hero brand film approved",owner:"Angela",priority:"HIGH",endDate:"2026-04-15",status:"To Do",budgetImpact:"High",notes:"60–90 sec. Brand story, science, emotion.",riskNote:"",criticalPath:false},
+ {id:22,phase:"April 2026 — Wk 4",workstream:"Mumbai",title:"Mumbai Sales Trip 1 — visit key gym chains, distributors, retailers",owner:"Deeksha",priority:"HIGH",endDate:"2026-04-30",status:"To Do",budgetImpact:"Medium",notes:"Warm up Mumbai pipeline before IHFF",riskNote:"",criticalPath:false},
+ {id:23,phase:"May 2026 — Wk 1",workstream:"Ops",title:"Brief and hire brand ambassadors via agency",owner:"Deeksha",priority:"HIGH",endDate:"2026-05-01",status:"To Do",budgetImpact:"Medium",notes:"Specify: fitness background, Hindi/English fluent, male/female mix",riskNote:"Manpower roles: trainers, B2B sales, sampling, receptionist, bodyguard",criticalPath:false},
+ {id:24,phase:"May 2026 — Wk 1",workstream:"Photo",title:"Execute photoshoot (all 6 products + athletes)",owner:"Angela",priority:"CRITICAL",endDate:"2026-05-07",status:"To Do",budgetImpact:"High",notes:"2-day consolidated shoot. Art director on set.",riskNote:"Blocks all stand graphics, product imagery, and social content",criticalPath:true},
+ {id:25,phase:"May 2026 — Wk 1",workstream:"Athletes",title:"Brief all athletes on Be. brand story, product range, and IHFF goals",owner:"Angela",priority:"HIGH",endDate:"2026-05-15",status:"To Do",budgetImpact:"None",notes:"Include: key messages, FAQs, social posting guidelines",riskNote:"",criticalPath:false},
+ {id:26,phase:"May 2026 — Wk 1",workstream:"Exp",title:"Hire and brief nutritionist / health consultant for the show",owner:"Deeksha",priority:"HIGH",endDate:"2026-05-15",status:"To Do",budgetImpact:"Medium",notes:"Registered dietitian preferred; brief on all 6 SKUs",riskNote:"",criticalPath:false},
+ {id:27,phase:"May 2026 — Wk 1",workstream:"Ops",title:"Design and produce team uniforms (tee, cap, badge)",owner:"Deeksha",priority:"MEDIUM",endDate:"2026-05-15",status:"To Do",budgetImpact:"Medium",notes:"Allow 3 weeks production after design approval",riskNote:"",criticalPath:false},
+ {id:28,phase:"May 2026 — Wk 1",workstream:"Social",title:"Merchandise preview post — 'Come claim yours at Be. Stand [X]'",owner:"Angela",priority:"HIGH",endDate:"2026-05-07",status:"To Do",budgetImpact:"None",notes:"Pillar 4 — Show Teasers",riskNote:"Depends on merch design being finalised",criticalPath:false},
+ {id:29,phase:"May 2026 — Wk 2",workstream:"Stand",title:"Review and approve final 3D stand renders",owner:"Atul",priority:"CRITICAL",endDate:"2026-05-10",status:"To Do",budgetImpact:"None",notes:"Check: sampling bar, LED screens, photo wall, B2B area, signage",riskNote:"Stand design already rejected once — high risk of further delay",criticalPath:true},
+ {id:30,phase:"May 2026 — Wk 2",workstream:"Mumbai",title:"Mumbai Sales Trip 2 — follow-ups and invite key accounts to IHFF",owner:"Deeksha",priority:"HIGH",endDate:"2026-05-15",status:"To Do",budgetImpact:"Medium",notes:"Provide complimentary IHFF passes where appropriate",riskNote:"",criticalPath:false},
+ {id:31,phase:"May 2026 — Wk 3",workstream:"Photo",title:"Final image editing completed; all images delivered",owner:"Angela",priority:"CRITICAL",endDate:"2026-05-22",status:"To Do",budgetImpact:"None",notes:"2 weeks after shoot. Prioritise stand graphic files.",riskNote:"Blocks stand graphic sign-off",criticalPath:true},
+ {id:32,phase:"May 2026 — Wk 3",workstream:"Stand",title:"Approve all stand graphic print files and submit to printer",owner:"Angela",priority:"CRITICAL",endDate:"2026-05-20",status:"To Do",budgetImpact:"High",notes:"High-res files for all banners, panels, photo wall, floor wrap",riskNote:"Hard deadline from printer — no flexibility",criticalPath:true},
+ {id:33,phase:"May 2026 — Wk 3",workstream:"B2B",title:"Finalise and print B2B rate card and product dossier",owner:"Deeksha",priority:"HIGH",endDate:"2026-05-20",status:"To Do",budgetImpact:"Low",notes:"Print 100 copies of each for the show",riskNote:"",criticalPath:false},
+ {id:34,phase:"May 2026 — Wk 3",workstream:"Video",title:"All pre-show videos approved (hero film, 6 x product, athlete testimonials)",owner:"Angela",priority:"CRITICAL",endDate:"2026-05-25",status:"To Do",budgetImpact:"High",notes:"Load onto stand screens and social scheduling tool",riskNote:"",criticalPath:true},
+ {id:35,phase:"May 2026 — Wk 4",workstream:"Merch",title:"Receive and quality-check ALL merchandise",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-05-31",status:"To Do",budgetImpact:"None",notes:"Check quantities, quality, branding accuracy for all items",riskNote:"T-shirts 700, Shakers 500, Ganjis 300 — all need QC",criticalPath:true},
+ {id:36,phase:"May 2026 — Wk 4",workstream:"Famous Friends",title:"Dispatch VIP press / influencer gift hampers",owner:"Angela",priority:"HIGH",endDate:"2026-05-28",status:"To Do",budgetImpact:"Medium",notes:"Personal note from Atul. Ask for unboxing post.",riskNote:"",criticalPath:false},
+ {id:37,phase:"May 2026 — Wk 4",workstream:"Exp",title:"Design and print product information cards with QR codes",owner:"Angela",priority:"HIGH",endDate:"2026-05-28",status:"To Do",budgetImpact:"Low",notes:"QR links to science pages + discount code BEIHFF26",riskNote:"",criticalPath:false},
+ {id:38,phase:"May 2026 — Wk 4",workstream:"B2B",title:"Build digital B2B lead capture form (tablet-ready CRM)",owner:"Deeksha",priority:"HIGH",endDate:"2026-05-25",status:"To Do",budgetImpact:"None",notes:"Fields: name, company, geo, product interest, commitment, follow-up date",riskNote:"",criticalPath:false},
+ {id:39,phase:"May 2026 — Wk 4",workstream:"Social",title:"BTS stand construction teaser post",owner:"Angela",priority:"HIGH",endDate:"2026-05-25",status:"To Do",budgetImpact:"None",notes:"Show design renders or early build shots — builds anticipation",riskNote:"",criticalPath:false},
+ {id:40,phase:"June 2026 — Pre-Show",workstream:"B2B",title:"Pre-book 10–15 priority B2B meetings for show days",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-01",status:"To Do",budgetImpact:"None",notes:"Use IHFF attendee list, LinkedIn, and Mumbai warm contacts",riskNote:"",criticalPath:true},
+ {id:41,phase:"June 2026 — Pre-Show",workstream:"Merch",title:"Pack and dispatch VIP press / influencer kits",owner:"Deeksha",priority:"HIGH",endDate:"2026-06-01",status:"To Do",budgetImpact:"None",notes:"50 kits. Confirm delivery before June 10.",riskNote:"",criticalPath:false},
+ {id:42,phase:"June 2026 — Pre-Show",workstream:"PR",title:"Distribute press release: 'Be. makes IHFF 2026 debut'",owner:"Angela",priority:"HIGH",endDate:"2026-06-01",status:"To Do",budgetImpact:"Low",notes:"Target: ET Healthworld, YourStory, GQ India, Prevention, Inc42",riskNote:"",criticalPath:false},
+ {id:43,phase:"June 2026 — Pre-Show",workstream:"Social",title:"Famous Friend / celebrity IHFF reveal co-post",owner:"Angela",priority:"HIGH",endDate:"2026-06-03",status:"To Do",budgetImpact:"None",notes:"Timed for maximum engagement — Mon or Tue morning",riskNote:"",criticalPath:false},
+ {id:44,phase:"June 2026 — Pre-Show",workstream:"Ops",title:"Full product knowledge and B2B pitch training for all team",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-09",status:"To Do",budgetImpact:"None",notes:"Cover: brand story, product FAQs, pricing, objection handling",riskNote:"",criticalPath:true},
+ {id:45,phase:"June 2026 — Pre-Show",workstream:"Ops",title:"Issue daily run-of-show schedule to every team member",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-10",status:"To Do",budgetImpact:"None",notes:"Include: athlete slot times, B2B meetings, social moments, breaks",riskNote:"",criticalPath:true},
+ {id:46,phase:"June 2026 — Pre-Show",workstream:"Stand",title:"Stand construction at Pragati Maidan",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-11",status:"To Do",budgetImpact:"High",notes:"Build days: June 10–11. Stand manager on-site.",riskNote:"Stand design delay could push construction — watch closely",criticalPath:true},
+ {id:47,phase:"June 2026 — Pre-Show",workstream:"Stand",title:"Dress the stand: merchandise, samples, screens live, props",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-11",status:"To Do",budgetImpact:"None",notes:"Evening of June 11. Walk-through and sign-off.",riskNote:"",criticalPath:true},
+ {id:48,phase:"June 2026 — Pre-Show",workstream:"Video",title:"Upload all videos to stand screens; test playback",owner:"Deeksha",priority:"HIGH",endDate:"2026-06-10",status:"To Do",budgetImpact:"None",notes:"Loop: hero film + product videos. No dead screens.",riskNote:"",criticalPath:false},
+ {id:49,phase:"June 2026 — Pre-Show",workstream:"PR",title:"Invite 5–8 key journalists to private stand preview (June 12 AM)",owner:"Angela",priority:"HIGH",endDate:"2026-06-10",status:"To Do",budgetImpact:"None",notes:"Before public doors open. Offer exclusive product access.",riskNote:"",criticalPath:false},
+ {id:50,phase:"June 2026 — Pre-Show",workstream:"Sampling",title:"Prepare all sampling stock and station setup (cups, blenders, sachet packs)",owner:"Deeksha",priority:"HIGH",endDate:"2026-06-11",status:"To Do",budgetImpact:"High",notes:"Stock for 3,000 samples across 3 days minimum",riskNote:"2,500 × 7 SKUs needed — pill packaging NOT resolved = CRITICAL BLOCKER",criticalPath:true},
+ {id:51,phase:"June 2026 — Pre-Show",workstream:"Social",title:"Final pre-show push: 'IHFF is 7 days away — visit Be. Stand [X]'",owner:"Angela",priority:"HIGH",endDate:"2026-06-05",status:"To Do",budgetImpact:"None",notes:"Include show-exclusive offer teaser. Paid boost recommended.",riskNote:"",criticalPath:false},
+ {id:52,phase:"SHOW — Jun 12",workstream:"Ops",title:"Day 1: Stand opens. Execute all activations. Sampling + athlete appearance.",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-12",status:"To Do",budgetImpact:"None",notes:"Target: 1,000+ samples. Debrief at close of day.",riskNote:"",criticalPath:true},
+ {id:53,phase:"SHOW — Jun 12",workstream:"Social",title:"Day 1: 3–4 posts (story, reel, static). Tag @ihff_expo. Live session if possible.",owner:"Angela",priority:"CRITICAL",endDate:"2026-06-12",status:"To Do",budgetImpact:"None",notes:"Post same-day reel by 8pm",riskNote:"",criticalPath:false},
+ {id:54,phase:"SHOW — Jun 12",workstream:"B2B",title:"Day 1: Run all pre-booked B2B meetings. Log all leads immediately.",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-12",status:"To Do",budgetImpact:"None",notes:"Categorise: Hot / Warm / Cold in real time",riskNote:"",criticalPath:false},
+ {id:55,phase:"SHOW — Jun 13",workstream:"Ops",title:"Day 2: Famous Friend drop-in activation. Photo wall content push.",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-13",status:"To Do",budgetImpact:"None",notes:"Coordinate celebrity arrival time with security and social team",riskNote:"",criticalPath:false},
+ {id:56,phase:"SHOW — Jun 13",workstream:"Social",title:"Day 2: Famous Friend content goes live. Maximum engagement day.",owner:"Angela",priority:"CRITICAL",endDate:"2026-06-13",status:"To Do",budgetImpact:"None",notes:"Brief celebrity on hashtags and tagging before they arrive",riskNote:"",criticalPath:false},
+ {id:57,phase:"SHOW — Jun 14",workstream:"Ops",title:"Day 3: Final push. Close as many B2B conversations as possible.",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-14",status:"To Do",budgetImpact:"None",notes:"Offer: 'Last chance for show-exclusive B2B terms'",riskNote:"",criticalPath:false},
+ {id:58,phase:"SHOW — Jun 14",workstream:"Leads",title:"End of show: compile full lead list; categorise all contacts",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-14",status:"To Do",budgetImpact:"None",notes:"Enter all data into CRM by midnight June 14",riskNote:"",criticalPath:false},
+ {id:59,phase:"Post-Show",workstream:"Leads",title:"Send personalised thank-you emails to all Hot + Warm B2B leads",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-16",status:"To Do",budgetImpact:"None",notes:"Reference specific conversation. Include next step.",riskNote:"",criticalPath:false},
+ {id:60,phase:"Post-Show",workstream:"Social",title:"Post show highlights reel (90–120 sec) across all channels",owner:"Angela",priority:"CRITICAL",endDate:"2026-06-16",status:"To Do",budgetImpact:"None",notes:"Within 48 hours of show close. Include results data.",riskNote:"",criticalPath:false},
+ {id:61,phase:"Post-Show",workstream:"PR",title:"Post-show press follow-up with results, quotes, and photography",owner:"Angela",priority:"HIGH",endDate:"2026-06-17",status:"To Do",budgetImpact:"None",notes:"Results hook: X,000 samples, X B2B agreements, X new partners",riskNote:"",criticalPath:false},
+ {id:62,phase:"Post-Show",workstream:"B2B",title:"Process all B2B orders and agreements initiated at the show",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-28",status:"To Do",budgetImpact:"None",notes:"Begin onboarding all new distribution partners",riskNote:"",criticalPath:false},
+ {id:63,phase:"Post-Show",workstream:"Mumbai",title:"Plan and confirm 'Be. Comes to Bombay' post-show event",owner:"Angela",priority:"HIGH",endDate:"2026-06-30",status:"To Do",budgetImpact:"Medium",notes:"Target July. Invite press, retailers, wellness community.",riskNote:"",criticalPath:false},
+ {id:64,phase:"Post-Show",workstream:"Ops",title:"Internal debrief: ROI analysis, lessons learned, next year planning",owner:"Atul",priority:"HIGH",endDate:"2026-06-28",status:"To Do",budgetImpact:"None",notes:"Compare actuals vs KPI targets. Document what worked.",riskNote:"",criticalPath:false},
+ {id:65,phase:"Post-Show",workstream:"Social",title:"Launch post-show retargeting: website visitors during show period",owner:"Angela",priority:"HIGH",endDate:"2026-06-17",status:"To Do",budgetImpact:"Medium",notes:"'Missed us? Shop Be. online with exclusive code BEIHFF26'",riskNote:"",criticalPath:false},
+ {id:66,phase:"March 2026",workstream:"IHFF",title:"Confirm payment terms & schedule first payment to IHFF; request GST docs",owner:"Atul",priority:"CRITICAL",endDate:"2026-03-31",status:"To Do",budgetImpact:"High",notes:"Lock commercial arrangement before any execution begins",riskNote:"Blocks all stand and partnership execution",criticalPath:true},
+ {id:67,phase:"March 2026",workstream:"IHFF",title:"Confirm entrance 10×10 stall — exact placement, branding rights & setup logistics",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-03-31",status:"To Do",budgetImpact:"High",notes:"Manish confirmed included in package. Get in writing.",riskNote:"",criticalPath:true},
+ {id:68,phase:"March 2026",workstream:"IHFF",title:"Confirm IHFF stand design & implementation assistance — scope, contacts, guidelines",owner:"Deeksha",priority:"HIGH",endDate:"2026-03-31",status:"To Do",budgetImpact:"Medium",notes:"IHFF offered assistance. Clarify what is included.",riskNote:"",criticalPath:false},
+ {id:69,phase:"March 2026",workstream:"Stage",title:"Confirm Atul on inaugural Day 1 opening panel — get confirmed slot time & topic",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-03-31",status:"To Do",budgetImpact:"None",notes:"Not an afternoon side session. Opening panel only.",riskNote:"",criticalPath:true},
+ {id:70,phase:"March 2026",workstream:"Stage",title:"Organise fireside chat — confirm format, date, moderator & topic with IHFF",owner:"Atul",priority:"HIGH",endDate:"2026-04-07",status:"To Do",budgetImpact:"None",notes:"Agreed in meeting. Format + host TBC.",riskNote:"",criticalPath:false},
+ {id:71,phase:"March 2026",workstream:"Social",title:"Build social media content plan for pre-event period — start immediately",owner:"Angela",priority:"CRITICAL",endDate:"2026-03-31",status:"To Do",budgetImpact:"None",notes:"Agreed to start counting now. 3 pre-event posts minimum per week.",riskNote:"",criticalPath:false},
+ {id:72,phase:"March 2026",workstream:"Athletes",title:"Request and receive athlete list from IHFF (international + local)",owner:"Deeksha",priority:"HIGH",endDate:"2026-04-07",status:"To Do",budgetImpact:"None",notes:"Manish agreed to share. We assess and revert with interest.",riskNote:"",criticalPath:false},
+ {id:73,phase:"April 2026 — Wk 1",workstream:"Athletes",title:"Review IHFF athlete list; assess sponsorship fit and revert to IHFF",owner:"Angela",priority:"HIGH",endDate:"2026-04-14",status:"To Do",budgetImpact:"High",notes:"Assess: audience fit, values alignment, category relevance",riskNote:"",criticalPath:false},
+ {id:74,phase:"April 2026 — Wk 1",workstream:"IHFF",title:"Confirm B2B liaison name with IHFF; arrange kickoff intro call",owner:"Deeksha",priority:"HIGH",endDate:"2026-04-07",status:"To Do",budgetImpact:"None",notes:"Manish to assign. Dedicated person who knows buyers personally.",riskNote:"",criticalPath:false},
+ {id:75,phase:"April 2026 — Wk 1",workstream:"Stage",title:"Coordinate IHFF promo/trailer video shoot featuring Be. — book within 2-3 wks",owner:"Angela",priority:"HIGH",endDate:"2026-04-14",status:"To Do",budgetImpact:"None",notes:"Agreed in meeting. Urgent — film before end of April.",riskNote:"",criticalPath:false},
+ {id:76,phase:"April 2026 — Wk 1",workstream:"IHFF",title:"Confirm 'Official Nutraceutical & Wellness Partner' title — wording + placements",owner:"Atul",priority:"HIGH",endDate:"2026-04-07",status:"To Do",budgetImpact:"None",notes:"All event materials, IHFF website, Manish LinkedIn",riskNote:"",criticalPath:false},
+ {id:77,phase:"May 2026 — Wk 2",workstream:"B2B",title:"Request pre-registered buyer/trade list from IHFF (needed 2 wks before show)",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-05-29",status:"To Do",budgetImpact:"None",notes:"For targeted pre-show outreach. Must have by May 29.",riskNote:"",criticalPath:true},
+ {id:78,phase:"May 2026 — Wk 3",workstream:"Stage",title:"Confirm Be. branding on event lanyards — submit logo files to IHFF",owner:"Angela",priority:"HIGH",endDate:"2026-05-20",status:"To Do",budgetImpact:"Medium",notes:"Every attendee wears a lanyard. 100% impression.",riskNote:"",criticalPath:false},
+ {id:79,phase:"May 2026 — Wk 3",workstream:"Stage",title:"Submit Be. assets for arch/gate banner printing (main entry, 1.3L visitors)",owner:"Angela",priority:"CRITICAL",endDate:"2026-05-20",status:"To Do",budgetImpact:"High",notes:"High-res logo + artwork files. Deadline from IHFF printer.",riskNote:"Hard deadline — missing it = no gate branding",criticalPath:true},
+ {id:80,phase:"May 2026 — Wk 3",workstream:"Stage",title:"Confirm Be. feature in IHFF official printed programme & visitor guide",owner:"Deeksha",priority:"HIGH",endDate:"2026-05-20",status:"To Do",budgetImpact:"Medium",notes:"Ad or brand feature. Distributed at entry to all visitors.",riskNote:"",criticalPath:false},
+ {id:81,phase:"June 2026 — Pre-Show",workstream:"Stage",title:"Brief stage MC on Be. intro for each day",owner:"Deeksha",priority:"HIGH",endDate:"2026-06-10",status:"To Do",budgetImpact:"None",notes:"Opening and closing each day. Script agreed with MC.",riskNote:"",criticalPath:false},
+ {id:82,phase:"June 2026 — Pre-Show",workstream:"Stand",title:"Dress and brand entrance 10×10 stall — set up day before show opens",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-11",status:"To Do",budgetImpact:"High",notes:"Separate from main stand. First impression for all visitors.",riskNote:"",criticalPath:true},
+ {id:83,phase:"March 2026",workstream:"Mohan",title:"Brief Mohan on Be. sponsorship deal, pro card journey narrative, IHFF stage role & brand obligations",owner:"Atul",priority:"CRITICAL",endDate:"2026-03-31",status:"To Do",budgetImpact:"None",notes:"Mohan is ACTIVELY SPONSORED by Be. Frame IHFF as his biggest moment.",riskNote:"",criticalPath:true},
+ {id:84,phase:"March 2026",workstream:"Mohan",title:"Define MBF gym team scope for show — roles on floor: demo, sampling, crowd engagement, B2B introductions",owner:"Tejal",priority:"HIGH",endDate:"2026-04-07",status:"To Do",budgetImpact:"Medium",notes:"MBF Gurgaon team = trained, fit, on-brand crew.",riskNote:"",criticalPath:false},
+ {id:85,phase:"April 2026 — Wk 1",workstream:"Mohan",title:"Draft and sign Mohan active sponsorship agreement — pro card support, stage appearances, image rights, social obligations",owner:"Atul",priority:"CRITICAL",endDate:"2026-04-14",status:"To Do",budgetImpact:"High",notes:"Mohan going for pro card at IHFF — Be. is his headline sponsor.",riskNote:"",criticalPath:true},
+ {id:86,phase:"April 2026 — Wk 2",workstream:"Mohan",title:"Liaise with IHFF to confirm Mohan stage slot — work around his competition schedule",owner:"Tejal",priority:"HIGH",endDate:"2026-04-20",status:"To Do",budgetImpact:"None",notes:"Confirm whether he competes Day 1 or 2 first.",riskNote:"",criticalPath:false},
+ {id:87,phase:"April 2026 — Wk 3",workstream:"Mohan",title:"Include Mohan in photoshoot brief — product hero shots + lifestyle content",owner:"Angela",priority:"HIGH",endDate:"2026-04-20",status:"To Do",budgetImpact:"High",notes:"Mohan to be featured prominently across Be. IHFF creative.",riskNote:"",criticalPath:false},
+ {id:88,phase:"May 2026 — Wk 1",workstream:"Mohan",title:"Brief and allocate MBF gym team to stand roles — demo, sampling, floor engagement",owner:"Tejal",priority:"HIGH",endDate:"2026-05-07",status:"To Do",budgetImpact:"None",notes:"Tejal allocates and briefs. Deeksha/Angela to provide Be. product training.",riskNote:"",criticalPath:false},
+ {id:89,phase:"May 2026 — Wk 2",workstream:"Mohan",title:"Coordinate Mohan social content plan for IHFF — pro card journey posts + Be. content",owner:"Tejal",priority:"HIGH",endDate:"2026-05-12",status:"To Do",budgetImpact:"None",notes:"Content angle: 'Road to Pro, powered by Be.'",riskNote:"",criticalPath:false},
+ {id:90,phase:"June 2026 — Pre-Show",workstream:"Mohan",title:"Final show briefing with Mohan & MBF team — run-of-show, competition schedule vs stand time",owner:"Atul",priority:"CRITICAL",endDate:"2026-06-09",status:"To Do",budgetImpact:"None",notes:"Mohan may be competing at IHFF — schedule his stand time around competition.",riskNote:"",criticalPath:true},
+ {id:91,phase:"March 2026",workstream:"IHFF",title:"Schedule fortnightly check-in call with Manish to track delivery on all agreed items",owner:"Atul",priority:"HIGH",endDate:"2026-03-31",status:"To Do",budgetImpact:"None",notes:"Relationship management. Manish is generous — stay close.",riskNote:"",criticalPath:false},
+ {id:92,phase:"April 2026 — Wk 2",workstream:"IHFF",title:"Review all IHFF agreed deliverables vs actual — flag any gaps to Manish proactively",owner:"Atul",priority:"HIGH",endDate:"2026-04-15",status:"To Do",budgetImpact:"None",notes:"Check: stage slots, B2B liaison, entrance stall, partner title all confirmed",riskNote:"",criticalPath:false},
+ {id:93,phase:"May 2026 — Wk 4",workstream:"IHFF",title:"Pre-show Manish meeting — confirm ALL outstanding items are locked and on track",owner:"Atul",priority:"CRITICAL",endDate:"2026-05-31",status:"To Do",budgetImpact:"None",notes:"Walk through full agreed list. Nothing left open going into show week.",riskNote:"",criticalPath:true},
+ {id:94,phase:"Post-Show",workstream:"IHFF",title:"Post-show debrief with Manish — share results, begin IHFF 2027 conversation",owner:"Atul",priority:"HIGH",endDate:"2026-06-18",status:"To Do",budgetImpact:"None",notes:"Bring data: samples, leads, social reach. Plant seed for IHFF 2027.",riskNote:"",criticalPath:false},
+ {id:95,phase:"March 2026",workstream:"Mohan",title:"Tejal — build longlist of additional athletes from MBF network & Gurgaon fitness community",owner:"Tejal",priority:"HIGH",endDate:"2026-04-07",status:"To Do",budgetImpact:"None",notes:"MBF Gurgaon is well-connected. Identify 10-15 athletes.",riskNote:"",criticalPath:false},
+ {id:96,phase:"March 2026",workstream:"Mohan",title:"Tejal — confirm number of MBF gym team available for IHFF stand duties across 3 days",owner:"Tejal",priority:"HIGH",endDate:"2026-03-31",status:"To Do",budgetImpact:"None",notes:"Need headcount: who, how many, which days.",riskNote:"",criticalPath:false},
+ {id:97,phase:"April 2026 — Wk 1",workstream:"Merch",title:"Tejal — review and give input on merchandise brief (from gym-goer perspective)",owner:"Tejal",priority:"MEDIUM",endDate:"2026-04-10",status:"To Do",budgetImpact:"None",notes:"Tejal has direct insight into what gym audiences value.",riskNote:"",criticalPath:false},
+ {id:98,phase:"April 2026 — Wk 1",workstream:"Mohan",title:"Tejal — share athlete longlist with Angela; agree on 3-5 priority sponsorship targets",owner:"Tejal",priority:"HIGH",endDate:"2026-04-14",status:"To Do",budgetImpact:"None",notes:"Tejal identifies, Angela evaluates for digital/brand fit.",riskNote:"",criticalPath:false},
+ {id:99,phase:"April 2026 — Wk 2",workstream:"Stand",title:"Tejal — input on stand layout and visitor experience (practical gym-goer lens)",owner:"Tejal",priority:"MEDIUM",endDate:"2026-04-20",status:"To Do",budgetImpact:"None",notes:"Tejal + Deeksha to review stand renders together.",riskNote:"",criticalPath:false},
+ {id:100,phase:"May 2026 — Wk 1",workstream:"Mohan",title:"Tejal — create MBF team rota for IHFF (who covers which day, which time slots)",owner:"Tejal",priority:"CRITICAL",endDate:"2026-05-10",status:"To Do",budgetImpact:"None",notes:"All MBF team on the stand must be briefed, rotered, and assigned specific roles.",riskNote:"",criticalPath:true},
+ {id:101,phase:"May 2026 — Wk 2",workstream:"Stand",title:"Tejal — attend stand design review; confirm MBF team can operate the layout comfortably",owner:"Tejal",priority:"HIGH",endDate:"2026-05-12",status:"To Do",budgetImpact:"None",notes:"Practical ops check: where do demo blenders go, sampling queue, B2B room.",riskNote:"",criticalPath:false},
+ {id:102,phase:"May 2026 — Wk 3",workstream:"Mohan",title:"Tejal — coordinate Mohan's IHFF competition registration + Be. logo on competition kit",owner:"Tejal",priority:"CRITICAL",endDate:"2026-05-20",status:"To Do",budgetImpact:"Medium",notes:"Be. must be visible on Mohan's competition kit when he goes for pro card.",riskNote:"Competition kit deadline from IHFF — hard cutoff",criticalPath:true},
+ {id:103,phase:"May 2026 — Wk 4",workstream:"Merch",title:"Tejal — QC all merchandise with Deeksha; flag any quality or quantity issues immediately",owner:"Tejal",priority:"HIGH",endDate:"2026-05-31",status:"To Do",budgetImpact:"None",notes:"Joint QC with Deeksha. Tejal checks gym-use items (shakers, bags).",riskNote:"",criticalPath:false},
+ {id:104,phase:"June 2026 — Pre-Show",workstream:"Stand",title:"Tejal — organise and manage MBF team for stand setup and dressing (June 10-11)",owner:"Tejal",priority:"CRITICAL",endDate:"2026-06-10",status:"To Do",budgetImpact:"None",notes:"MBF team can be hands-on muscle for stand build & dress.",riskNote:"",criticalPath:true},
+ {id:105,phase:"SHOW — Jun 12",workstream:"Ops",title:"Tejal — manage MBF team on the stand floor across all 3 show days",owner:"Tejal",priority:"CRITICAL",endDate:"2026-06-12",status:"To Do",budgetImpact:"None",notes:"Tejal = show floor manager. Keeps MBF team on brief, on time, on-brand.",riskNote:"",criticalPath:true},
+ {id:106,phase:"SHOW — Jun 12",workstream:"Mohan",title:"Tejal — coordinate Mohan schedule: competition vs stand appearance vs stage slot",owner:"Tejal",priority:"CRITICAL",endDate:"2026-06-12",status:"To Do",budgetImpact:"None",notes:"Critical on Day 1. Mohan may be competing.",riskNote:"",criticalPath:true},
+ {id:107,phase:"March 2026",workstream:"Mohan",title:"Create 'Road to Pro, powered by Be.' content series brief — Mohan's pro card journey",owner:"Angela",priority:"CRITICAL",endDate:"2026-03-31",status:"To Do",budgetImpact:"None",notes:"HERO content series. Start filming NOW. Mohan's journey to pro = Be. brand story.",riskNote:"",criticalPath:true},
+ {id:108,phase:"April 2026 — Wk 1",workstream:"Mohan",title:"Begin filming Mohan pro card training content — training sessions at MBF Gurgaon",owner:"Angela",priority:"HIGH",endDate:"2026-04-10",status:"To Do",budgetImpact:"None",notes:"Raw, authentic BTS content. Film at MBF gym. Be. products in shot.",riskNote:"",criticalPath:false},
+ {id:109,phase:"May 2026 — Wk 3",workstream:"Mohan",title:"Produce 'Mohan x Be.' mini-documentary or highlight reel for IHFF launch — 90-120 sec",owner:"Angela",priority:"HIGH",endDate:"2026-05-22",status:"To Do",budgetImpact:"High",notes:"Play on stand screens on loop. Release on social the day Mohan walks on stage.",riskNote:"",criticalPath:false},
+ {id:110,phase:"SHOW — Jun 12",workstream:"Mohan",title:"LIVE: Capture Mohan's pro card attempt at IHFF — real-time social coverage",owner:"Angela",priority:"CRITICAL",endDate:"2026-06-12",status:"To Do",budgetImpact:"None",notes:"This is the centrepiece moment. All cameras on. Be. branding in every shot.",riskNote:"",criticalPath:true},
+];
+
+// Product launch data
+const RAW_PRODUCTS = [
+  {name:"Creatine",sku:"CRT-IHFF-01",steps:[
+    {step:"Compliance Check (FSSAI)",status:"To Do",due:"2026-03-31",owner:"Atul",risk:"Mandatory before any packaging or claims work"},
+    {step:"Endorsement (Sapiens)",status:"To Do",due:"2026-04-10",owner:"Angela",risk:""},
+    {step:"Endorsement (Be.)",status:"To Do",due:"2026-04-15",owner:"Atul",risk:""},
+    {step:"Packaging Material Finalisation",status:"To Do",due:"2026-04-20",owner:"Deeksha",risk:""},
+    {step:"Packaging Design (Initial)",status:"To Do",due:"2026-04-25",owner:"Angela",risk:"Include all mandatory FSSAI elements"},
+    {step:"Claims & Marketing Compliance",status:"To Do",due:"2026-04-28",owner:"Atul",risk:"Must complete before final packaging"},
+    {step:"Packaging Design (Final Revision)",status:"To Do",due:"2026-05-02",owner:"Angela",risk:""},
+    {step:"Packaging Print — Commercial",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:""},
+    {step:"Packaging Print — Sampling",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:"2,500 sample units needed"},
+    {step:"Lab Testing & COA",status:"To Do",due:"2026-05-15",owner:"Atul",risk:"Required for commercial release"},
+    {step:"Print & Packaging Execution",status:"To Do",due:"2026-05-18",owner:"Deeksha",risk:"Manufacturer alignment required"},
+    {step:"Commercial Production",status:"To Do",due:"2026-05-25",owner:"Deeksha",risk:""},
+    {step:"Barcode & SKU Setup",status:"To Do",due:"2026-05-20",owner:"Deeksha",risk:"Can run parallel to production"},
+    {step:"Marketplace / Sales Setup",status:"To Do",due:"2026-06-01",owner:"Deeksha",risk:"Must finish before event week"},
+  ]},
+  {name:"Protein",sku:"PRO-IHFF-02",steps:[
+    {step:"Compliance Check (FSSAI)",status:"To Do",due:"2026-03-31",owner:"Atul",risk:"Mandatory before any packaging or claims work"},
+    {step:"Endorsement (Sapiens)",status:"To Do",due:"2026-04-10",owner:"Angela",risk:""},
+    {step:"Endorsement (Be.)",status:"To Do",due:"2026-04-15",owner:"Atul",risk:""},
+    {step:"Packaging Material Finalisation",status:"To Do",due:"2026-04-20",owner:"Deeksha",risk:""},
+    {step:"Packaging Design (Initial)",status:"To Do",due:"2026-04-25",owner:"Angela",risk:"Include all mandatory FSSAI elements"},
+    {step:"Claims & Marketing Compliance",status:"To Do",due:"2026-04-28",owner:"Atul",risk:"Must complete before final packaging"},
+    {step:"Packaging Design (Final Revision)",status:"To Do",due:"2026-05-02",owner:"Angela",risk:""},
+    {step:"Packaging Print — Commercial",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:""},
+    {step:"Packaging Print — Sampling",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:"2,500 sample units needed"},
+    {step:"Lab Testing & COA",status:"To Do",due:"2026-05-15",owner:"Atul",risk:"Required for commercial release"},
+    {step:"Print & Packaging Execution",status:"To Do",due:"2026-05-18",owner:"Deeksha",risk:"Manufacturer alignment required"},
+    {step:"Commercial Production",status:"To Do",due:"2026-05-25",owner:"Deeksha",risk:""},
+    {step:"Barcode & SKU Setup",status:"To Do",due:"2026-05-20",owner:"Deeksha",risk:"Can run parallel to production"},
+    {step:"Marketplace / Sales Setup",status:"To Do",due:"2026-06-01",owner:"Deeksha",risk:"Must finish before event week"},
+  ]},
+  {name:"Triple Magnesium",sku:"TRIMAG-IHFF-03",steps:[
+    {step:"Compliance Check (FSSAI)",status:"To Do",due:"2026-03-31",owner:"Atul",risk:"Mandatory before any packaging or claims work"},
+    {step:"Endorsement (Sapiens)",status:"To Do",due:"2026-04-10",owner:"Angela",risk:""},
+    {step:"Endorsement (Be.)",status:"To Do",due:"2026-04-15",owner:"Atul",risk:""},
+    {step:"Packaging Material Finalisation",status:"To Do",due:"2026-04-20",owner:"Deeksha",risk:""},
+    {step:"Packaging Design (Initial)",status:"To Do",due:"2026-04-25",owner:"Angela",risk:"Include all mandatory FSSAI elements"},
+    {step:"Claims & Marketing Compliance",status:"To Do",due:"2026-04-28",owner:"Atul",risk:"Must complete before final packaging"},
+    {step:"Packaging Design (Final Revision)",status:"To Do",due:"2026-05-02",owner:"Angela",risk:""},
+    {step:"Packaging Print — Commercial",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:""},
+    {step:"Packaging Print — Sampling",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:"Pill-format sample packaging unresolved = BLOCKER"},
+    {step:"Lab Testing & COA",status:"To Do",due:"2026-05-15",owner:"Atul",risk:"Required for commercial release"},
+    {step:"Print & Packaging Execution",status:"To Do",due:"2026-05-18",owner:"Deeksha",risk:"Manufacturer alignment required"},
+    {step:"Commercial Production",status:"To Do",due:"2026-05-25",owner:"Deeksha",risk:"Packaging decision must close first"},
+    {step:"Barcode & SKU Setup",status:"To Do",due:"2026-05-20",owner:"Deeksha",risk:"Can run parallel to production"},
+    {step:"Marketplace / Sales Setup",status:"To Do",due:"2026-06-01",owner:"Deeksha",risk:"Must finish before event week"},
+  ]}
+];
+
+// ─── STATE ─────────────────────────────────────────────────────────────────
+const APP_SCHEMA_VERSION = 2;
+const TASKS_STORAGE_KEY = 'ihff2026_tasks';
+const PRODUCTS_STORAGE_KEY = 'ihff2026_products';
+const PAYMENT_STATUSES = ['Not Applicable','Pending','Advance Paid','Partially Paid','Fully Paid'];
+let tasks = [];
+let editingId = null;
+let sortKey = null;
+let sortDir = 1;
+
+function num(v) {
+  const n = parseFloat(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function taskWithDefaults(t) {
+  return {
+    ...t,
+    startDate: t.startDate || '',
+    progress: Number.isFinite(Number(t.progress)) ? Number(t.progress) : 0,
+    estimatedCost: num(t.estimatedCost),
+    actualCost: num(t.actualCost),
+    paidAmount: num(t.paidAmount),
+    vendorName: t.vendorName || '',
+    paymentStatus: t.paymentStatus || 'Not Applicable',
+    subtasks: Array.isArray(t.subtasks) ? t.subtasks.map(st => taskWithDefaults(st)) : []
+  };
+}
+
+function sumSubtaskValue(t, key) {
+  if (!Array.isArray(t.subtasks) || !t.subtasks.length) return 0;
+  return t.subtasks.reduce((acc, st) => acc + (key === 'paidAmount' ? getTaskPaid(st) : key === 'estimatedCost' ? getTaskEstimated(st) : getTaskActual(st)), 0);
+}
+
+function getTaskEstimated(t) {
+  const sub = sumSubtaskValue(t, 'estimatedCost');
+  return sub > 0 ? sub : num(t.estimatedCost);
+}
+
+function getTaskActual(t) {
+  const sub = sumSubtaskValue(t, 'actualCost');
+  return sub > 0 ? sub : num(t.actualCost);
+}
+
+function getTaskPaid(t) {
+  const sub = sumSubtaskValue(t, 'paidAmount');
+  if (sub > 0) return sub;
+  const paid = num(t.paidAmount);
+  if (paid > 0) return paid;
+  if ((t.paymentStatus || '') === 'Fully Paid') return Math.max(getTaskActual(t), getTaskEstimated(t));
+  return 0;
+}
+
+function getTaskPending(t) {
+  const baseline = Math.max(getTaskActual(t), getTaskEstimated(t));
+  return Math.max(baseline - getTaskPaid(t), 0);
+}
+
+function hasTaskCost(t) {
+  return getTaskEstimated(t) > 0 || getTaskActual(t) > 0 || getTaskPaid(t) > 0 || !!(t.vendorName || '').trim() || ((t.paymentStatus || 'Not Applicable') !== 'Not Applicable');
+}
+
+function formatCurrency(v) {
+  const value = num(v);
+  if (!value) return '—';
+  return '₹' + new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(value);
+}
+
+function paymentClass(status) {
+  const map = {
+    'Not Applicable':'pay-na',
+    'Pending':'pay-pending',
+    'Advance Paid':'pay-advance',
+    'Partially Paid':'pay-partial',
+    'Fully Paid':'pay-full'
+  };
+  return map[status] || 'pay-na';
+}
+
+function productStepWithDefaults(step, fallbackStep = {}) {
+  return {
+    ...fallbackStep,
+    ...step,
+    step: (step && step.step) || fallbackStep.step || '',
+    status: (step && step.status) || fallbackStep.status || 'To Do',
+    due: (step && step.due) || fallbackStep.due || '',
+    owner: (step && step.owner) || fallbackStep.owner || 'TBD',
+    risk: (step && step.risk) || fallbackStep.risk || ''
+  };
+}
+
+function productWithDefaults(product, fallbackProduct = {}) {
+  const fallbackSteps = Array.isArray(fallbackProduct.steps) ? fallbackProduct.steps : [];
+  const incomingSteps = Array.isArray(product && product.steps) ? product.steps : [];
+  const stepMap = new Map();
+  incomingSteps.forEach((st, idx) => {
+    const key = ((st && st.step) || (fallbackSteps[idx] && fallbackSteps[idx].step) || `step-${idx}`).toLowerCase();
+    stepMap.set(key, st);
+  });
+  const mergedSteps = fallbackSteps.map((fallbackStep, idx) => {
+    const key = (fallbackStep.step || `step-${idx}`).toLowerCase();
+    return productStepWithDefaults(stepMap.get(key) || incomingSteps[idx] || {}, fallbackStep);
+  });
+  const extraSteps = incomingSteps.slice(fallbackSteps.length).map(st => productStepWithDefaults(st));
+  return {
+    ...fallbackProduct,
+    ...product,
+    name: (product && product.name) || fallbackProduct.name || 'Unnamed Product',
+    sku: (product && product.sku) || fallbackProduct.sku || '',
+    steps: [...mergedSteps, ...extraSteps]
+  };
+}
+
+function migrateProductsData(products, version = 0) {
+  const defaults = JSON.parse(JSON.stringify(RAW_PRODUCTS));
+  if (!Array.isArray(products) || !products.length) return defaults;
+  return defaults.map((fallbackProduct, idx) => {
+    const incoming = products.find(p => p && (p.sku === fallbackProduct.sku || p.name === fallbackProduct.name)) || products[idx] || {};
+    return productWithDefaults(incoming, fallbackProduct);
+  });
+}
+
+function normalizeImportedPayload(data) {
+  if (Array.isArray(data)) {
+    return { version: 0, tasks: data, products: [] };
+  }
+  if (!data || typeof data !== 'object') {
+    return { version: 0, tasks: [], products: [] };
+  }
+  return {
+    version: Number.isFinite(Number(data.version)) ? Number(data.version) : 0,
+    tasks: Array.isArray(data.tasks) ? data.tasks : [],
+    products: Array.isArray(data.products) ? data.products : []
+  };
+}
+
+function loadData() {
+  const saved = localStorage.getItem(TASKS_STORAGE_KEY);
+  if (saved) {
+    const parsed = normalizeImportedPayload(JSON.parse(saved));
+    tasks = parsed.tasks.map(taskWithDefaults);
+  } else {
+    tasks = RAW_TASKS.map(t => taskWithDefaults({...t}));
+    saveData();
+  }
+}
+
+function saveData() {
+  const payload = {
+    version: APP_SCHEMA_VERSION,
+    exportedAt: new Date().toISOString(),
+    tasks
+  };
+  localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(payload));
+}
+
+function saveProductsData(prodData) {
+  const payload = {
+    version: APP_SCHEMA_VERSION,
+    exportedAt: new Date().toISOString(),
+    products: prodData
+  };
+  localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(payload));
+}
+
+function getProductsData() {
+  const saved = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+  if (saved) {
+    const parsed = normalizeImportedPayload(JSON.parse(saved));
+    const migrated = migrateProductsData(parsed.products, parsed.version);
+    saveProductsData(migrated);
+    return migrated;
+  }
+  const initial = JSON.parse(JSON.stringify(RAW_PRODUCTS));
+  saveProductsData(initial);
+  return initial;
+}
+
+function exportJson() {
+  try {
+    const payload = {
+      version: APP_SCHEMA_VERSION,
+      exportedAt: new Date().toISOString(),
+      event: 'Be. IHFF 2026 — War Room',
+      tasks,
+      products: getProductsData()
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0,19).replace(/[T:]/g, '-');
+    a.href = url;
+    a.download = `ihff-war-room-${stamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast('JSON exported');
+  } catch (err) {
+    console.error(err);
+    showToast('Export failed');
+  }
+}
+
+function triggerImportJson() {
+  const input = document.getElementById('json-import-input');
+  if (input) input.click();
+}
+
+function importJsonFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const payload = normalizeImportedPayload(JSON.parse(e.target.result));
+      if (!payload.tasks.length && !payload.products.length) throw new Error('Invalid file');
+      tasks = (payload.tasks || []).map(taskWithDefaults);
+      saveData();
+      const migratedProducts = migrateProductsData(payload.products, payload.version);
+      saveProductsData(migratedProducts);
+      document.getElementById('json-import-input').value = '';
+      populateFiltersFresh();
+      renderDashboard();
+      applyFilters();
+      renderCriticalPath();
+      renderBlockers();
+      renderProducts();
+      renderCostView();
+      showToast(`JSON imported${payload.version < APP_SCHEMA_VERSION ? ' and upgraded' : ''}`);
+    } catch (err) {
+      console.error(err);
+      showToast('Invalid JSON file');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ─── COUNTDOWN ──────────────────────────────────────────────────────────────
+function updateCountdown() {
+  const now = new Date();
+  const diff = EVENT_DATE - now;
+  const days = Math.ceil(diff / 86400000);
+  const el = document.getElementById('countdown');
+  if (days < 0) {
+    el.innerHTML = `<div class="cd-block"><div class="cd-num" style="color:var(--ok)">DONE</div><div class="cd-label">Show Over</div></div>`;
+  } else {
+    const weeks = Math.floor(days / 7);
+    const rem = days % 7;
+    el.innerHTML = `
+      <div class="cd-block"><div class="cd-num">${days}</div><div class="cd-label">Days</div></div>
+      <div class="cd-block"><div class="cd-num">${weeks}</div><div class="cd-label">Weeks</div></div>
+      <div class="cd-block"><div class="cd-num">${rem}</div><div class="cd-label">+Days</div></div>
+      <div style="font-size:9px;color:var(--t2);text-align:right;line-height:1.4;">to<br><span style="color:var(--accent);font-weight:700;">Jun 12</span></div>
+    `;
+  }
+}
+
+// ─── DASHBOARD ──────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const total = tasks.length;
+  const done = tasks.filter(t => t.status === 'Done').length;
+  const blocked = tasks.filter(t => t.status === 'Blocked').length;
+  const inprog = tasks.filter(t => t.status === 'In Progress').length;
+  const overdue = tasks.filter(t => {
+    if (!t.endDate || t.status === 'Done') return false;
+    return new Date(t.endDate) < today;
+  }).length;
+  const critical = tasks.filter(t => t.priority === 'CRITICAL' && t.status !== 'Done').length;
+  const overall = total ? Math.round(tasks.reduce((a,t) => a + (t.progress||0), 0) / total) : 0;
+  const costLinked = tasks.filter(hasTaskCost);
+  const totalEstimated = costLinked.reduce((a,t) => a + getTaskEstimated(t), 0);
+  const totalActual = costLinked.reduce((a,t) => a + getTaskActual(t), 0);
+  const totalPaid = costLinked.reduce((a,t) => a + getTaskPaid(t), 0);
+  const totalPending = costLinked.reduce((a,t) => a + getTaskPending(t), 0);
+  const talent = getTalentData();
+  const manpower = getManpowerData();
+  const signedTalent = talent.filter(t => t.contractStatus === 'Signed' || t.contractStatus === 'Closed').length;
+  const confirmedTalent = talent.filter(t => t.attendanceStatus === 'Confirmed').length;
+  const manpowerGaps = manpower.reduce((a,m) => a + Math.max(num(m.countRequired)-num(m.countConfirmed),0), 0);
+
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="kpi lime">
+      <div class="kpi-label">Overall Progress</div>
+      <div class="kpi-val">${overall}%</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${overall}%"></div></div>
+      <div class="kpi-sub">${done} of ${total} tasks done</div>
+    </div>
+    <div class="kpi blue">
+      <div class="kpi-label">Total Tasks</div>
+      <div class="kpi-val">${total}</div>
+      <div class="kpi-sub">${inprog} in progress</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">Total Estimated</div>
+      <div class="kpi-val" style="font-size:20px;">${formatCurrency(totalEstimated)}</div>
+      <div class="kpi-sub">${costLinked.length} cost-linked tasks</div>
+    </div>
+    <div class="kpi purple">
+      <div class="kpi-label">Pending Cost</div>
+      <div class="kpi-val" style="font-size:20px;">${formatCurrency(totalPendingCombined)}</div>
+      <div class="kpi-sub">${formatCurrency(totalPaidCombined)} paid</div>
+    </div>
+    <div class="kpi red">
+      <div class="kpi-label">Blocked</div>
+      <div class="kpi-val">${blocked}</div>
+      <div class="kpi-sub">Needs immediate action</div>
+    </div>
+    <div class="kpi blue">
+      <div class="kpi-label">Overdue</div>
+      <div class="kpi-val">${overdue}</div>
+      <div class="kpi-sub">Past due date</div>
+    </div>
+    <div class="kpi purple">
+      <div class="kpi-label">Critical Open</div>
+      <div class="kpi-val">${critical}</div>
+      <div class="kpi-sub">CRITICAL priority pending</div>
+    </div>
+    <div class="kpi yellow">
+      <div class="kpi-label">Talent Signed</div>
+      <div class="kpi-val">${signedTalent}/${talent.length}</div>
+      <div class="kpi-sub">${confirmedTalent} confirmed for event</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">Manpower Gaps</div>
+      <div class="kpi-val">${manpowerGaps}</div>
+      <div class="kpi-sub">${manpower.length} manpower roles tracked</div>
+    </div>
+  `;
+
+  // Critical blockers
+  const blockers = [
+    {label:"PILL PACKAGING", desc:"Sampling packaging for pill-format SKU is UNRESOLVED. Blocks 2,500 × 7 SKU sampling plan for all 3 show days.", owner:"Deeksha"},
+    {label:"STAND REDESIGN", desc:"First stand design was rejected. Redesign ongoing. High risk of missing print deadline (May 20).", owner:"Atul"},
+    {label:"MERCH ORDERS", desc:"Shaker samples pending. T-shirt & Ganji designs pending. ORDER DEADLINE APR 20 — 6–8 week lead time.", owner:"Deeksha"},
+  ];
+  document.getElementById('critical-list').innerHTML = blockers.map(b => `
+    <div style="background:rgba(255,59,59,.06);border:1px solid rgba(255,59,59,.25);border-radius:8px;padding:12px 14px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span style="background:var(--crit);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:1px;">🔴 BLOCKER</span>
+        <span style="font-family:var(--fh);font-weight:700;font-size:12px;color:var(--crit);">${b.label}</span>
+      </div>
+      <div style="font-size:11px;color:#ff9999;line-height:1.5;">${b.desc}</div>
+      <div style="font-size:10px;color:var(--t2);margin-top:6px;">Owner: <span style="color:var(--text)">${b.owner}</span></div>
+    </div>
+  `).join('');
+
+  const overdueList = tasks.filter(t => t.endDate && t.status !== 'Done' && new Date(t.endDate) < today);
+  document.getElementById('overdue-list').innerHTML = overdueList.length ? overdueList.map(t => `
+    <div style="background:rgba(255,170,0,.05);border:1px solid rgba(255,170,0,.2);border-radius:8px;padding:10px 14px;cursor:pointer;" onclick="switchTab('tasks')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+        <div style="font-size:11px;line-height:1.4;flex:1;">${t.title}</div>
+        <span class="priority-badge p-${t.priority}">${t.priority}</span>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:6px;flex-wrap:wrap;">
+        <span style="font-size:10px;color:var(--crit);">Due: ${t.endDate}</span>
+        <span style="font-size:10px;color:var(--t2);">Owner: ${t.owner}</span>
+        ${hasTaskCost(t) ? `<span style="font-size:10px;color:var(--t2);">Pending: <span style="color:var(--text)">${formatCurrency(getTaskPending(t))}</span></span>` : ''}
+      </div>
+    </div>
+  `).join('') : '<div style="color:var(--t2);font-size:12px;padding:20px;">✅ No overdue tasks</div>';
+}
+
+// ─── FILTER SELECTS ─────────────────────────────────────────────────────────
+function populateFiltersFresh() {
+  const ws = [...new Set(tasks.map(t => t.workstream).filter(Boolean))].sort();
+  const owners = [...new Set(tasks.map(t => t.owner).filter(Boolean))].sort();
+  const phases = [...new Set(tasks.map(t => t.phase).filter(Boolean))];
+
+  const wsEl = document.getElementById('f-ws');
+  const ownerEl = document.getElementById('f-owner');
+  const phaseEl = document.getElementById('f-phase');
+
+  const currentWs = wsEl.value;
+  const currentOwner = ownerEl.value;
+  const currentPhase = phaseEl.value;
+
+  wsEl.innerHTML = '<option value=>All</option>';
+  ownerEl.innerHTML = '<option value=>All</option>';
+  phaseEl.innerHTML = '<option value=>All</option>';
+
+  ws.forEach(w => { const o = document.createElement('option'); o.value = w; o.textContent = w; wsEl.appendChild(o); });
+  owners.forEach(w => { const o = document.createElement('option'); o.value = w; o.textContent = w; ownerEl.appendChild(o); });
+  phases.forEach(w => { const o = document.createElement('option'); o.value = w; o.textContent = w; phaseEl.appendChild(o); });
+
+  if (ws.includes(currentWs)) wsEl.value = currentWs;
+  if (owners.includes(currentOwner)) ownerEl.value = currentOwner;
+  if (phases.includes(currentPhase)) phaseEl.value = currentPhase;
+}
+
+function populateFilters() {
+  populateFiltersFresh();
+}
+
+// ─── TASK TABLE ──────────────────────────────────────────────────────────────
+function wsClass(ws) {
+  const map = {
+    'Stand':'Stand','Athletes':'Athletes','B2B':'B2B','Social':'Social',
+    'Famous Friends':'Athletes','Merch':'Merch','Video':'Video','PR':'PR',
+    'Ops':'Ops','IHFF':'IHFF','Mohan':'Mohan','Mumbai':'Mumbai',
+    'Stage':'Stage','Exp':'Exp','Leads':'Leads','Photo':'Photo',
+    'Sampling':'Sampling'
+  };
+  return 'ws-'+(map[ws]||'Ops');
+}
+
+function statusClass(s) {
+  const m = {'To Do':'s-todo','In Progress':'s-inprog','Blocked':'s-blocked','Done':'s-done','Review':'s-review'};
+  return m[s]||'s-todo';
+}
+
+function isOverdue(t) {
+  if (!t.endDate || t.status === 'Done') return false;
+  const today = new Date(); today.setHours(0,0,0,0);
+  return new Date(t.endDate) < today;
+}
+
+function applyFilters() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const ws = document.getElementById('f-ws').value;
+  const owner = document.getElementById('f-owner').value;
+  const pri = document.getElementById('f-priority').value;
+  const st = document.getElementById('f-status').value;
+  const ph = document.getElementById('f-phase').value;
+
+  let filtered = tasks.filter(t => {
+    if (q && !t.title.toLowerCase().includes(q) && !t.owner.toLowerCase().includes(q) && !t.workstream.toLowerCase().includes(q)) return false;
+    if (ws && t.workstream !== ws) return false;
+    if (owner && t.owner !== owner) return false;
+    if (pri && t.priority !== pri) return false;
+    if (st && t.status !== st) return false;
+    if (ph && t.phase !== ph) return false;
+    return true;
+  });
+
+  if (sortKey) {
+    filtered.sort((a,b) => {
+      let av = a[sortKey]||'', bv = b[sortKey]||'';
+      return av < bv ? -sortDir : av > bv ? sortDir : 0;
+    });
+  }
+
+  renderTaskTable(filtered);
+  updateStats(filtered);
+}
+
+function updateStats(filtered) {
+  const counts = {todo:0,inprog:0,blocked:0,done:0,review:0};
+  filtered.forEach(t => {
+    if (t.status==='To Do') counts.todo++;
+    else if (t.status==='In Progress') counts.inprog++;
+    else if (t.status==='Blocked') counts.blocked++;
+    else if (t.status==='Done') counts.done++;
+    else if (t.status==='Review') counts.review++;
+  });
+  const costLinked = filtered.filter(hasTaskCost).length;
+  document.getElementById('stats-row').innerHTML = `
+    <span style="font-size:10px;color:var(--t2);margin-right:4px;">${filtered.length} tasks</span>
+    <span style="font-size:10px;color:var(--t2);margin-right:8px;">${costLinked} cost-linked</span>
+    <span class="stat-pill s-todo"><span class="stat-count">${counts.todo}</span> To Do</span>
+    <span class="stat-pill s-inprog"><span class="stat-count">${counts.inprog}</span> In Progress</span>
+    <span class="stat-pill s-blocked"><span class="stat-count">${counts.blocked}</span> Blocked</span>
+    <span class="stat-pill s-done"><span class="stat-count">${counts.done}</span> Done</span>
+    ${counts.review ? `<span class="stat-pill" style="background:rgba(255,170,0,.1);color:var(--warn);"><span class="stat-count">${counts.review}</span> Review</span>` : ''}
+  `;
+}
+
+function renderTaskTable(list) {
+  const tbody = document.getElementById('task-tbody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="12"><div class="empty"><div class="empty-icon">🔍</div>No tasks match your filters</div></td></tr>';
+    return;
+  }
+
+  // Group by phase
+  const phases = [];
+  const phaseMap = {};
+  list.forEach(t => {
+    if (!phaseMap[t.phase]) { phaseMap[t.phase] = []; phases.push(t.phase); }
+    phaseMap[t.phase].push(t);
+  });
+
+  let html = '';
+  phases.forEach(ph => {
+    html += `<tr class="phase-row"><td colspan="12">${ph}</td></tr>`;
+    phaseMap[ph].forEach(t => {
+      const overdue = isOverdue(t);
+      const sc = statusClass(t.status);
+      html += `<tr id="row-${t.id}">
+        <td class="task-id">${t.id}</td>
+        <td>
+          <div class="task-title-cell">
+            <span class="task-title" title="${(t.notes||'').replace(/"/g,'&quot;')}" onclick="openEditModal(${t.id})">${t.title}</span>
+          </div>
+          ${t.riskNote ? `<div style="font-size:10px;color:var(--warn);margin-top:2px;">⚠ ${t.riskNote}</div>` : ''}
+        </td>
+        <td><span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span></td>
+        <td><span class="owner-badge">${t.owner}</span></td>
+        <td class="date-cell ${overdue ? 'overdue' : ''}">${t.endDate||'—'}${overdue ? ' ⚠' : ''}</td>
+        <td><span class="priority-badge p-${t.priority}">${t.priority}</span></td>
+        <td>
+          <select class="status-sel ${sc}" onchange="updateStatus(${t.id}, this.value)">
+            <option ${t.status==='To Do'?'selected':''}>To Do</option>
+            <option ${t.status==='In Progress'?'selected':''}>In Progress</option>
+            <option ${t.status==='Review'?'selected':''}>Review</option>
+            <option ${t.status==='Blocked'?'selected':''}>Blocked</option>
+            <option ${t.status==='Done'?'selected':''}>Done</option>
+          </select>
+        </td>
+        <td>
+          <div class="progress-cell">
+            <div class="prog-bar"><div class="prog-fill" style="width:${t.progress||0}%"></div></div>
+            <span class="prog-num">${t.progress||0}%</span>
+          </div>
+          <input type="range" min="0" max="100" value="${t.progress||0}" class="progress-slider" oninput="liveUpdateProgress(${t.id}, this.value, this)" onchange="commitProgress(${t.id}, this.value)">
+        </td>
+        <td><span class="${t.criticalPath ? 'cp-yes' : 'cp-no'}">${t.criticalPath ? '🔴 YES' : '—'}</span></td>
+        <td>${t.riskNote ? `<span class="risk-flag" title="${t.riskNote}">⚠ Risk</span>` : '—'}</td>
+        <td>
+          <div class="cost-stack">
+            <div class="cost-main">${formatCurrency(getTaskActual(t))}</div>
+            <div class="cost-sub">Est ${formatCurrency(getTaskEstimated(t))}</div>
+            ${hasTaskCost(t) ? `<span class="cost-badge ${paymentClass(t.paymentStatus)}">${t.paymentStatus || 'Not Applicable'}</span>` : '<span class="cost-sub">—</span>'}
+          </div>
+        </td>
+        <td>
+          <div class="action-btns">
+            <button class="act-btn" onclick="openEditModal(${t.id})" title="Edit">✏</button>
+            <button class="act-btn danger" onclick="deleteTask(${t.id})" title="Delete">✕</button>
+          </div>
+        </td>
+      </tr>`;
+    });
+  });
+  tbody.innerHTML = html;
+}
+
+function sortBy(key) {
+  if (sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = 1; }
+  applyFilters();
+}
+
+function updateStatus(id, val) {
+  const t = tasks.find(x => x.id === id);
+  if (t) {
+    t.status = val;
+    if (val === 'Done') t.progress = 100;
+    if (val === 'To Do') t.progress = t.progress === 100 ? 0 : t.progress;
+    saveData();
+    renderDashboard();
+    const sel = document.querySelector(`#row-${id} .status-sel`);
+    if (sel) sel.className = `status-sel ${statusClass(val)}`;
+    showToast(`Task ${id} → ${val}`);
+  }
+}
+
+function getTaskRecordForProgress(id){
+  if (typeof findTaskRecord === 'function') return findTaskRecord(id);
+  const item = (tasks || []).find(x => x.id === id);
+  return item ? {item} : null;
+}
+
+function syncProgressRow(id, val, inputEl){
+  const row = inputEl ? inputEl.closest('tr') : document.getElementById(`row-${id}`);
+  if (!row) return;
+  const fill = row.querySelector('.prog-fill');
+  const num = row.querySelector('.prog-num');
+  if (fill) fill.style.width = val + '%';
+  if (num) num.textContent = val + '%';
+}
+
+function liveUpdateProgress(id, val, inputEl){
+  const rec = getTaskRecordForProgress(id);
+  const t = rec && rec.item;
+  if (!t) return;
+  const nextVal = Math.max(0, Math.min(100, parseInt(val) || 0));
+  t.progress = nextVal;
+  if (nextVal < 100 && t.status === 'Done') t.status = 'In Progress';
+  syncProgressRow(id, nextVal, inputEl);
+}
+
+function commitProgress(id, val){
+  const rec = getTaskRecordForProgress(id);
+  const t = rec && rec.item;
+  if (!t) return;
+  const nextVal = Math.max(0, Math.min(100, parseInt(val) || 0));
+  t.progress = nextVal;
+  if (nextVal === 100) t.status = 'Done';
+  if (nextVal < 100 && t.status === 'Done') t.status = 'In Progress';
+  saveData();
+  renderDashboard();
+  if (typeof renderCostView === 'function') renderCostView();
+  if (typeof applyFilters === 'function') applyFilters();
+}
+
+function updateProgress(id, val){
+  commitProgress(id, val);
+}
+
+// ─── CRITICAL PATH VIEW ─────────────────────────────────────────────────────
+function renderCriticalPath() {
+  const cp = tasks.filter(t => t.criticalPath);
+  const tbody = document.getElementById('cp-tbody');
+  if (!cp.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty">No critical path tasks</div></td></tr>'; return; }
+  tbody.innerHTML = cp.map(t => {
+    const overdue = isOverdue(t);
+    const sc = statusClass(t.status);
+    return `<tr>
+      <td class="task-id">${t.id}</td>
+      <td><div style="font-size:12px;max-width:340px;line-height:1.3;">${t.title}</div></td>
+      <td><span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span></td>
+      <td><span class="owner-badge">${t.owner}</span></td>
+      <td class="date-cell ${overdue?'overdue':''}">${t.endDate||'—'}${overdue?' ⚠':''}</td>
+      <td><span class="priority-badge p-${t.priority}">${t.priority}</span></td>
+      <td><select class="status-sel ${sc}" onchange="updateStatus(${t.id}, this.value)">
+        <option ${t.status==='To Do'?'selected':''}>To Do</option>
+        <option ${t.status==='In Progress'?'selected':''}>In Progress</option>
+        <option ${t.status==='Review'?'selected':''}>Review</option>
+        <option ${t.status==='Blocked'?'selected':''}>Blocked</option>
+        <option ${t.status==='Done'?'selected':''}>Done</option>
+      </select></td>
+      <td>${t.riskNote ? `<span class="risk-flag">⚠ ${t.riskNote.substring(0,60)}${t.riskNote.length>60?'…':''}</span>` : '—'}</td>
+      <td><div class="action-btns" style="opacity:1;"><button class="act-btn" onclick="openEditModal(${t.id})">✏</button></div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── BLOCKERS VIEW ──────────────────────────────────────────────────────────
+function renderBlockers() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const list = tasks.filter(t => t.status === 'Blocked' || t.riskNote || (t.endDate && new Date(t.endDate) < today && t.status !== 'Done'));
+  const el = document.getElementById('blocker-full-list');
+  if (!list.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">✅</div>No blockers or at-risk tasks</div>'; return; }
+  el.innerHTML = `<table style="width:100%;border-collapse:collapse;min-width:800px;">
+    <thead><tr>
+      <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">#</th>
+      <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Task</th>
+      <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Workstream</th>
+      <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Owner</th>
+      <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Due</th>
+      <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Status</th>
+      <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Risk / Reason</th>
+    </tr></thead>
+    <tbody>${list.map(t => {
+      const overdue = isOverdue(t);
+      const tag = t.status === 'Blocked' ? `<span style="background:rgba(255,59,59,.15);color:var(--crit);font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">BLOCKED</span>` :
+                  overdue ? `<span style="background:rgba(255,170,0,.15);color:var(--warn);font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">OVERDUE</span>` :
+                  `<span style="background:rgba(255,170,0,.1);color:var(--warn);font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">AT RISK</span>`;
+      return `<tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:7px 10px;color:var(--t3);font-size:10px;">${t.id}</td>
+        <td style="padding:7px 10px;"><div style="font-size:11px;max-width:300px;line-height:1.3;">${tag}${t.title}</div></td>
+        <td style="padding:7px 10px;"><span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span></td>
+        <td style="padding:7px 10px;"><span class="owner-badge">${t.owner}</span></td>
+        <td style="padding:7px 10px;" class="date-cell ${overdue?'overdue':''}">${t.endDate||'—'}</td>
+        <td style="padding:7px 10px;"><select class="status-sel ${statusClass(t.status)}" onchange="updateStatus(${t.id}, this.value)">
+          <option ${t.status==='To Do'?'selected':''}>To Do</option>
+          <option ${t.status==='In Progress'?'selected':''}>In Progress</option>
+          <option ${t.status==='Review'?'selected':''}>Review</option>
+          <option ${t.status==='Blocked'?'selected':''}>Blocked</option>
+          <option ${t.status==='Done'?'selected':''}>Done</option>
+        </select></td>
+        <td style="padding:7px 10px;font-size:10px;color:var(--warn);max-width:250px;line-height:1.4;">${t.riskNote||'Past due date'}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+// ─── PRODUCTS VIEW ──────────────────────────────────────────────────────────
+function renderProducts() {
+  const el = document.getElementById('products-list');
+  const STEP_STATUSES = ['To Do','In Progress','Review','Blocked','Done'];
+  const readinessGate = [
+    'Compliance Check (FSSAI)',
+    'Endorsement (Sapiens)',
+    'Endorsement (Be.)',
+    'Packaging Design (Final Revision)',
+    'Packaging Print — Sampling',
+    'Packaging Print — Commercial',
+    'Lab Testing & COA',
+    'Print & Packaging Execution',
+    'Commercial Production',
+    'Marketplace / Sales Setup'
+  ];
+
+  let prodData = getProductsData();
+
+  el.innerHTML = prodData.map((prod, pi) => {
+    const done = prod.steps.filter(s => s.status === 'Done').length;
+    const pct = Math.round(done / prod.steps.length * 100);
+    const hasBlocker = prod.steps.some(s => s.status === 'Blocked' || (s.risk || '').includes('BLOCKER'));
+    const gateDone = readinessGate.every(name => (prod.steps.find(s => s.step === name) || {}).status === 'Done');
+    const eventReady = hasBlocker ? 'Blocked' : gateDone ? 'Ready' : pct >= 75 ? 'At Risk' : 'Not Ready';
+    const currentStep = (prod.steps.find(s => s.status !== 'Done') || {}).step || 'Completed';
+    const readyColor = eventReady === 'Ready' ? 'var(--ok)' : eventReady === 'Blocked' ? 'var(--crit)' : 'var(--warn)';
+    return `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden;">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div style="font-family:var(--fh);font-weight:700;font-size:14px;">${prod.name}</div>
+          <div style="font-size:10px;color:var(--t2);margin-top:2px;">SKU: ${prod.sku} · ${done}/${prod.steps.length} steps complete</div>
+          <div style="font-size:10px;color:var(--t2);margin-top:4px;">Current Stage: <span style="color:var(--text)">${currentStep}</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
+          ${hasBlocker ? '<span style="background:rgba(255,59,59,.15);color:var(--crit);font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;border:1px solid rgba(255,59,59,.3);">🔴 BLOCKER</span>' : ''}
+          <span style="background:rgba(255,255,255,.03);border:1px solid var(--border2);color:${readyColor};font-size:10px;font-weight:700;padding:4px 8px;border-radius:4px;">Event Ready: ${eventReady}</span>
+          <div style="text-align:right;">
+            <div style="font-family:var(--fh);font-weight:800;font-size:20px;color:var(--accent);">${pct}%</div>
+            <div style="font-size:9px;color:var(--t2);">complete</div>
+          </div>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;min-width:700px;">
+          <thead><tr style="background:var(--s2);">
+            <th style="padding:6px 12px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Step</th>
+            <th style="padding:6px 12px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Owner</th>
+            <th style="padding:6px 12px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Due</th>
+            <th style="padding:6px 12px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Status</th>
+            <th style="padding:6px 12px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Risk</th>
+          </tr></thead>
+          <tbody>${prod.steps.map((s, si) => {
+            const sc = statusClass(s.status);
+            const isBlocker = s.risk && s.risk.includes('BLOCKER');
+            return `<tr style="border-bottom:1px solid var(--border);${isBlocker?'background:rgba(255,59,59,.04);':''}">
+              <td style="padding:8px 12px;font-size:11px;max-width:220px;">${si+1}. ${s.step}</td>
+              <td style="padding:8px 12px;"><span class="owner-badge">${s.owner}</span></td>
+              <td style="padding:8px 12px;font-size:11px;color:var(--t2);">${s.due}</td>
+              <td style="padding:8px 12px;">
+                <select class="status-sel ${sc}" onchange="updateProductStep(${pi}, ${si}, this.value)">
+                  ${STEP_STATUSES.map(st => `<option ${s.status===st?'selected':''}>${st}</option>`).join('')}
+                </select>
+              </td>
+              <td style="padding:8px 12px;font-size:10px;color:${isBlocker?'var(--crit)':'var(--warn)'};">${s.risk || '—'}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateProductStep(pi, si, val) {
+  let prodData = getProductsData();
+  prodData[pi].steps[si].status = val;
+  saveProductsData(prodData);
+  renderProducts();
+  showToast('Product step updated');
+}
+
+// ─── COST VIEW ──────────────────────────────────────────────────────────────
+function renderCostView() {
+  const costTasks = tasks.filter(hasTaskCost);
+  const totalEstimated = costTasks.reduce((a,t) => a + getTaskEstimated(t), 0);
+  const totalActual = costTasks.reduce((a,t) => a + getTaskActual(t), 0);
+  const totalPaid = costTasks.reduce((a,t) => a + getTaskPaid(t), 0);
+  const totalPending = costTasks.reduce((a,t) => a + getTaskPending(t), 0);
+
+  const workstreamTotals = {};
+  costTasks.forEach(t => {
+    const key = t.workstream || 'Unassigned';
+    if (!workstreamTotals[key]) workstreamTotals[key] = { estimated:0, actual:0, paid:0, pending:0, count:0 };
+    workstreamTotals[key].estimated += getTaskEstimated(t);
+    workstreamTotals[key].actual += getTaskActual(t);
+    workstreamTotals[key].paid += getTaskPaid(t);
+    workstreamTotals[key].pending += getTaskPending(t);
+    workstreamTotals[key].count += 1;
+  });
+
+  document.getElementById('cost-summary').innerHTML = `
+    <div class="cost-grid">
+      <div class="cost-card">
+        <div class="cost-card-label">Total Estimated</div>
+        <div class="cost-card-value">${formatCurrency(totalEstimated)}</div>
+        <div class="cost-card-sub">${costTasks.length} cost-linked tasks</div>
+      </div>
+      <div class="cost-card">
+        <div class="cost-card-label">Total Actual</div>
+        <div class="cost-card-value">${formatCurrency(totalActualCombined)}</div>
+        <div class="cost-card-sub">Filled actual values</div>
+      </div>
+      <div class="cost-card">
+        <div class="cost-card-label">Total Paid</div>
+        <div class="cost-card-value">${formatCurrency(totalPaidCombined)}</div>
+        <div class="cost-card-sub">From paid amount / fully-paid tasks</div>
+      </div>
+      <div class="cost-card">
+        <div class="cost-card-label">Total Pending</div>
+        <div class="cost-card-value">${formatCurrency(totalPendingCombined)}</div>
+        <div class="cost-card-sub">Remaining to be closed</div>
+      </div>
+    </div>
+  `;
+
+  const rows = costTasks.map(t => `
+    <tr>
+      <td>${t.id}</td>
+      <td style="min-width:280px;"><div style="font-size:12px;line-height:1.4;">${t.title}</div></td>
+      <td><span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span></td>
+      <td><span class="owner-badge">${t.owner}</span></td>
+      <td>${formatCurrency(getTaskEstimated(t))}</td>
+      <td>${formatCurrency(getTaskActual(t))}</td>
+      <td>${formatCurrency(getTaskPaid(t))}</td>
+      <td>${formatCurrency(getTaskPending(t))}</td>
+      <td>${t.vendorName ? `<span class="owner-badge">${t.vendorName}</span>` : '—'}</td>
+      <td><span class="cost-badge ${paymentClass(t.paymentStatus)}">${t.paymentStatus || 'Not Applicable'}</span></td>
+    </tr>
+  `).join('');
+
+  const workstreamRows = Object.entries(workstreamTotals).sort((a,b) => b[1].estimated - a[1].estimated).map(([ws, v]) => `
+    <tr>
+      <td colspan="2"><span class="ws-badge ${wsClass(ws)}">${ws}</span></td>
+      <td>${v.count}</td>
+      <td>${formatCurrency(v.estimated)}</td>
+      <td>${formatCurrency(v.actual)}</td>
+      <td>${formatCurrency(v.paid)}</td>
+      <td>${formatCurrency(v.pending)}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('cost-table-view').innerHTML = `
+    ${costTasks.length ? `
+      <div style="padding:14px 14px 8px;font-family:var(--fh);font-weight:700;font-size:13px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;">Task-Level Costs</div>
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>#</th><th>Task</th><th>Workstream</th><th>Owner</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Vendor</th><th>Payment</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div style="padding:20px 14px 8px;font-family:var(--fh);font-weight:700;font-size:13px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;">Workstream Summary</div>
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th colspan="2">Workstream</th><th>Tasks</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th>
+          </tr>
+        </thead>
+        <tbody>${workstreamRows}</tbody>
+      </table>
+    ` : `<div class="cost-empty">No costs added yet. Edit any task to add estimated cost, actual cost, vendor, and payment status.</div>`}
+  `;
+}
+
+// ─── OWNER OPTIONS ──────────────────────────────────────────────────────────
+const OWNER_OPTIONS_KEY = 'ihff2026_owner_options';
+let customOwnerOptions = [];
+
+function loadOwnerOptions(){
+  try { customOwnerOptions = JSON.parse(localStorage.getItem(OWNER_OPTIONS_KEY) || '[]'); } catch(e){ customOwnerOptions = []; }
+  if(!Array.isArray(customOwnerOptions)) customOwnerOptions = [];
+}
+
+function saveOwnerOptions(){
+  localStorage.setItem(OWNER_OPTIONS_KEY, JSON.stringify([...new Set(customOwnerOptions.filter(Boolean))]));
+}
+
+function getAvailableOwners(){
+  const seeded = ['Atul','Angela','Deeksha','Tejal','TBD'];
+  const taskOwners = (tasks || []).map(t => t && t.owner).filter(Boolean);
+  const talentOwners = (typeof talentItems !== 'undefined' && Array.isArray(talentItems)) ? talentItems.map(t => t && t.owner).filter(Boolean) : [];
+  const manpowerOwners = (typeof manpowerItems !== 'undefined' && Array.isArray(manpowerItems)) ? manpowerItems.map(t => t && t.owner).filter(Boolean) : [];
+  const vendorOwners = (typeof vendorItems !== 'undefined' && Array.isArray(vendorItems)) ? vendorItems.map(v => v && v.owner).filter(Boolean) : [];
+  return [...new Set([...seeded, ...customOwnerOptions, ...taskOwners, ...talentOwners, ...manpowerOwners, ...vendorOwners])].sort((a,b) => a.localeCompare(b));
+}
+
+function populateOwnerSelect(selectedValue){
+  const ownerEl = document.getElementById('f-owner-in');
+  if(!ownerEl) return;
+  const current = selectedValue || ownerEl.value || 'Atul';
+  ownerEl.innerHTML = '';
+  getAvailableOwners().forEach(owner => {
+    const opt = document.createElement('option');
+    opt.value = owner;
+    opt.textContent = owner;
+    ownerEl.appendChild(opt);
+  });
+  const addOpt = document.createElement('option');
+  addOpt.value = '__new_owner__';
+  addOpt.textContent = '+ New Owner';
+  ownerEl.appendChild(addOpt);
+  ownerEl.value = getAvailableOwners().includes(current) ? current : 'Atul';
+}
+
+function handleOwnerSelectChange(){
+  const ownerEl = document.getElementById('f-owner-in');
+  if(!ownerEl || ownerEl.value !== '__new_owner__') return;
+  const typed = window.prompt('Enter new owner name');
+  const clean = (typed || '').trim();
+  if(!clean){
+    populateOwnerSelect('Atul');
+    return;
+  }
+  if(!customOwnerOptions.includes(clean)) {
+    customOwnerOptions.push(clean);
+    saveOwnerOptions();
+  }
+  populateOwnerSelect(clean);
+}
+
+// ─── MODAL ──────────────────────────────────────────────────────────────────
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'Add Task';
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-phase-in').value = '';
+  document.getElementById('f-ws-in').value = '';
+  populateOwnerSelect('Atul');
+  document.getElementById('f-priority-in').value = 'HIGH';
+  document.getElementById('f-start').value = '';
+  document.getElementById('f-end').value = '';
+  document.getElementById('f-status-in').value = 'To Do';
+  document.getElementById('f-progress').value = 0;
+  document.getElementById('f-cp').value = 'false';
+  document.getElementById('f-risk').value = '';
+  document.getElementById('f-estimated').value = '';
+  document.getElementById('f-actual').value = '';
+  document.getElementById('f-paid').value = '';
+  document.getElementById('f-payment-status').value = 'Not Applicable';
+  document.getElementById('f-vendor').value = '';
+  document.getElementById('f-notes').value = '';
+  document.getElementById('task-modal').classList.add('show');
+}
+
+function openEditModal(id) {
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  editingId = id;
+  document.getElementById('modal-title').textContent = 'Edit Task #' + id;
+  document.getElementById('f-title').value = t.title;
+  document.getElementById('f-phase-in').value = t.phase || '';
+  document.getElementById('f-ws-in').value = t.workstream || '';
+  populateOwnerSelect(t.owner || 'Atul');
+  document.getElementById('f-priority-in').value = t.priority || 'HIGH';
+  document.getElementById('f-start').value = t.startDate || '';
+  document.getElementById('f-end').value = t.endDate || '';
+  document.getElementById('f-status-in').value = t.status || 'To Do';
+  document.getElementById('f-progress').value = t.progress || 0;
+  document.getElementById('f-cp').value = t.criticalPath ? 'true' : 'false';
+  document.getElementById('f-risk').value = t.riskNote || '';
+  document.getElementById('f-estimated').value = t.estimatedCost || '';
+  document.getElementById('f-actual').value = t.actualCost || '';
+  document.getElementById('f-paid').value = t.paidAmount || '';
+  document.getElementById('f-payment-status').value = t.paymentStatus || 'Not Applicable';
+  document.getElementById('f-vendor').value = t.vendorName || '';
+  document.getElementById('f-notes').value = t.notes || '';
+  document.getElementById('task-modal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('task-modal').classList.remove('show');
+  editingId = null;
+}
+
+function saveTask() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { showToast('Title is required'); return; }
+  if (editingId) {
+    const t = tasks.find(x => x.id === editingId);
+    if (t) {
+      t.title = title;
+      t.phase = document.getElementById('f-phase-in').value;
+      t.workstream = document.getElementById('f-ws-in').value;
+      t.owner = document.getElementById('f-owner-in').value;
+      t.priority = document.getElementById('f-priority-in').value;
+      t.startDate = document.getElementById('f-start').value;
+      t.endDate = document.getElementById('f-end').value;
+      t.status = document.getElementById('f-status-in').value;
+      t.progress = parseInt(document.getElementById('f-progress').value)||0;
+      t.criticalPath = document.getElementById('f-cp').value === 'true';
+      t.riskNote = document.getElementById('f-risk').value;
+      t.estimatedCost = num(document.getElementById('f-estimated').value);
+      t.actualCost = num(document.getElementById('f-actual').value);
+      t.paidAmount = num(document.getElementById('f-paid').value);
+      t.paymentStatus = document.getElementById('f-payment-status').value;
+      t.vendorName = document.getElementById('f-vendor').value.trim();
+      t.notes = document.getElementById('f-notes').value;
+      showToast('Task updated');
+    }
+  } else {
+    const newId = Math.max(...tasks.map(t => t.id), 0) + 1;
+    tasks.push({
+      id: newId,
+      title,
+      phase: document.getElementById('f-phase-in').value,
+      workstream: document.getElementById('f-ws-in').value,
+      owner: document.getElementById('f-owner-in').value,
+      priority: document.getElementById('f-priority-in').value,
+      startDate: document.getElementById('f-start').value,
+      endDate: document.getElementById('f-end').value,
+      status: document.getElementById('f-status-in').value,
+      progress: parseInt(document.getElementById('f-progress').value)||0,
+      criticalPath: document.getElementById('f-cp').value === 'true',
+      riskNote: document.getElementById('f-risk').value,
+      estimatedCost: num(document.getElementById('f-estimated').value),
+      actualCost: num(document.getElementById('f-actual').value),
+      paidAmount: num(document.getElementById('f-paid').value),
+      paymentStatus: document.getElementById('f-payment-status').value,
+      vendorName: document.getElementById('f-vendor').value.trim(),
+      notes: document.getElementById('f-notes').value,
+    });
+    showToast('Task added');
+  }
+  saveData();
+  populateFiltersFresh();
+  closeModal();
+  applyFilters();
+  renderDashboard();
+  renderCostView();
+}
+
+function deleteTask(id) {
+  if (!confirm('Delete this task?')) return;
+  tasks = tasks.filter(t => t.id !== id);
+  saveData();
+  populateFiltersFresh();
+  applyFilters();
+  renderDashboard();
+  renderCostView();
+  showToast('Task deleted');
+}
+
+function resetFilters() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('f-ws').value = '';
+  document.getElementById('f-owner').value = '';
+  document.getElementById('f-priority').value = '';
+  document.getElementById('f-status').value = '';
+  document.getElementById('f-phase').value = '';
+  sortKey = null; sortDir = 1;
+  applyFilters();
+}
+
+// ─── TABS ────────────────────────────────────────────────────────────────────
+function switchTab(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  event.currentTarget && event.currentTarget.classList.add('active');
+  // find tab by text
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.getAttribute('onclick') === `switchTab('${id}')`) t.classList.add('active');
+  });
+  if (id === 'tasks') applyFilters();
+  if (id === 'critical') renderCriticalPath();
+  if (id === 'blockers') renderBlockers();
+  if (id === 'products') renderProducts();
+  if (id === 'talent') renderTalent();
+  if (id === 'manpower') renderManpower();
+  if (id === 'costs') renderCostView();
+  if (id === 'dashboard') renderDashboard();
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadOwnerOptions();
+  loadData();
+  updateCountdown();
+  setInterval(updateCountdown, 60000);
+  populateFilters();
+  renderDashboard();
+  renderProducts();
+  renderTalent();
+  renderManpower();
+  renderCostView();
+  applyFilters();
+  const ownerSelect = document.getElementById('f-owner-in');
+  if (ownerSelect) ownerSelect.addEventListener('change', handleOwnerSelectChange);
+  populateOwnerSelect('Atul');
+  const importInput = document.getElementById('json-import-input');
+  if (importInput) {
+    importInput.addEventListener('change', function(e) {
+      const file = e.target.files && e.target.files[0];
+      importJsonFile(file);
+    });
+  }
+});
+
+// Close modal on overlay click
+document.getElementById('task-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+<script>
+// --- MODULE PATCH: talent, manpower, vendors, version-safe import/export ---
+const MODULE_SCHEMA_VERSION = 5;
+const TALENT_STORAGE_KEY = 'ihff2026_talent';
+const MANPOWER_STORAGE_KEY = 'ihff2026_manpower';
+const VENDORS_STORAGE_KEY = 'ihff2026_vendors';
+
+const RAW_TALENT = [
+  {id:1,name:'Mohan Vashisht',type:'Athlete',owner:'Angela',followers:'25,300',niche:'Bodybuilding (Men’s Classic Physique)',commercials:125000,deliverables:'4–5 posts + up to 10 stories',contractStatus:'In Discussion',paymentStatus:'Pending',attendanceStatus:'Planned',deliverableStatus:'Not Started',notes:''},
+  {id:2,name:'Manoj Sarangpani',type:'Athlete',owner:'Angela',followers:'7,80,000',niche:'IFBB Pro Bodybuilding',commercials:130000,deliverables:'4 posts + min 10 stories',contractStatus:'In Discussion',paymentStatus:'Pending',attendanceStatus:'Planned',deliverableStatus:'Not Started',notes:''},
+  {id:3,name:'Anand Yadav',type:'Athlete',owner:'Angela',followers:'9,60,000',niche:'IFBB Pro Bodybuilding',commercials:120000,deliverables:'4 posts + min 10 stories',contractStatus:'In Discussion',paymentStatus:'Pending',attendanceStatus:'Planned',deliverableStatus:'Not Started',notes:''}
+];
+
+const RAW_MANPOWER = [
+  {id:1,role:'MBF Trainers',assignedTo:'Tejal / MBF Team',owner:'Tejal',countRequired:4,countConfirmed:0,zone:'Be. Booth',shift:'All 3 days',status:'Open',notes:'Coordinate 4 MBF trainers at the booth'},
+  {id:2,role:'B2B Sales',assignedTo:'Atul team',owner:'Atul',countRequired:2,countConfirmed:0,zone:'B2B Area',shift:'Show days',status:'Open',notes:'2 B2B sales people'},
+  {id:3,role:'Frozen Fun Booth Oversight',assignedTo:'Vanshika',owner:'Vanshika',countRequired:1,countConfirmed:1,zone:'Frozen Fun Booth',shift:'Show days',status:'Confirmed',notes:'Oversee frozen fun booth'},
+  {id:4,role:'Counters Oversight',assignedTo:'Shivam, Abhishek Jr., Maitri, Mizghan',owner:'Shivam',countRequired:4,countConfirmed:4,zone:'Counters',shift:'Show days',status:'Confirmed',notes:'Overseeing counters'},
+  {id:5,role:'Receptionist',assignedTo:'Parul to hire',owner:'Parul',countRequired:1,countConfirmed:0,zone:'Reception',shift:'Show days',status:'Open',notes:'Presentable, very well spoken female receptionist'},
+  {id:6,role:'Tasting Booth Team',assignedTo:'Team Be.',owner:'Deeksha',countRequired:2,countConfirmed:0,zone:'Protein & Creatine Tasting Booth',shift:'Show days',status:'Open',notes:'2 people from Team Be.'},
+  {id:7,role:'Sampling Station',assignedTo:'Sahil and Neeraj',owner:'Deeksha',countRequired:2,countConfirmed:2,zone:'Sampling Station',shift:'Show days',status:'Confirmed',notes:'Sampling station coverage'},
+  {id:8,role:'Bodyguard',assignedTo:'Rampal',owner:'Atul',countRequired:1,countConfirmed:1,zone:'Talent / Show Floor',shift:'Show days',status:'Confirmed',notes:'1 body guard'},
+  {id:9,role:'Team T-shirts Coordination',assignedTo:'Tejal',owner:'Tejal',countRequired:1,countConfirmed:1,zone:'Backstage / Team',shift:'Pre-show',status:'Confirmed',notes:'T-shirts for everyone at the Be. booth'}
+];
+
+const RAW_VENDORS = [];
+const CONTRACT_STATUSES = ['Not Started','In Discussion','Draft Sent','Under Review','Signed','Closed'];
+const DELIVERABLE_STATUSES = ['Not Started','In Progress','Submitted','Approved','Closed'];
+const ATTENDANCE_STATUSES = ['Planned','Tentative','Confirmed','Attended','Cancelled'];
+const MANPOWER_STATUSES = ['Open','Partially Filled','Confirmed','At Risk','Closed'];
+const VENDOR_CATEGORIES = ['Booth / Fabrication','Printing','Merchandise','Packaging','Staffing','Logistics','Talent','Misc'];
+
+function injectModuleStyles(){
+  if(document.getElementById('module-patch-styles')) return;
+  const style=document.createElement('style');
+  style.id='module-patch-styles';
+  style.textContent=`
+    .module-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px;}
+    .module-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;}
+    .module-card-label{font-size:9px;text-transform:uppercase;letter-spacing:1.3px;color:var(--t2);margin-bottom:6px;}
+    .module-card-val{font-family:var(--fh);font-size:22px;font-weight:800;line-height:1;}
+    .module-table{width:100%;border-collapse:collapse;min-width:980px;}
+    .module-table th,.module-table td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+    .module-table th{background:var(--s2);text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);white-space:nowrap;}
+    .module-table tr:hover{background:var(--s2);}
+    .module-actions{display:flex;gap:4px;}
+    .module-actions .act-btn{opacity:1;}
+    .module-badge{display:inline-block;padding:2px 6px;border-radius:999px;font-size:9px;border:1px solid var(--border2);background:var(--s3);color:var(--t2);white-space:nowrap;}
+    .module-section-title{font-family:var(--fh);font-weight:700;font-size:13px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;margin:18px 0 8px;}
+    .module-empty{padding:24px;border:1px dashed var(--border2);border-radius:8px;color:var(--t2);font-size:12px;text-align:center;}
+    .linked-task-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;}
+    .linked-task-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;}
+    .linked-task-title{font-size:11px;line-height:1.4;margin-bottom:6px;}
+    .small-muted{font-size:10px;color:var(--t2);}
+  `;
+  document.head.appendChild(style);
+}
+
+function ensureVendorUi(){
+  const tabBar = document.querySelector('.hdr-tabs');
+  if(tabBar && !tabBar.querySelector(".tab[onclick=\"switchTab('vendors')\"]")){
+    const tab=document.createElement('div');
+    tab.className='tab';
+    tab.setAttribute('onclick',"switchTab('vendors')");
+    tab.textContent='Vendors';
+    const costsTab = tabBar.querySelector(".tab[onclick=\"switchTab('costs')\"]");
+    if(costsTab) tabBar.insertBefore(tab, costsTab); else tabBar.appendChild(tab);
+  }
+  if(!document.getElementById('view-vendors')){
+    const view=document.createElement('div');
+    view.className='view';
+    view.id='view-vendors';
+    view.innerHTML=`
+      <div style="padding:16px 20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+          <div>
+            <div style="font-family:var(--fh);font-weight:700;font-size:18px;margin-bottom:4px;">Vendor & Payment Tracking</div>
+            <div style="color:var(--t2);font-size:11px;">Separate vendor entities live here. Master task procurement work is shown below as linked task coverage, not duplicated records.</div>
+          </div>
+          <button class="btn btn-accent" onclick="addVendor()">+ Add Vendor</button>
+        </div>
+        <div id="vendor-summary"></div>
+        <div id="vendor-table-wrap"></div>
+        <div class="module-section-title">Linked Procurement Tasks</div>
+        <div id="vendor-linked-tasks"></div>
+      </div>`;
+    const costsView = document.getElementById('view-costs');
+    if(costsView && costsView.parentNode) costsView.parentNode.insertBefore(view, costsView);
+    else document.body.appendChild(view);
+  }
+}
+
+function talentWithDefaults(t){
+  return {id:t.id || Date.now()+Math.random(), name:t.name||'', type:t.type||'Athlete', owner:t.owner||'Angela', followers:t.followers||'', niche:t.niche||'', commercials:num(t.commercials), deliverables:t.deliverables||'', contractStatus:t.contractStatus||'Not Started', paymentStatus:t.paymentStatus||'Pending', attendanceStatus:t.attendanceStatus||'Planned', deliverableStatus:t.deliverableStatus||'Not Started', notes:t.notes||''};
+}
+function manpowerWithDefaults(m){
+  return {id:m.id || Date.now()+Math.random(), role:m.role||'', assignedTo:m.assignedTo||'', owner:m.owner||'TBD', countRequired:num(m.countRequired), countConfirmed:num(m.countConfirmed), zone:m.zone||'', shift:m.shift||'', status:m.status||'Open', notes:m.notes||''};
+}
+function vendorWithDefaults(v){
+  return {id:v.id || Date.now()+Math.random(), name:v.name||'', category:v.category||'Misc', workstream:v.workstream||'', estimatedCost:num(v.estimatedCost), actualCost:num(v.actualCost), paidAmount:num(v.paidAmount), paymentStatus:v.paymentStatus||'Pending', paymentDueDate:v.paymentDueDate||'', notes:v.notes||''};
+}
+
+function getTalentData(){
+  const saved = localStorage.getItem(TALENT_STORAGE_KEY);
+  if(saved){
+    try{
+      const parsed = normalizeImportedPayload(JSON.parse(saved));
+      const list = (parsed.talent || []).map(talentWithDefaults);
+      if(list.length){ saveTalentData(list); return list; }
+    }catch(err){ console.error(err); }
+  }
+  const initial = RAW_TALENT.map(talentWithDefaults);
+  saveTalentData(initial);
+  return initial;
+}
+function saveTalentData(data){ localStorage.setItem(TALENT_STORAGE_KEY, JSON.stringify({version:MODULE_SCHEMA_VERSION, exportedAt:new Date().toISOString(), talent:data})); }
+
+function getManpowerData(){
+  const saved = localStorage.getItem(MANPOWER_STORAGE_KEY);
+  if(saved){
+    try{
+      const parsed = normalizeImportedPayload(JSON.parse(saved));
+      const list = (parsed.manpower || []).map(manpowerWithDefaults);
+      if(list.length){ saveManpowerData(list); return list; }
+    }catch(err){ console.error(err); }
+  }
+  const initial = RAW_MANPOWER.map(manpowerWithDefaults);
+  saveManpowerData(initial);
+  return initial;
+}
+function saveManpowerData(data){ localStorage.setItem(MANPOWER_STORAGE_KEY, JSON.stringify({version:MODULE_SCHEMA_VERSION, exportedAt:new Date().toISOString(), manpower:data})); }
+
+function getVendorsData(){
+  const saved = localStorage.getItem(VENDORS_STORAGE_KEY);
+  if(saved){
+    try{
+      const parsed = normalizeImportedPayload(JSON.parse(saved));
+      const list = (parsed.vendors || []).map(vendorWithDefaults);
+      saveVendorsData(list); return list;
+    }catch(err){ console.error(err); }
+  }
+  const initial = RAW_VENDORS.map(vendorWithDefaults);
+  saveVendorsData(initial);
+  return initial;
+}
+function saveVendorsData(data){ localStorage.setItem(VENDORS_STORAGE_KEY, JSON.stringify({version:MODULE_SCHEMA_VERSION, exportedAt:new Date().toISOString(), vendors:data})); }
+
+// Override payload normalization and import/export so old JSON keeps working.
+function normalizeImportedPayload(data){
+  if (Array.isArray(data)) {
+    return { version: 0, tasks: data, products: [], talent: [], manpower: [], vendors: [] };
+  }
+  if (!data || typeof data !== 'object') {
+    return { version: 0, tasks: [], products: [], talent: [], manpower: [], vendors: [] };
+  }
+  return {
+    version: Number.isFinite(Number(data.version)) ? Number(data.version) : 0,
+    tasks: Array.isArray(data.tasks) ? data.tasks : [],
+    products: Array.isArray(data.products) ? data.products : [],
+    talent: Array.isArray(data.talent) ? data.talent : [],
+    manpower: Array.isArray(data.manpower) ? data.manpower : [],
+    vendors: Array.isArray(data.vendors) ? data.vendors : []
+  };
+}
+
+function exportJson(){
+  try{
+    const payload = {
+      version: MODULE_SCHEMA_VERSION,
+      exportedAt: new Date().toISOString(),
+      event: 'Be. IHFF 2026 — War Room',
+      tasks,
+      products: getProductsData(),
+      talent: getTalentData(),
+      manpower: getManpowerData(),
+      vendors: getVendorsData()
+    };
+    const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0,19).replace(/[T:]/g,'-');
+    a.href=url; a.download=`ihff-war-room-${stamp}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    showToast('JSON exported');
+  }catch(err){ console.error(err); showToast('Export failed'); }
+}
+
+function importJsonFile(file){
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const payload = normalizeImportedPayload(JSON.parse(e.target.result));
+      if (!payload.tasks.length && !payload.products.length && !payload.talent.length && !payload.manpower.length && !payload.vendors.length) throw new Error('Invalid file');
+      tasks = (payload.tasks || []).map(taskWithDefaults);
+      saveData();
+      saveProductsData(migrateProductsData(payload.products, payload.version));
+      saveTalentData((payload.talent || RAW_TALENT).map(talentWithDefaults));
+      saveManpowerData((payload.manpower || RAW_MANPOWER).map(manpowerWithDefaults));
+      saveVendorsData((payload.vendors || RAW_VENDORS).map(vendorWithDefaults));
+      const input = document.getElementById('json-import-input'); if(input) input.value='';
+      populateFiltersFresh();
+      renderDashboard(); applyFilters(); renderCriticalPath(); renderBlockers(); renderProducts(); renderTalent(); renderManpower(); renderVendors(); renderCostView();
+      showToast(`JSON imported${payload.version < MODULE_SCHEMA_VERSION ? ' and upgraded' : ''}`);
+    }catch(err){ console.error(err); showToast('Invalid JSON file'); }
+  };
+  reader.readAsText(file);
+}
+
+function linkedTalentTasks(){
+  return tasks.filter(t => ['Athletes','Famous Friends','Mohan'].includes(t.workstream) || /(athlete|creator|mohan|famous friend)/i.test(`${t.title} ${t.notes||''}`));
+}
+function linkedManpowerTasks(){
+  return tasks.filter(t => ['Ops','Stand','Mohan'].includes(t.workstream) && /(team|trainer|sampling|booth|floor|rota|reception|bodyguard|uniform|role|manpower|staff|counter|sales|security|t-shirt|shirt)/i.test(`${t.title} ${t.notes||''}`));
+}
+function linkedVendorTasks(){
+  return tasks.filter(t => hasTaskCost(t) || ['Stand','Merch','Sampling','IHFF','Stage','B2B'].includes(t.workstream));
+}
+function renderLinkedTaskCards(targetId,list){
+  const el=document.getElementById(targetId); if(!el) return;
+  if(!list.length){ el.innerHTML='<div class="module-empty">No linked tasks found in the master task system.</div>'; return; }
+  el.innerHTML = `<div class="linked-task-list">${list.slice(0,18).map(t => `
+    <div class="linked-task-card">
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">
+        <div class="linked-task-title">${t.title}</div>
+        <span class="priority-badge p-${t.priority}">${t.priority}</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+        <span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span>
+        <span class="owner-badge">${t.owner}</span>
+      </div>
+      <div class="small-muted">Due ${t.endDate || '—'} · Status ${t.status}${hasTaskCost(t) ? ` · Pending ${formatCurrency(getTaskPending(t))}` : ''}</div>
+    </div>`).join('')}</div>`;
+}
+
+function renderTalent(){
+  const talent = getTalentData();
+  const signed = talent.filter(t => ['Signed','Closed'].includes(t.contractStatus)).length;
+  const confirmed = talent.filter(t => ['Confirmed','Attended'].includes(t.attendanceStatus)).length;
+  const pendingPay = talent.filter(t => !['Fully Paid','Not Applicable'].includes(t.paymentStatus)).reduce((a,t)=>a+num(t.commercials),0);
+  const avgCommercial = talent.length ? Math.round(talent.reduce((a,t)=>a+num(t.commercials),0)/talent.length) : 0;
+  const summary = document.getElementById('talent-summary');
+  if(summary){ summary.innerHTML = `
+    <div class="module-summary">
+      <div class="module-card"><div class="module-card-label">Tracked Talent</div><div class="module-card-val">${talent.length}</div></div>
+      <div class="module-card"><div class="module-card-label">Contracts Signed</div><div class="module-card-val">${signed}</div></div>
+      <div class="module-card"><div class="module-card-label">Attendance Confirmed</div><div class="module-card-val">${confirmed}</div></div>
+      <div class="module-card"><div class="module-card-label">Avg Commercial</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(avgCommercial)}</div></div>
+      <div class="module-card"><div class="module-card-label">Commercials Pending</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(pendingPay)}</div></div>
+    </div>
+    <div class="module-section-title">Talent Entities</div>`; }
+  const wrap=document.getElementById('talent-table-wrap');
+  if(wrap){
+    wrap.innerHTML = talent.length ? `<table class="module-table"><thead><tr><th>Name</th><th>Type</th><th>Followers</th><th>Niche</th><th>Commercials</th><th>Deliverables</th><th>Contract</th><th>Payment</th><th>Attendance</th><th>Owner</th><th>Actions</th></tr></thead><tbody>${talent.map(t => `
+      <tr>
+        <td><div style="font-size:12px;line-height:1.3;">${t.name}</div></td>
+        <td><span class="module-badge">${t.type}</span></td>
+        <td>${t.followers || '—'}</td>
+        <td style="max-width:180px;line-height:1.4;">${t.niche || '—'}</td>
+        <td>${formatCurrency(t.commercials)}</td>
+        <td style="max-width:180px;line-height:1.4;">${t.deliverables || '—'}</td>
+        <td><span class="module-badge">${t.contractStatus}</span></td>
+        <td><span class="cost-badge ${paymentClass(t.paymentStatus)}">${t.paymentStatus}</span></td>
+        <td><span class="module-badge">${t.attendanceStatus}</span></td>
+        <td><span class="owner-badge">${t.owner}</span></td>
+        <td><div class="module-actions"><button class="act-btn" onclick="editTalent(${t.id})">✏</button><button class="act-btn danger" onclick="deleteTalent(${t.id})">✕</button></div></td>
+      </tr>`).join('')}</tbody></table>` : '<div class="module-empty">No talent added yet.</div>';
+    wrap.innerHTML += '<div class="module-section-title">Linked Talent Tasks</div><div id="talent-linked-tasks"></div>';
+  }
+  renderLinkedTaskCards('talent-linked-tasks', linkedTalentTasks());
+}
+
+function renderManpower(){
+  const manpower = getManpowerData();
+  const totalRequired = manpower.reduce((a,m)=>a+num(m.countRequired),0);
+  const totalConfirmed = manpower.reduce((a,m)=>a+num(m.countConfirmed),0);
+  const gaps = manpower.reduce((a,m)=>a+Math.max(num(m.countRequired)-num(m.countConfirmed),0),0);
+  const confirmedRoles = manpower.filter(m => m.status === 'Confirmed').length;
+  const summary = document.getElementById('manpower-summary');
+  if(summary){ summary.innerHTML = `
+    <div class="module-summary">
+      <div class="module-card"><div class="module-card-label">Roles Tracked</div><div class="module-card-val">${manpower.length}</div></div>
+      <div class="module-card"><div class="module-card-label">Headcount Required</div><div class="module-card-val">${totalRequired}</div></div>
+      <div class="module-card"><div class="module-card-label">Headcount Confirmed</div><div class="module-card-val">${totalConfirmed}</div></div>
+      <div class="module-card"><div class="module-card-label">Coverage Gaps</div><div class="module-card-val">${gaps}</div></div>
+      <div class="module-card"><div class="module-card-label">Confirmed Roles</div><div class="module-card-val">${confirmedRoles}</div></div>
+    </div>
+    <div class="module-section-title">Manpower Entities</div>`; }
+  const wrap=document.getElementById('manpower-table-wrap');
+  if(wrap){
+    wrap.innerHTML = manpower.length ? `<table class="module-table"><thead><tr><th>Role</th><th>Assigned To</th><th>Owner</th><th>Required</th><th>Confirmed</th><th>Gap</th><th>Zone</th><th>Shift</th><th>Status</th><th>Actions</th></tr></thead><tbody>${manpower.map(m => `
+      <tr>
+        <td><div style="font-size:12px;line-height:1.3;">${m.role}</div><div class="small-muted">${m.notes || ''}</div></td>
+        <td style="max-width:180px;line-height:1.4;">${m.assignedTo || '—'}</td>
+        <td><span class="owner-badge">${m.owner}</span></td>
+        <td>${m.countRequired}</td>
+        <td>${m.countConfirmed}</td>
+        <td>${Math.max(num(m.countRequired)-num(m.countConfirmed),0)}</td>
+        <td>${m.zone || '—'}</td>
+        <td>${m.shift || '—'}</td>
+        <td><span class="module-badge">${m.status}</span></td>
+        <td><div class="module-actions"><button class="act-btn" onclick="editManpower(${m.id})">✏</button><button class="act-btn danger" onclick="deleteManpower(${m.id})">✕</button></div></td>
+      </tr>`).join('')}</tbody></table>` : '<div class="module-empty">No manpower roles added yet.</div>';
+    wrap.innerHTML += '<div class="module-section-title">Linked Manpower Tasks</div><div id="manpower-linked-tasks"></div>';
+  }
+  renderLinkedTaskCards('manpower-linked-tasks', linkedManpowerTasks());
+}
+
+function renderVendors(){
+  ensureVendorUi();
+  const vendors = getVendorsData();
+  const linked = linkedVendorTasks();
+  const overdueVendorPayments = vendors.filter(v => v.paymentDueDate && new Date(v.paymentDueDate) < new Date() && getVendorPending(v) > 0).length;
+  const totalEstimated = vendors.reduce((a,v)=>a+num(v.estimatedCost),0);
+  const totalActual = vendors.reduce((a,v)=>a+num(v.actualCost),0);
+  const totalPaid = vendors.reduce((a,v)=>a+num(v.paidAmount),0);
+  const totalPending = vendors.reduce((a,v)=>a+getVendorPending(v),0);
+  const summary=document.getElementById('vendor-summary');
+  if(summary){ summary.innerHTML=`
+    <div class="module-summary">
+      <div class="module-card"><div class="module-card-label">Vendors Tracked</div><div class="module-card-val">${vendors.length}</div></div>
+      <div class="module-card"><div class="module-card-label">Vendor Estimated</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(totalEstimated)}</div></div>
+      <div class="module-card"><div class="module-card-label">Vendor Actual</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(totalActualCombined)}</div></div>
+      <div class="module-card"><div class="module-card-label">Vendor Pending</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(totalPendingCombined)}</div></div>
+      <div class="module-card"><div class="module-card-label">Overdue Payments</div><div class="module-card-val">${overdueVendorPayments}</div></div>
+    </div>
+    <div class="module-section-title">Vendor Entities</div>`; }
+  const wrap=document.getElementById('vendor-table-wrap');
+  if(wrap){
+    wrap.innerHTML = vendors.length ? `<table class="module-table"><thead><tr><th>Name</th><th>Category</th><th>Workstream</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Due Date</th><th>Payment</th><th>Actions</th></tr></thead><tbody>${vendors.map(v => `
+      <tr>
+        <td><div style="font-size:12px;line-height:1.3;">${v.name}</div><div class="small-muted">${v.notes || ''}</div></td>
+        <td><span class="module-badge">${v.category}</span></td>
+        <td>${v.workstream ? `<span class="ws-badge ${wsClass(v.workstream)}">${v.workstream}</span>` : '—'}</td>
+        <td>${formatCurrency(v.estimatedCost)}</td>
+        <td>${formatCurrency(v.actualCost)}</td>
+        <td>${formatCurrency(v.paidAmount)}</td>
+        <td>${formatCurrency(getVendorPending(v))}</td>
+        <td>${v.paymentDueDate || '—'}</td>
+        <td><span class="cost-badge ${paymentClass(v.paymentStatus)}">${v.paymentStatus}</span></td>
+        <td><div class="module-actions"><button class="act-btn" onclick="editVendor(${v.id})">✏</button><button class="act-btn danger" onclick="deleteVendor(${v.id})">✕</button></div></td>
+      </tr>`).join('')}</tbody></table>` : '<div class="module-empty">No vendor entities added yet. Add actual vendors here; procurement tasks remain in the master task system below.</div>';
+  }
+  renderLinkedTaskCards('vendor-linked-tasks', linked);
+}
+
+function getVendorPending(v){ return Math.max(Math.max(num(v.actualCost), num(v.estimatedCost)) - num(v.paidAmount), 0); }
+
+
+const ENTITY_MODAL_STATE = { type:null, fields:[], values:{}, onSave:null };
+
+function escapeAttr(value){
+  return String(value == null ? '' : value)
+    .replace(/&/g,'&amp;')
+    .replace(/"/g,'&quot;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+}
+function closeEntityModal(){
+  const modal = document.getElementById('entity-modal');
+  if(modal) modal.classList.remove('show');
+  ENTITY_MODAL_STATE.type = null;
+  ENTITY_MODAL_STATE.fields = [];
+  ENTITY_MODAL_STATE.values = {};
+  ENTITY_MODAL_STATE.onSave = null;
+}
+function normalizeEntityValue(field, raw){
+  if(field.type === 'number' || field.type === 'currency') return num(raw);
+  return raw;
+}
+function openEntityModal(config){
+  ENTITY_MODAL_STATE.type = config.type || 'entity';
+  ENTITY_MODAL_STATE.fields = config.fields || [];
+  ENTITY_MODAL_STATE.values = {...(config.values || {})};
+  ENTITY_MODAL_STATE.onSave = config.onSave;
+  document.getElementById('entity-modal-title').textContent = config.title || 'Edit Item';
+  const grid = document.getElementById('entity-form-grid');
+  grid.innerHTML = ENTITY_MODAL_STATE.fields.map(field => {
+    const value = ENTITY_MODAL_STATE.values[field.key] ?? '';
+    const full = field.full ? ' full' : '';
+    if(field.type === 'textarea'){
+      return `<div class="form-group${full}"><label class="form-label">${field.label}</label><textarea class="form-input" data-entity-key="${field.key}" placeholder="${escapeAttr(field.placeholder || '')}">${escapeAttr(value)}</textarea>${field.hint ? `<div class="inline-hint">${field.hint}</div>` : ''}</div>`;
+    }
+    if(field.type === 'select'){
+      return `<div class="form-group${full}"><label class="form-label">${field.label}</label><select class="form-input" data-entity-key="${field.key}">${(field.options || []).map(opt => `<option value="${escapeAttr(opt)}" ${String(opt)===String(value) ? 'selected' : ''}>${opt}</option>`).join('')}</select>${field.hint ? `<div class="inline-hint">${field.hint}</div>` : ''}</div>`;
+    }
+    const type = field.type === 'currency' ? 'number' : (field.type || 'text');
+    const attrs = type === 'number' ? 'step="any"' : '';
+    const prefix = field.type === 'currency' ? '<span class="money-prefix">₹</span>' : '';
+    const withPrefix = field.type === 'currency' ? ' with-prefix' : '';
+    return `<div class="form-group${full}"><label class="form-label">${field.label}</label><div style="position:relative;">${prefix}<input class="form-input${withPrefix}" data-entity-key="${field.key}" type="${type}" ${attrs} value="${escapeAttr(value)}" placeholder="${escapeAttr(field.placeholder || '')}"></div>${field.hint ? `<div class="inline-hint">${field.hint}</div>` : ''}</div>`;
+  }).join('');
+  document.getElementById('entity-modal').classList.add('show');
+}
+function saveEntityModal(){
+  if(typeof ENTITY_MODAL_STATE.onSave !== 'function') return;
+  const out = {};
+  ENTITY_MODAL_STATE.fields.forEach(field => {
+    const el = document.querySelector(`[data-entity-key="${field.key}"]`);
+    if(!el) return;
+    const raw = el.value;
+    if(field.required && !String(raw).trim()){
+      el.focus();
+      showToast(`${field.label} is required`);
+      return;
+    }
+    out[field.key] = normalizeEntityValue(field, raw);
+  });
+  ENTITY_MODAL_STATE.onSave(out);
+  closeEntityModal();
+}
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape'){
+    const modal = document.getElementById('entity-modal');
+    if(modal && modal.classList.contains('show')) closeEntityModal();
+  }
+});
+
+const TALENT_FIELDS = [
+  {key:'name', label:'Name', type:'text', required:true, full:true},
+  {key:'type', label:'Type', type:'select', options:['Athlete','Creator']},
+  {key:'followers', label:'Followers', type:'text', placeholder:'e.g. 25,300'},
+  {key:'niche', label:'Niche', type:'text', placeholder:'e.g. IFBB Pro Bodybuilding'},
+  {key:'commercials', label:'Commercials', type:'currency'},
+  {key:'owner', label:'Owner', type:'text'},
+  {key:'contractStatus', label:'Contract Status', type:'select', options:CONTRACT_STATUSES},
+  {key:'paymentStatus', label:'Payment Status', type:'select', options:PAYMENT_STATUSES},
+  {key:'attendanceStatus', label:'Attendance Status', type:'select', options:ATTENDANCE_STATUSES},
+  {key:'deliverables', label:'Deliverables', type:'textarea', full:true},
+  {key:'notes', label:'Notes', type:'textarea', full:true},
+];
+const MANPOWER_FIELDS = [
+  {key:'role', label:'Role', type:'text', required:true, full:true},
+  {key:'assignedTo', label:'Assigned To', type:'text'},
+  {key:'owner', label:'Owner', type:'text'},
+  {key:'countRequired', label:'Count Required', type:'number'},
+  {key:'countConfirmed', label:'Count Confirmed', type:'number'},
+  {key:'zone', label:'Zone / Booth Area', type:'text'},
+  {key:'shift', label:'Shift / Day', type:'text'},
+  {key:'status', label:'Status', type:'select', options:MANPOWER_STATUSES},
+  {key:'notes', label:'Notes', type:'textarea', full:true},
+];
+const VENDOR_FIELDS = [
+  {key:'name', label:'Vendor Name', type:'text', required:true, full:true},
+  {key:'category', label:'Category', type:'select', options:VENDOR_CATEGORIES},
+  {key:'workstream', label:'Workstream', type:'text'},
+  {key:'estimatedCost', label:'Estimated Cost', type:'currency'},
+  {key:'actualCost', label:'Actual Cost', type:'currency'},
+  {key:'paidAmount', label:'Paid Amount', type:'currency'},
+  {key:'paymentStatus', label:'Payment Status', type:'select', options:PAYMENT_STATUSES},
+  {key:'paymentDueDate', label:'Payment Due Date', type:'date'},
+  {key:'notes', label:'Notes', type:'textarea', full:true},
+];
+
+function addTalent(){
+  openEntityModal({
+    type:'talent',
+    title:'Add Talent',
+    fields:TALENT_FIELDS,
+    values:{type:'Athlete', contractStatus:'Not Started', paymentStatus:'Pending', attendanceStatus:'Not Confirmed'},
+    onSave:(vals)=>{
+      const data = getTalentData();
+      data.push(talentWithDefaults({id:Date.now(), ...vals}));
+      saveTalentData(data); renderTalent(); renderDashboard(); showToast('Talent added');
+    }
+  });
+}
+function editTalent(id){
+  const data=getTalentData(); const item=data.find(x=>x.id===id); if(!item) return;
+  openEntityModal({
+    type:'talent',
+    title:'Edit Talent',
+    fields:TALENT_FIELDS,
+    values:item,
+    onSave:(vals)=>{
+      Object.assign(item, vals, {commercials:num(vals.commercials)});
+      saveTalentData(data); renderTalent(); renderDashboard(); showToast('Talent updated');
+    }
+  });
+}
+function deleteTalent(id){ if(!confirm('Delete this talent entry?')) return; const data=getTalentData().filter(x=>x.id!==id); saveTalentData(data); renderTalent(); renderDashboard(); showToast('Talent deleted'); }
+
+function addManpower(){
+  openEntityModal({
+    type:'manpower',
+    title:'Add Manpower Role',
+    fields:MANPOWER_FIELDS,
+    values:{status:'Not Started', countRequired:0, countConfirmed:0},
+    onSave:(vals)=>{
+      const data=getManpowerData();
+      data.push(manpowerWithDefaults({id:Date.now(), ...vals}));
+      saveManpowerData(data); renderManpower(); renderDashboard(); showToast('Role added');
+    }
+  });
+}
+function editManpower(id){
+  const data=getManpowerData(); const item=data.find(x=>x.id===id); if(!item) return;
+  openEntityModal({
+    type:'manpower',
+    title:'Edit Manpower Role',
+    fields:MANPOWER_FIELDS,
+    values:item,
+    onSave:(vals)=>{
+      Object.assign(item, vals, {countRequired:num(vals.countRequired), countConfirmed:num(vals.countConfirmed)});
+      saveManpowerData(data); renderManpower(); renderDashboard(); showToast('Manpower updated');
+    }
+  });
+}
+function deleteManpower(id){ if(!confirm('Delete this manpower role?')) return; const data=getManpowerData().filter(x=>x.id!==id); saveManpowerData(data); renderManpower(); renderDashboard(); showToast('Role deleted'); }
+
+function addVendor(){
+  ensureVendorUi();
+  openEntityModal({
+    type:'vendor',
+    title:'Add Vendor',
+    fields:VENDOR_FIELDS,
+    values:{category:'Misc', paymentStatus:'Pending'},
+    onSave:(vals)=>{
+      const data=getVendorsData();
+      data.push(vendorWithDefaults({id:Date.now(), ...vals}));
+      saveVendorsData(data); renderVendors(); renderDashboard(); showToast('Vendor added');
+    }
+  });
+}
+function editVendor(id){
+  const data=getVendorsData(); const item=data.find(x=>x.id===id); if(!item) return;
+  openEntityModal({
+    type:'vendor',
+    title:'Edit Vendor',
+    fields:VENDOR_FIELDS,
+    values:item,
+    onSave:(vals)=>{
+      Object.assign(item, vals, {estimatedCost:num(vals.estimatedCost), actualCost:num(vals.actualCost), paidAmount:num(vals.paidAmount)});
+      saveVendorsData(data); renderVendors(); renderDashboard(); showToast('Vendor updated');
+    }
+  });
+}
+function deleteVendor(id){ if(!confirm('Delete this vendor?')) return; const data=getVendorsData().filter(x=>x.id!==id); saveVendorsData(data); renderVendors(); renderDashboard(); showToast('Vendor deleted'); }
+
+// Wrap dashboard to add vendor KPIs without disturbing the rest of the page.
+const __baseRenderDashboard = renderDashboard;
+renderDashboard = function(){
+  __baseRenderDashboard();
+  try{
+    const grid = document.getElementById('kpi-grid'); if(!grid) return;
+    const vendors = getVendorsData();
+    const totalVendorSpend = vendors.reduce((a,v)=>a+Math.max(num(v.actualCost), num(v.estimatedCost)),0);
+    const unpaidVendors = vendors.filter(v => getVendorPending(v) > 0).length;
+    const overdueVendorPayments = vendors.filter(v => v.paymentDueDate && new Date(v.paymentDueDate) < new Date() && getVendorPending(v) > 0).length;
+    Array.from(grid.querySelectorAll('.vendor-kpi')).forEach(el => el.remove());
+    grid.insertAdjacentHTML('beforeend', `
+      <div class="kpi purple vendor-kpi"><div class="kpi-label">Vendor Spend</div><div class="kpi-val" style="font-size:20px;">${formatCurrency(totalVendorSpend)}</div><div class="kpi-sub">${vendors.length} vendors tracked</div></div>
+      <div class="kpi yellow vendor-kpi"><div class="kpi-label">Unpaid Vendors</div><div class="kpi-val">${unpaidVendors}</div><div class="kpi-sub">${overdueVendorPayments} overdue payments</div></div>
+    `);
+  }catch(err){ console.error(err); }
+};
+
+// Override tab switcher so vendors render too.
+function switchTab(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const view = document.getElementById('view-'+id); if(view) view.classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => { if (t.getAttribute('onclick') === `switchTab('${id}')`) t.classList.add('active'); });
+  if (id === 'tasks') applyFilters();
+  if (id === 'critical') renderCriticalPath();
+  if (id === 'blockers') renderBlockers();
+  if (id === 'products') renderProducts();
+  if (id === 'talent') renderTalent();
+  if (id === 'manpower') renderManpower();
+  if (id === 'vendors') renderVendors();
+  if (id === 'costs') renderCostView();
+  if (id === 'dashboard') renderDashboard();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  injectModuleStyles();
+  ensureVendorUi();
+  getTalentData(); getManpowerData(); getVendorsData();
+  renderTalent(); renderManpower(); renderVendors(); renderDashboard();
+});
+<script>
+// --- MODULE PATCH: stronger dependency logic ---
+(function(){
+  const DEPENDENCY_MAP = {
+    2:[1],
+    9:[3,72],
+    11:[2,66,67],
+    16:[17],
+    17:[9,73,85],
+    20:[14],
+    24:[12,17,19,87],
+    28:[14],
+    29:[11],
+    32:[24,29,31],
+    35:[20],
+    40:[33,38,77],
+    44:[33,40],
+    45:[44,90,100],
+    46:[29,32,93],
+    47:[35,46,48,50,82],
+    50:[20],
+    52:[45,47],
+    54:[38,40,45],
+    55:[18,45],
+    58:[54,57],
+    59:[58],
+    60:[53,56],
+    77:[74],
+    79:[29,31],
+    85:[83],
+    90:[85,102],
+    100:[84,96],
+    102:[85],
+    104:[46,100],
+    105:[45,104],
+    106:[90,102]
+  };
+
+  function injectDependencyStyles(){
+    if(document.getElementById('dependency-logic-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'dependency-logic-styles';
+    style.textContent = `
+      .dep-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:999px;font-size:9px;letter-spacing:.5px;text-transform:uppercase;border:1px solid rgba(167,139,250,.28);background:rgba(167,139,250,.12);color:#c4b5fd;white-space:nowrap;}
+      .dep-badge.blocked{border-color:rgba(255,59,59,.35);background:rgba(255,59,59,.12);color:#ff8a8a;}
+      .dep-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+      .dep-line{font-size:10px;line-height:1.4;color:var(--info);margin-top:3px;}
+      .dep-line.blocked{color:#ff9a9a;}
+      .dep-chip{display:inline-block;padding:1px 5px;border-radius:999px;border:1px solid var(--border2);background:var(--s3);color:var(--t2);font-size:9px;}
+      .status-sel.dependency-blocked{border-color:var(--crit);color:var(--crit);box-shadow:0 0 0 1px rgba(255,59,59,.12) inset;}
+      .blocked-by-list{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function asArray(v){ return Array.isArray(v) ? v : []; }
+
+  function applyDependencyDefaults(){
+    tasks.forEach(t => {
+      const existing = asArray(t.dependencyIds).map(Number).filter(Boolean);
+      const seeded = DEPENDENCY_MAP[t.id] || [];
+      t.dependencyIds = Array.from(new Set([...existing, ...seeded])).filter(id => id !== t.id && tasks.some(x => x.id === id));
+    });
+  }
+
+  function getTaskById(id){ return tasks.find(t => t.id === id); }
+  function getDependencies(task){ return asArray(task.dependencyIds).map(getTaskById).filter(Boolean); }
+  function getBlockedBy(task){ return getDependencies(task).filter(dep => dep.status !== 'Done'); }
+  function hasDependencyBlock(task){ return task.status !== 'Done' && getBlockedBy(task).length > 0; }
+  function effectiveStatus(task){ return hasDependencyBlock(task) ? 'Blocked' : task.status; }
+  function dependencyLabel(task){
+    const deps = getDependencies(task);
+    if(!deps.length) return '';
+    const blocked = getBlockedBy(task);
+    if(blocked.length){
+      return `Blocked by ${blocked.length} dependency${blocked.length > 1 ? 'ies' : ''}`;
+    }
+    return `${deps.length} dependenc${deps.length > 1 ? 'ies' : 'y'} cleared`;
+  }
+  function dependencyReason(task){
+    const blocked = getBlockedBy(task);
+    if(!blocked.length) return '';
+    return blocked.map(dep => dependencyLinkHtml(dep)).join(' • ');
+  }
+
+  const __baseTaskWithDefaults = taskWithDefaults;
+  taskWithDefaults = function(t){
+    const normalized = __baseTaskWithDefaults(t);
+    normalized.dependencyIds = asArray(t && t.dependencyIds).map(Number).filter(Boolean);
+    return normalized;
+  };
+
+  const __baseLoadData = loadData;
+  loadData = function(){
+    __baseLoadData();
+    applyDependencyDefaults();
+    saveData();
+  };
+
+  const __baseImportJsonFile = importJsonFile;
+  importJsonFile = function(file){
+    __baseImportJsonFile(file);
+    setTimeout(() => {
+      try {
+        applyDependencyDefaults();
+        saveData();
+        renderDashboard();
+        applyFilters();
+        renderCriticalPath();
+        renderBlockers();
+      } catch(err){ console.error(err); }
+    }, 0);
+  };
+
+  function matchesFilterStatus(task, status){
+    return effectiveStatus(task) === status;
+  }
+
+  updateStats = function(filtered) {
+    const counts = {todo:0,inprog:0,blocked:0,done:0,review:0};
+    filtered.forEach(t => {
+      const st = effectiveStatus(t);
+      if (st==='To Do') counts.todo++;
+      else if (st==='In Progress') counts.inprog++;
+      else if (st==='Blocked') counts.blocked++;
+      else if (st==='Done') counts.done++;
+      else if (st==='Review') counts.review++;
+    });
+    const costLinked = filtered.filter(hasTaskCost).length;
+    document.getElementById('stats-row').innerHTML = `
+      <span style="font-size:10px;color:var(--t2);margin-right:4px;">${filtered.length} tasks</span>
+      <span style="font-size:10px;color:var(--t2);margin-right:8px;">${costLinked} cost-linked</span>
+      <span class="stat-pill s-todo"><span class="stat-count">${counts.todo}</span> To Do</span>
+      <span class="stat-pill s-inprog"><span class="stat-count">${counts.inprog}</span> In Progress</span>
+      <span class="stat-pill s-blocked"><span class="stat-count">${counts.blocked}</span> Blocked</span>
+      <span class="stat-pill s-done"><span class="stat-count">${counts.done}</span> Done</span>
+      ${counts.review ? `<span class="stat-pill" style="background:rgba(255,170,0,.1);color:var(--warn);"><span class="stat-count">${counts.review}</span> Review</span>` : ''}
+    `;
+  };
+
+  applyFilters = function() {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    const ws = document.getElementById('f-ws').value;
+    const owner = document.getElementById('f-owner').value;
+    const pri = document.getElementById('f-priority').value;
+    const st = document.getElementById('f-status').value;
+    const ph = document.getElementById('f-phase').value;
+
+    let filtered = tasks.filter(t => {
+      const depText = dependencyReason(t).toLowerCase();
+      if (q && !t.title.toLowerCase().includes(q) && !t.owner.toLowerCase().includes(q) && !t.workstream.toLowerCase().includes(q) && !depText.includes(q)) return false;
+      if (ws && t.workstream !== ws) return false;
+      if (owner && t.owner !== owner) return false;
+      if (pri && t.priority !== pri) return false;
+      if (st && !matchesFilterStatus(t, st)) return false;
+      if (ph && t.phase !== ph) return false;
+      return true;
+    });
+
+    if (sortKey) {
+      filtered.sort((a,b) => {
+        let av = a[sortKey]||'', bv = b[sortKey]||'';
+        return av < bv ? -sortDir : av > bv ? sortDir : 0;
+      });
+    }
+
+    renderTaskTable(filtered);
+    updateStats(filtered);
+  };
+
+  renderTaskTable = function(list) {
+    const tbody = document.getElementById('task-tbody');
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="12"><div class="empty"><div class="empty-icon">🔍</div>No tasks match your filters</div></td></tr>';
+      return;
+    }
+    const phases = [];
+    const phaseMap = {};
+    list.forEach(t => {
+      if (!phaseMap[t.phase]) { phaseMap[t.phase] = []; phases.push(t.phase); }
+      phaseMap[t.phase].push(t);
+    });
+
+    let html = '';
+    phases.forEach(ph => {
+      html += `<tr class="phase-row"><td colspan="12">${ph}</td></tr>`;
+      phaseMap[ph].forEach(t => {
+        const overdue = isOverdue(t);
+        const eStatus = effectiveStatus(t);
+        const sc = statusClass(eStatus) + (hasDependencyBlock(t) ? ' dependency-blocked' : '');
+        const deps = getDependencies(t);
+        const blocked = getBlockedBy(t);
+        html += `<tr id="row-${t.id}">
+          <td class="task-id">${t.id}</td>
+          <td>
+            <div class="task-title-cell">
+              <span class="task-title" title="${(t.notes||'').replace(/"/g,'&quot;')}" onclick="openEditModal(${t.id})">${t.title}</span>
+            </div>
+            ${t.riskNote ? `<div style="font-size:10px;color:var(--warn);margin-top:2px;">⚠ ${t.riskNote}</div>` : ''}
+            ${deps.length ? `<div class="dep-meta"><span class="dep-badge ${blocked.length ? 'blocked' : ''}">⛓ ${dependencyLabel(t)}</span></div>` : ''}
+            ${blocked.length ? `<div class="dep-line blocked">Waiting on: ${blocked.map(dep => dependencyLinkHtml(dep)).join(' • ')}</div>` : deps.length ? `<div class="dep-line">Dependencies cleared: ${deps.map(dep => dependencyLinkHtml(dep, true)).join(', ')}</div>` : ''}
+          </td>
+          <td><span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span></td>
+          <td><span class="owner-badge">${t.owner}</span></td>
+          <td class="date-cell ${overdue ? 'overdue' : ''}">${t.endDate||'—'}${overdue ? ' ⚠' : ''}</td>
+          <td><span class="priority-badge p-${t.priority}">${t.priority}</span></td>
+          <td>
+            <select class="status-sel ${sc}" onchange="updateStatus(${t.id}, this.value)">
+              <option ${eStatus==='To Do'?'selected':''}>To Do</option>
+              <option ${eStatus==='In Progress'?'selected':''}>In Progress</option>
+              <option ${eStatus==='Review'?'selected':''}>Review</option>
+              <option ${eStatus==='Blocked'?'selected':''}>Blocked</option>
+              <option ${eStatus==='Done'?'selected':''}>Done</option>
+            </select>
+          </td>
+          <td>
+            <div class="progress-cell">
+              <div class="prog-bar"><div class="prog-fill" style="width:${t.progress||0}%"></div></div>
+              <span class="prog-num">${t.progress||0}%</span>
+            </div>
+            <input type="range" min="0" max="100" value="${t.progress||0}" class="progress-slider" oninput="liveUpdateProgress(${t.id}, this.value, this)" onchange="commitProgress(${t.id}, this.value)">
+          </td>
+          <td><span class="${t.criticalPath ? 'cp-yes' : 'cp-no'}">${t.criticalPath ? '🔴 YES' : '—'}</span></td>
+          <td>${blocked.length ? `<span class="risk-flag" title="${dependencyReason(t).replace(/"/g,'&quot;')}">⛓ Dependency</span>` : t.riskNote ? `<span class="risk-flag" title="${(t.riskNote||'').replace(/"/g,'&quot;')}">⚠ Risk</span>` : '—'}</td>
+          <td>
+            <div class="cost-stack">
+              <div class="cost-main">${formatCurrency(getTaskActual(t))}</div>
+              <div class="cost-sub">Est ${formatCurrency(getTaskEstimated(t))}</div>
+              ${hasTaskCost(t) ? `<span class="cost-badge ${paymentClass(t.paymentStatus)}">${t.paymentStatus || 'Not Applicable'}</span>` : '<span class="cost-sub">—</span>'}
+            </div>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="act-btn" onclick="openEditModal(${t.id})" title="Edit">✏</button>
+              <button class="act-btn danger" onclick="deleteTask(${t.id})" title="Delete">✕</button>
+            </div>
+          </td>
+        </tr>`;
+      });
+    });
+    tbody.innerHTML = html;
+  };
+
+  updateStatus = function(id, val) {
+    const t = tasks.find(x => x.id === id);
+    if (!t) return;
+    const blocked = getBlockedBy(t);
+    if (val === 'Done' && blocked.length) {
+      showToast(`Clear ${blocked.length} dependency${blocked.length > 1 ? 'ies' : ''} first`);
+      applyFilters();
+      return;
+    }
+    t.status = val;
+    if (val === 'Done') t.progress = 100;
+    if (val === 'To Do' && t.progress === 100) t.progress = 0;
+    saveData();
+    renderDashboard();
+    applyFilters();
+    renderCriticalPath();
+    renderBlockers();
+    showToast(`Task ${id} → ${val}`);
+  };
+
+  renderCriticalPath = function() {
+    const cp = tasks.filter(t => t.criticalPath);
+    const tbody = document.getElementById('cp-tbody');
+    if (!cp.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty">No critical path tasks</div></td></tr>'; return; }
+    tbody.innerHTML = cp.map(t => {
+      const overdue = isOverdue(t);
+      const blocked = getBlockedBy(t);
+      const eStatus = effectiveStatus(t);
+      const sc = statusClass(eStatus) + (blocked.length ? ' dependency-blocked' : '');
+      return `<tr>
+        <td class="task-id">${t.id}</td>
+        <td><div style="font-size:12px;max-width:340px;line-height:1.3;">${t.title}${blocked.length ? `<div class="dep-line blocked">Waiting on ${blocked.map(dep => dependencyLinkHtml(dep, true)).join(', ')}</div>` : ''}</div></td>
+        <td><span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span></td>
+        <td><span class="owner-badge">${t.owner}</span></td>
+        <td class="date-cell ${overdue?'overdue':''}">${t.endDate||'—'}${overdue?' ⚠':''}</td>
+        <td><span class="priority-badge p-${t.priority}">${t.priority}</span></td>
+        <td><select class="status-sel ${sc}" onchange="updateStatus(${t.id}, this.value)">
+          <option ${eStatus==='To Do'?'selected':''}>To Do</option>
+          <option ${eStatus==='In Progress'?'selected':''}>In Progress</option>
+          <option ${eStatus==='Review'?'selected':''}>Review</option>
+          <option ${eStatus==='Blocked'?'selected':''}>Blocked</option>
+          <option ${eStatus==='Done'?'selected':''}>Done</option>
+        </select></td>
+        <td>${blocked.length ? `<span class="risk-flag">⛓ ${blocked.length} dependency pending</span>` : t.riskNote ? `<span class="risk-flag">⚠ ${t.riskNote.substring(0,60)}${t.riskNote.length>60?'…':''}</span>` : '—'}</td>
+        <td><div class="action-btns" style="opacity:1;"><button class="act-btn" onclick="openEditModal(${t.id})">✏</button></div></td>
+      </tr>`;
+    }).join('');
+  };
+
+  renderBlockers = function() {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const list = tasks.filter(t => hasDependencyBlock(t) || t.status === 'Blocked' || t.riskNote || (t.endDate && new Date(t.endDate) < today && t.status !== 'Done'));
+    const el = document.getElementById('blocker-full-list');
+    if (!list.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">✅</div>No blockers or at-risk tasks</div>'; return; }
+    el.innerHTML = `<table style="width:100%;border-collapse:collapse;min-width:800px;">
+      <thead><tr>
+        <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">#</th>
+        <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Task</th>
+        <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Workstream</th>
+        <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Owner</th>
+        <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Due</th>
+        <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Status</th>
+        <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Risk / Reason</th>
+      </tr></thead>
+      <tbody>${list.map(t => {
+        const overdue = isOverdue(t);
+        const blocked = getBlockedBy(t);
+        const eStatus = effectiveStatus(t);
+        const tag = blocked.length ? `<span style="background:rgba(255,59,59,.15);color:var(--crit);font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">DEPENDENCY</span>` :
+                    t.status === 'Blocked' ? `<span style="background:rgba(255,59,59,.15);color:var(--crit);font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">BLOCKED</span>` :
+                    overdue ? `<span style="background:rgba(255,170,0,.15);color:var(--warn);font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">OVERDUE</span>` :
+                    `<span style="background:rgba(255,170,0,.1);color:var(--warn);font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">AT RISK</span>`;
+        return `<tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:7px 10px;color:var(--t3);font-size:10px;">${t.id}</td>
+          <td style="padding:7px 10px;"><div style="font-size:11px;max-width:300px;line-height:1.3;">${tag}${t.title}</div></td>
+          <td style="padding:7px 10px;"><span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span></td>
+          <td style="padding:7px 10px;"><span class="owner-badge">${t.owner}</span></td>
+          <td style="padding:7px 10px;" class="date-cell ${overdue?'overdue':''}">${t.endDate||'—'}</td>
+          <td style="padding:7px 10px;"><select class="status-sel ${statusClass(eStatus)} ${blocked.length?'dependency-blocked':''}" onchange="updateStatus(${t.id}, this.value)">
+            <option ${eStatus==='To Do'?'selected':''}>To Do</option>
+            <option ${eStatus==='In Progress'?'selected':''}>In Progress</option>
+            <option ${eStatus==='Review'?'selected':''}>Review</option>
+            <option ${eStatus==='Blocked'?'selected':''}>Blocked</option>
+            <option ${eStatus==='Done'?'selected':''}>Done</option>
+          </select></td>
+          <td style="padding:7px 10px;font-size:10px;color:var(--warn);max-width:250px;line-height:1.4;">${blocked.length ? dependencyReason(t) : t.riskNote||'Past due date'}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+  };
+
+  const __baseRenderDashboard2 = renderDashboard;
+  renderDashboard = function(){
+    __baseRenderDashboard2();
+    try{
+      const grid = document.getElementById('kpi-grid');
+      if(grid){
+        const depBlocked = tasks.filter(t => hasDependencyBlock(t)).length;
+        Array.from(grid.querySelectorAll('.dependency-kpi')).forEach(el => el.remove());
+        grid.insertAdjacentHTML('beforeend', `<div class="kpi red dependency-kpi"><div class="kpi-label">Dependency Blocked</div><div class="kpi-val">${depBlocked}</div><div class="kpi-sub">Waiting on prerequisite tasks</div></div>`);
+      }
+      const list = document.getElementById('critical-list');
+      if(list){
+        const depBlockedTasks = tasks.filter(t => hasDependencyBlock(t)).slice(0,3);
+        depBlockedTasks.forEach(t => {
+          const marker = `dep-${t.id}`;
+          if(list.querySelector(`[data-dep-card="${marker}"]`)) return;
+          list.insertAdjacentHTML('beforeend', `<div data-dep-card="${marker}" style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.25);border-radius:8px;padding:12px 14px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <span style="background:var(--info);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:1px;">⛓ DEPENDENCY</span>
+              <span style="font-family:var(--fh);font-weight:700;font-size:12px;color:var(--info);">#${t.id} ${t.workstream}</span>
+            </div>
+            <div style="font-size:11px;color:#d7d0ff;line-height:1.5;">${t.title}</div>
+            <div class="blocked-by-list">${getBlockedBy(t).map(dep => `<span class="dep-chip">#${dep.id}</span>`).join('')}</div>
+            <div style="font-size:10px;color:var(--t2);margin-top:6px;">Owner: <span style="color:var(--text)">${t.owner}</span></div>
+          </div>`);
+        });
+      }
+    }catch(err){ console.error(err); }
+  };
+
+  const __basePopulateFilters = populateFilters;
+  populateFilters = function(){
+    __basePopulateFilters();
+    applyDependencyDefaults();
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    injectDependencyStyles();
+    applyDependencyDefaults();
+    saveData();
+    renderDashboard();
+    applyFilters();
+    renderCriticalPath();
+    renderBlockers();
+  });
+})();
+
+<script>
+// --- MODULE PATCH: reusable child-item structure, seeded merch/samples line items, recursive task editing ---
+(function(){
+  const CHILD_ITEM_SCHEMA_VERSION = 7;
+  let editingParentId = null;
+
+  function injectChildItemStyles(){
+    if(document.getElementById('child-item-style-patch')) return;
+    const style = document.createElement('style');
+    style.id = 'child-item-style-patch';
+    style.textContent = `
+      .subtask-row td{border-top:1px dashed rgba(255,255,255,.04);}
+      .subtask-row .task-title-cell{min-width:220px;max-width:420px;}
+      .task-title.subtask{display:flex;align-items:center;gap:6px;}
+      .lineitem-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:999px;font-size:9px;letter-spacing:.6px;text-transform:uppercase;background:rgba(212,245,60,.08);border:1px solid rgba(212,245,60,.18);color:var(--accent);}
+      .cost-main.small{font-size:11px;}
+      .child-add-hint{font-size:10px;color:var(--t2);margin-top:4px;}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function asArray(v){ return Array.isArray(v) ? v : []; }
+
+  const MERCH_LINE_ITEMS = [
+    {title:'T-shirts', owner:'Angela', priority:'HIGH', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'700 units'},
+    {title:'Shakers', owner:'Deeksha', priority:'CRITICAL', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'500 units'},
+    {title:'Ganjis', owner:'Angela', priority:'HIGH', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'300 units'},
+    {title:'Shopping Bags', owner:'Angela', priority:'HIGH', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'Design + sampling'},
+    {title:'Stickers', owner:'Angela', priority:'MEDIUM', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'Sample stickers'}
+  ];
+
+  const SAMPLE_LINE_ITEMS = [
+    {title:'Alpha', owner:'Deeksha', priority:'HIGH', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'2,500 sample units'},
+    {title:'Sexy JMC', owner:'Deeksha', priority:'HIGH', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'2,500 sample units'},
+    {title:'Sexy Vegan', owner:'Deeksha', priority:'HIGH', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'2,500 sample units'},
+    {title:'Creatine', owner:'Deeksha', priority:'CRITICAL', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'2,500 sample units'},
+    {title:'Protein', owner:'Deeksha', priority:'CRITICAL', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'2,500 sample units'},
+    {title:'Triple Magnesium', owner:'Deeksha', priority:'CRITICAL', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'2,500 sample units'},
+    {title:'DND', owner:'Deeksha', priority:'HIGH', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'2,500 sample units'}
+  ];
+
+  function flattenTasksDeep(list, depth=0, parent=null, acc=[]){
+    asArray(list).forEach(item => {
+      acc.push({item, depth, parent});
+      if (asArray(item.subtasks).length) flattenTasksDeep(item.subtasks, depth+1, item, acc);
+    });
+    return acc;
+  }
+
+  function getAllTaskRecords(){
+    return flattenTasksDeep(tasks);
+  }
+
+  function getMaxTaskIdDeep(){
+    return getAllTaskRecords().reduce((max, rec) => Math.max(max, Number(rec.item.id)||0), 0);
+  }
+
+  function nextIdFactory(){
+    let next = getMaxTaskIdDeep() + 1;
+    return () => next++;
+  }
+
+  function findTaskRecord(id, list=tasks, parent=null){
+    id = Number(id);
+    for(const item of asArray(list)){
+      if (Number(item.id) === id) return {item, parent, list};
+      const nested = findTaskRecord(id, item.subtasks, item);
+      if (nested) return nested;
+    }
+    return null;
+  }
+
+  function withDefaults(item, parent){
+    return taskWithDefaults({
+      ...item,
+      phase: item.phase || parent.phase || '',
+      workstream: item.workstream || parent.workstream || '',
+      owner: item.owner || parent.owner || 'TBD',
+      priority: item.priority || parent.priority || 'MEDIUM',
+      startDate: item.startDate || parent.startDate || '',
+      endDate: item.endDate || parent.endDate || '',
+      riskNote: item.riskNote || '',
+      notes: item.notes || '',
+      criticalPath: !!item.criticalPath,
+      dependencyIds: asArray(item.dependencyIds || []),
+      paymentDueDate: item.paymentDueDate || ''
+    });
+  }
+
+  function seedChildItems(parent, items){
+    if (asArray(parent.subtasks).length) return false;
+    const nextId = nextIdFactory();
+    parent.subtasks = items.map(raw => withDefaults({...raw, id: nextId()}, parent));
+    return true;
+  }
+
+  function ensureStructuredParents(){
+    let changed = false;
+    tasks.forEach(task => {
+      if (task.workstream === 'Merch' && /place all merchandise orders/i.test(task.title || '')) {
+        changed = seedChildItems(task, MERCH_LINE_ITEMS) || changed;
+      }
+      if (task.workstream === 'Sampling' && /prepare all sampling stock/i.test(task.title || '')) {
+        changed = seedChildItems(task, SAMPLE_LINE_ITEMS) || changed;
+      }
+    });
+    return changed;
+  }
+
+  function taskLabelMatches(task, q){
+    const hay = `${task.title||''} ${task.owner||''} ${task.workstream||''} ${task.notes||''} ${task.riskNote||''} ${task.vendorName||''}`.toLowerCase();
+    return !q || hay.includes(q);
+  }
+
+  function taskMatchesFilter(task, filters){
+    if (!taskLabelMatches(task, filters.q)) return false;
+    if (filters.ws && task.workstream !== filters.ws) return false;
+    if (filters.owner && task.owner !== filters.owner) return false;
+    if (filters.pri && task.priority !== filters.pri) return false;
+    const currentStatus = (typeof effectiveStatus === 'function') ? effectiveStatus(task) : task.status;
+    if (filters.st && currentStatus !== filters.st) return false;
+    if (filters.ph && task.phase !== filters.ph) return false;
+    return true;
+  }
+
+  function buildVisibleTree(task, filters){
+    const childMatches = asArray(task.subtasks).map(st => buildVisibleTree(st, filters)).filter(Boolean);
+    const selfMatches = taskMatchesFilter(task, filters);
+    if (!selfMatches && !childMatches.length) return null;
+    return {...task, __visibleSubtasks: childMatches};
+  }
+
+  function renderTaskRow(task, depth){
+    const overdue = typeof isOverdue === 'function' ? isOverdue(task) : false;
+    const eStatus = (typeof effectiveStatus === 'function') ? effectiveStatus(task) : task.status;
+    const blocked = (typeof getBlockedBy === 'function') ? getBlockedBy(task) : [];
+    const sc = (typeof statusClass === 'function' ? statusClass(eStatus) : '') + (blocked.length ? ' dependency-blocked' : '');
+    const isChild = depth > 0;
+    const childHint = !isChild && asArray(task.subtasks).length ? `<div class="child-add-hint">${task.subtasks.length} line item${task.subtasks.length>1?'s':''} linked</div>` : '';
+    const cpLabel = task.criticalPath ? '🔴 YES' : '—';
+    const depLine = blocked.length ? `<div class="dep-line blocked">Waiting on ${blocked.map(dep => dependencyLinkHtml(dep, true)).join(', ')}</div>` : '';
+    const riskLine = task.riskNote ? `<div style="font-size:10px;color:var(--warn);margin-top:2px;">⚠ ${task.riskNote}</div>` : '';
+    const lineItemTag = isChild ? `<span class="lineitem-tag">Line Item</span>` : '';
+    const indent = `<span class="subtask-indent" style="width:${depth*18}px;"></span>`;
+    return `
+      <tr id="row-${task.id}" class="${isChild ? 'subtask-row' : ''}">
+        <td class="task-id">${task.id}</td>
+        <td>
+          <div class="task-title-cell">
+            ${indent}
+            <span class="task-title ${isChild ? 'subtask' : ''}" title="${(task.notes||'').replace(/"/g,'&quot;')}" onclick="openEditModal(${task.id})">${lineItemTag}${task.title}</span>
+          </div>
+          ${depLine}
+          ${riskLine}
+          ${childHint}
+        </td>
+        <td><span class="ws-badge ${wsClass(task.workstream)}">${task.workstream}</span></td>
+        <td><span class="owner-badge">${task.owner}</span></td>
+        <td class="date-cell ${overdue ? 'overdue' : ''}">${task.endDate||'—'}${overdue ? ' ⚠' : ''}</td>
+        <td><span class="priority-badge p-${task.priority}">${task.priority}</span></td>
+        <td>
+          <select class="status-sel ${sc}" onchange="updateStatus(${task.id}, this.value)">
+            <option ${eStatus==='To Do'?'selected':''}>To Do</option>
+            <option ${eStatus==='In Progress'?'selected':''}>In Progress</option>
+            <option ${eStatus==='Review'?'selected':''}>Review</option>
+            <option ${eStatus==='Blocked'?'selected':''}>Blocked</option>
+            <option ${eStatus==='Done'?'selected':''}>Done</option>
+          </select>
+        </td>
+        <td>
+          <div class="progress-cell">
+            <div class="prog-bar"><div class="prog-fill" style="width:${task.progress||0}%"></div></div>
+            <span class="prog-num">${task.progress||0}%</span>
+          </div>
+          <input type="range" min="0" max="100" value="${task.progress||0}" class="progress-slider" oninput="liveUpdateProgress(${task.id}, this.value, this)" onchange="commitProgress(${task.id}, this.value)">
+        </td>
+        <td><span class="${task.criticalPath ? 'cp-yes' : 'cp-no'}">${cpLabel}</span></td>
+        <td>${task.riskNote ? `<span class="risk-flag" title="${task.riskNote}">⚠ Risk</span>` : (blocked.length ? `<span class="risk-flag" title="${blocked.map(dep => dep.title).join(' • ')}">⛓ Blocked</span>` : '—')}</td>
+        <td>
+          <div class="cost-stack">
+            <div class="cost-main ${isChild ? 'small' : ''}">${formatCurrency(getTaskActual(task))}</div>
+            <div class="cost-sub">Est ${formatCurrency(getTaskEstimated(task))}</div>
+            ${hasTaskCost(task) ? `<span class="cost-badge ${paymentClass(task.paymentStatus)}">${task.paymentStatus || 'Not Applicable'}</span>` : '<span class="cost-sub">—</span>'}
+          </div>
+        </td>
+        <td>
+          <div class="action-btns" style="${isChild ? 'opacity:1;' : ''}">
+            <button class="act-btn" onclick="openEditModal(${task.id})" title="Edit">✏</button>
+            <button class="act-btn" onclick="openAddChildModal(${task.id})" title="Add line item">⊕</button>
+            <button class="act-btn danger" onclick="deleteTask(${task.id})" title="Delete">✕</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function renderTaskTree(task, depth=0){
+    let html = renderTaskRow(task, depth);
+    asArray(task.__visibleSubtasks || task.subtasks).forEach(st => {
+      html += renderTaskTree(st, depth+1);
+    });
+    return html;
+  }
+
+  const __baseLoadDataChild = loadData;
+  loadData = function(){
+    __baseLoadDataChild();
+    const changed = ensureStructuredParents();
+    if (changed) saveData();
+  };
+
+  importJsonFile = function(file){
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e){
+      try{
+        const payload = normalizeImportedPayload(JSON.parse(e.target.result));
+        if (!payload.tasks.length && !payload.products.length && !payload.talent.length && !payload.manpower.length && !payload.vendors.length) throw new Error('Invalid file');
+        tasks = (payload.tasks || []).map(taskWithDefaults);
+        ensureStructuredParents();
+        saveData();
+        saveProductsData(migrateProductsData(payload.products, payload.version));
+        if (typeof saveTalentData === 'function') saveTalentData((payload.talent || RAW_TALENT).map(talentWithDefaults));
+        if (typeof saveManpowerData === 'function') saveManpowerData((payload.manpower || RAW_MANPOWER).map(manpowerWithDefaults));
+        if (typeof saveVendorsData === 'function') saveVendorsData((payload.vendors || RAW_VENDORS).map(vendorWithDefaults));
+        const input = document.getElementById('json-import-input'); if(input) input.value='';
+        if (typeof applyDependencyDefaults === 'function') applyDependencyDefaults();
+        populateFiltersFresh();
+        renderDashboard(); applyFilters(); renderCriticalPath(); renderBlockers(); renderProducts(); if(typeof renderTalent==='function') renderTalent(); if(typeof renderManpower==='function') renderManpower(); if(typeof renderVendors==='function') renderVendors(); renderCostView();
+        showToast(`JSON imported${(payload.version||0) < CHILD_ITEM_SCHEMA_VERSION ? ' and upgraded' : ''}`);
+      }catch(err){ console.error(err); showToast('Invalid JSON file'); }
+    };
+    reader.readAsText(file);
+  };
+
+  saveData = function(){
+    const payload = {
+      version: CHILD_ITEM_SCHEMA_VERSION,
+      exportedAt: new Date().toISOString(),
+      tasks
+    };
+    localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(payload));
+  };
+
+  exportJson = function(){
+    try{
+      const payload = {
+        version: CHILD_ITEM_SCHEMA_VERSION,
+        exportedAt: new Date().toISOString(),
+        event: 'Be. IHFF 2026 — War Room',
+        tasks,
+        products: getProductsData(),
+        talent: typeof getTalentData === 'function' ? getTalentData() : [],
+        manpower: typeof getManpowerData === 'function' ? getManpowerData() : [],
+        vendors: typeof getVendorsData === 'function' ? getVendorsData() : []
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const stamp = new Date().toISOString().slice(0,19).replace(/[T:]/g,'-');
+      a.href = url; a.download = `ihff-war-room-${stamp}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      showToast('JSON exported');
+    }catch(err){ console.error(err); showToast('Export failed'); }
+  };
+
+  populateFiltersFresh = function(){
+    const wsSel = document.getElementById('f-ws');
+    const ownerSel = document.getElementById('f-owner');
+    const phaseSel = document.getElementById('f-phase');
+    const flat = getAllTaskRecords().map(r => r.item);
+    const workstreams = Array.from(new Set(flat.map(t => t.workstream).filter(Boolean))).sort();
+    const owners = Array.from(new Set(flat.map(t => t.owner).filter(Boolean))).sort();
+    const phases = Array.from(new Set(flat.map(t => t.phase).filter(Boolean))).sort();
+    if (wsSel) wsSel.innerHTML = '<option value="">All</option>' + workstreams.map(v => `<option value="${v}">${v}</option>`).join('');
+    if (ownerSel) ownerSel.innerHTML = '<option value="">All</option>' + owners.map(v => `<option value="${v}">${v}</option>`).join('');
+    if (phaseSel) phaseSel.innerHTML = '<option value="">All</option>' + phases.map(v => `<option value="${v}">${v}</option>`).join('');
+  };
+
+  applyFilters = function(){
+    const filters = {
+      q: (document.getElementById('search-input').value || '').toLowerCase(),
+      ws: document.getElementById('f-ws').value,
+      owner: document.getElementById('f-owner').value,
+      pri: document.getElementById('f-priority').value,
+      st: document.getElementById('f-status').value,
+      ph: document.getElementById('f-phase').value
+    };
+
+    let visibleRoots = tasks.map(t => buildVisibleTree(t, filters)).filter(Boolean);
+
+    if (sortKey) {
+      visibleRoots.sort((a,b) => {
+        let av = a[sortKey]||'', bv = b[sortKey]||'';
+        return av < bv ? -sortDir : av > bv ? sortDir : 0;
+      });
+    }
+
+    renderTaskTable(visibleRoots);
+    updateStats(visibleRoots);
+  };
+
+  updateStats = function(visibleRoots){
+    const visibleClone = visibleRoots.map(t => ({...t, subtasks:t.__visibleSubtasks||[]}));
+    const visibleItems = flattenTasksDeep(visibleClone).map(r => r.item);
+    const counts = {todo:0,inprog:0,blocked:0,done:0,review:0};
+    visibleItems.forEach(t => {
+      const st = (typeof effectiveStatus === 'function') ? effectiveStatus(t) : t.status;
+      if (st==='To Do') counts.todo++;
+      else if (st==='In Progress') counts.inprog++;
+      else if (st==='Blocked') counts.blocked++;
+      else if (st==='Done') counts.done++;
+      else if (st==='Review') counts.review++;
+    });
+    const costLinked = visibleItems.filter(hasTaskCost).length;
+    document.getElementById('stats-row').innerHTML = `
+      <span style="font-size:10px;color:var(--t2);margin-right:4px;">${visibleItems.length} visible items</span>
+      <span style="font-size:10px;color:var(--t2);margin-right:8px;">${costLinked} cost-linked</span>
+      <span class="stat-pill s-todo"><span class="stat-count">${counts.todo}</span> To Do</span>
+      <span class="stat-pill s-inprog"><span class="stat-count">${counts.inprog}</span> In Progress</span>
+      <span class="stat-pill s-blocked"><span class="stat-count">${counts.blocked}</span> Blocked</span>
+      <span class="stat-pill s-done"><span class="stat-count">${counts.done}</span> Done</span>
+      ${counts.review ? `<span class="stat-pill" style="background:rgba(255,170,0,.1);color:var(--warn);"><span class="stat-count">${counts.review}</span> Review</span>` : ''}
+    `;
+  };
+
+  renderTaskTable = function(visibleRoots){
+    const tbody = document.getElementById('task-tbody');
+    if (!visibleRoots.length) {
+      tbody.innerHTML = '<tr><td colspan="12"><div class="empty"><div class="empty-icon">🔍</div>No tasks match your filters</div></td></tr>';
+      return;
+    }
+    const phases = [];
+    const phaseMap = {};
+    visibleRoots.forEach(t => {
+      if (!phaseMap[t.phase]) { phaseMap[t.phase] = []; phases.push(t.phase); }
+      phaseMap[t.phase].push(t);
+    });
+
+    let html = '';
+    phases.forEach(ph => {
+      html += `<tr class="phase-row"><td colspan="12">${ph}</td></tr>`;
+      phaseMap[ph].forEach(t => { html += renderTaskTree(t, 0); });
+    });
+    tbody.innerHTML = html;
+  };
+
+  renderCostView = function() {
+    const rootCostTasks = tasks.filter(hasTaskCost);
+    const flatCostItems = getAllTaskRecords().filter(rec => hasTaskCost(rec.item));
+    const totalEstimated = rootCostTasks.reduce((a,t) => a + getTaskEstimated(t), 0);
+    const totalActual = rootCostTasks.reduce((a,t) => a + getTaskActual(t), 0);
+    const totalPaid = rootCostTasks.reduce((a,t) => a + getTaskPaid(t), 0);
+    const totalPending = rootCostTasks.reduce((a,t) => a + getTaskPending(t), 0);
+
+    const workstreamTotals = {};
+    rootCostTasks.forEach(t => {
+      const key = t.workstream || 'Unassigned';
+      if (!workstreamTotals[key]) workstreamTotals[key] = { estimated:0, actual:0, paid:0, pending:0, count:0 };
+      workstreamTotals[key].estimated += getTaskEstimated(t);
+      workstreamTotals[key].actual += getTaskActual(t);
+      workstreamTotals[key].paid += getTaskPaid(t);
+      workstreamTotals[key].pending += getTaskPending(t);
+      workstreamTotals[key].count += 1;
+    });
+
+    document.getElementById('cost-summary').innerHTML = `
+      <div class="cost-grid">
+        <div class="cost-card">
+          <div class="cost-card-label">Total Estimated</div>
+          <div class="cost-card-value">${formatCurrency(totalEstimated)}</div>
+          <div class="cost-card-sub">${rootCostTasks.length} parent tasks</div>
+        </div>
+        <div class="cost-card">
+          <div class="cost-card-label">Total Actual</div>
+          <div class="cost-card-value">${formatCurrency(totalActualCombined)}</div>
+          <div class="cost-card-sub">Rolled up from line items</div>
+        </div>
+        <div class="cost-card">
+          <div class="cost-card-label">Total Paid</div>
+          <div class="cost-card-value">${formatCurrency(totalPaidCombined)}</div>
+          <div class="cost-card-sub">Parent-level event spend</div>
+        </div>
+        <div class="cost-card">
+          <div class="cost-card-label">Total Pending</div>
+          <div class="cost-card-value">${formatCurrency(totalPendingCombined)}</div>
+          <div class="cost-card-sub">${flatCostItems.length} cost-linked rows</div>
+        </div>
+      </div>
+    `;
+
+    const rows = flatCostItems.map(({item, depth, parent}) => `
+      <tr class="${depth>0 ? 'subtask-row' : ''}">
+        <td>${item.id}</td>
+        <td style="min-width:320px;">
+          <div style="font-size:12px;line-height:1.4;padding-left:${depth*18}px;">
+            ${depth>0 ? `<span class="lineitem-tag" style="margin-right:6px;">Line Item</span>` : ''}
+            ${item.title}
+            ${parent ? `<div style="font-size:10px;color:var(--t2);margin-top:4px;">Parent: #${parent.id} ${parent.title}</div>` : ''}
+          </div>
+        </td>
+        <td><span class="ws-badge ${wsClass(item.workstream)}">${item.workstream}</span></td>
+        <td><span class="owner-badge">${item.owner}</span></td>
+        <td>${formatCurrency(getTaskEstimated(item))}</td>
+        <td>${formatCurrency(getTaskActual(item))}</td>
+        <td>${formatCurrency(getTaskPaid(item))}</td>
+        <td>${formatCurrency(getTaskPending(item))}</td>
+        <td>${item.vendorName ? `<span class="owner-badge">${item.vendorName}</span>` : '—'}</td>
+        <td><span class="cost-badge ${paymentClass(item.paymentStatus)}">${item.paymentStatus || 'Not Applicable'}</span></td>
+      </tr>
+    `).join('');
+
+    const workstreamRows = Object.entries(workstreamTotals).sort((a,b) => b[1].estimated - a[1].estimated).map(([ws, v]) => `
+      <tr>
+        <td colspan="2"><span class="ws-badge ${wsClass(ws)}">${ws}</span></td>
+        <td>${v.count}</td>
+        <td>${formatCurrency(v.estimated)}</td>
+        <td>${formatCurrency(v.actual)}</td>
+        <td>${formatCurrency(v.paid)}</td>
+        <td>${formatCurrency(v.pending)}</td>
+      </tr>
+    `).join('');
+
+    document.getElementById('cost-table-view').innerHTML = `
+      ${flatCostItems.length ? `
+        <div style="padding:14px 14px 8px;font-family:var(--fh);font-weight:700;font-size:13px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;">Cost Rows & Line Items</div>
+        <table class="cost-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Task / Line Item</th><th>Workstream</th><th>Owner</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Vendor</th><th>Payment</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div style="padding:20px 14px 8px;font-family:var(--fh);font-weight:700;font-size:13px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;">Workstream Summary (Root Totals)</div>
+        <table class="cost-table">
+          <thead>
+            <tr>
+              <th colspan="2">Workstream</th><th>Root Tasks</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th>
+            </tr>
+          </thead>
+          <tbody>${workstreamRows}</tbody>
+        </table>
+      ` : `<div class="cost-empty">No costs added yet. Edit any task or line item to add estimated cost, actual cost, vendor, and payment status.</div>`}
+    `;
+  };
+
+  function setModalValues(t, id, modeLabel){
+    editingId = id;
+    document.getElementById('modal-title').textContent = modeLabel;
+    document.getElementById('f-title').value = t.title || '';
+    document.getElementById('f-phase-in').value = t.phase || '';
+    document.getElementById('f-ws-in').value = t.workstream || '';
+    populateOwnerSelect(t.owner || 'Atul');
+    document.getElementById('f-priority-in').value = t.priority || 'HIGH';
+    document.getElementById('f-start').value = t.startDate || '';
+    document.getElementById('f-end').value = t.endDate || '';
+    document.getElementById('f-status-in').value = t.status || 'To Do';
+    document.getElementById('f-progress').value = t.progress || 0;
+    document.getElementById('f-cp').value = t.criticalPath ? 'true' : 'false';
+    document.getElementById('f-risk').value = t.riskNote || '';
+    document.getElementById('f-estimated').value = t.estimatedCost || '';
+    document.getElementById('f-actual').value = t.actualCost || '';
+    document.getElementById('f-paid').value = t.paidAmount || '';
+    document.getElementById('f-payment-status').value = t.paymentStatus || 'Not Applicable';
+    document.getElementById('f-vendor').value = t.vendorName || '';
+    document.getElementById('f-notes').value = t.notes || '';
+    document.getElementById('task-modal').classList.add('show');
+  }
+
+  openAddModal = function() {
+    editingParentId = null;
+    editingId = null;
+    document.getElementById('modal-title').textContent = 'Add Task';
+    document.getElementById('f-title').value = '';
+    document.getElementById('f-phase-in').value = '';
+    document.getElementById('f-ws-in').value = '';
+    populateOwnerSelect('Atul');
+    document.getElementById('f-priority-in').value = 'HIGH';
+    document.getElementById('f-start').value = '';
+    document.getElementById('f-end').value = '';
+    document.getElementById('f-status-in').value = 'To Do';
+    document.getElementById('f-progress').value = 0;
+    document.getElementById('f-cp').value = 'false';
+    document.getElementById('f-risk').value = '';
+    document.getElementById('f-estimated').value = '';
+    document.getElementById('f-actual').value = '';
+    document.getElementById('f-paid').value = '';
+    document.getElementById('f-payment-status').value = 'Not Applicable';
+    document.getElementById('f-vendor').value = '';
+    document.getElementById('f-notes').value = '';
+    document.getElementById('task-modal').classList.add('show');
+  };
+
+  openAddChildModal = function(parentId){
+    const rec = findTaskRecord(parentId);
+    if (!rec) return;
+    editingParentId = Number(parentId);
+    editingId = null;
+    const parent = rec.item;
+    document.getElementById('modal-title').textContent = `Add Line Item to #${parent.id}`;
+    document.getElementById('f-title').value = '';
+    document.getElementById('f-phase-in').value = parent.phase || '';
+    document.getElementById('f-ws-in').value = parent.workstream || '';
+    document.getElementById('f-owner-in').value = parent.owner || 'Atul';
+    document.getElementById('f-priority-in').value = parent.priority || 'MEDIUM';
+    document.getElementById('f-start').value = parent.startDate || '';
+    document.getElementById('f-end').value = parent.endDate || '';
+    document.getElementById('f-status-in').value = 'To Do';
+    document.getElementById('f-progress').value = 0;
+    document.getElementById('f-cp').value = 'false';
+    document.getElementById('f-risk').value = '';
+    document.getElementById('f-estimated').value = '';
+    document.getElementById('f-actual').value = '';
+    document.getElementById('f-paid').value = '';
+    document.getElementById('f-payment-status').value = 'Pending';
+    document.getElementById('f-vendor').value = '';
+    document.getElementById('f-notes').value = '';
+    document.getElementById('task-modal').classList.add('show');
+  };
+
+  openEditModal = function(id){
+    editingParentId = null;
+    const rec = findTaskRecord(id);
+    if (!rec) return;
+    setModalValues(rec.item, id, `Edit ${rec.parent ? 'Line Item' : 'Task'} #${id}`);
+  };
+
+  closeModal = function() {
+    document.getElementById('task-modal').classList.remove('show');
+    editingId = null;
+    editingParentId = null;
+  };
+
+  function writeTaskFields(t){
+    t.title = document.getElementById('f-title').value.trim();
+    t.phase = document.getElementById('f-phase-in').value;
+    t.workstream = document.getElementById('f-ws-in').value;
+    t.owner = document.getElementById('f-owner-in').value;
+    t.priority = document.getElementById('f-priority-in').value;
+    t.startDate = document.getElementById('f-start').value;
+    t.endDate = document.getElementById('f-end').value;
+    t.status = document.getElementById('f-status-in').value;
+    t.progress = parseInt(document.getElementById('f-progress').value)||0;
+    t.criticalPath = document.getElementById('f-cp').value === 'true';
+    t.riskNote = document.getElementById('f-risk').value;
+    t.estimatedCost = num(document.getElementById('f-estimated').value);
+    t.actualCost = num(document.getElementById('f-actual').value);
+    t.paidAmount = num(document.getElementById('f-paid').value);
+    t.paymentStatus = document.getElementById('f-payment-status').value;
+    t.vendorName = document.getElementById('f-vendor').value.trim();
+    t.notes = document.getElementById('f-notes').value;
+    if (!Array.isArray(t.subtasks)) t.subtasks = [];
+  }
+
+  saveTask = function() {
+    const title = document.getElementById('f-title').value.trim();
+    if (!title) { showToast('Title is required'); return; }
+
+    if (editingId) {
+      const rec = findTaskRecord(editingId);
+      if (!rec) return;
+      writeTaskFields(rec.item);
+      showToast(rec.parent ? 'Line item updated' : 'Task updated');
+    } else {
+      const parent = editingParentId ? findTaskRecord(editingParentId).item : {};
+      const newItem = withDefaults({
+        id: getMaxTaskIdDeep() + 1,
+        title,
+        phase: document.getElementById('f-phase-in').value,
+        workstream: document.getElementById('f-ws-in').value,
+        owner: document.getElementById('f-owner-in').value,
+        priority: document.getElementById('f-priority-in').value,
+        startDate: document.getElementById('f-start').value,
+        endDate: document.getElementById('f-end').value,
+        status: document.getElementById('f-status-in').value,
+        progress: parseInt(document.getElementById('f-progress').value)||0,
+        criticalPath: document.getElementById('f-cp').value === 'true',
+        riskNote: document.getElementById('f-risk').value,
+        estimatedCost: num(document.getElementById('f-estimated').value),
+        actualCost: num(document.getElementById('f-actual').value),
+        paidAmount: num(document.getElementById('f-paid').value),
+        paymentStatus: document.getElementById('f-payment-status').value,
+        vendorName: document.getElementById('f-vendor').value.trim(),
+        notes: document.getElementById('f-notes').value,
+        subtasks: []
+      }, parent);
+      if (editingParentId) {
+        const parentRec = findTaskRecord(editingParentId);
+        if (!parentRec) return;
+        if (!Array.isArray(parentRec.item.subtasks)) parentRec.item.subtasks = [];
+        parentRec.item.subtasks.push(newItem);
+        showToast('Line item added');
+      } else {
+        tasks.push(newItem);
+        showToast('Task added');
+      }
+    }
+    if (typeof applyDependencyDefaults === 'function') applyDependencyDefaults();
+    saveData();
+    populateFiltersFresh();
+    closeModal();
+    applyFilters();
+    renderDashboard();
+    renderCostView();
+    if (typeof renderVendors === 'function') renderVendors();
+  };
+
+  deleteTask = function(id) {
+    if (!confirm('Delete this item?')) return;
+    const rec = findTaskRecord(id);
+    if (!rec) return;
+    if (rec.parent) {
+      rec.parent.subtasks = asArray(rec.parent.subtasks).filter(st => Number(st.id) !== Number(id));
+    } else {
+      tasks = tasks.filter(t => Number(t.id) !== Number(id));
+    }
+    saveData();
+    populateFiltersFresh();
+    applyFilters();
+    renderDashboard();
+    renderCostView();
+    if (typeof renderVendors === 'function') renderVendors();
+    showToast(rec.parent ? 'Line item deleted' : 'Task deleted');
+  };
+
+  updateStatus = function(id, val) {
+    const rec = findTaskRecord(id);
+    const t = rec && rec.item;
+    if (!t) return;
+    t.status = val;
+    if (val === 'Done') t.progress = 100;
+    if (val === 'To Do' && t.progress === 100) t.progress = 0;
+    saveData();
+    renderDashboard();
+    renderCostView();
+    applyFilters();
+    showToast(`${rec.parent ? 'Line item' : 'Task'} ${id} → ${val}`);
+  };
+
+  updateProgress = function(id, val) { commitProgress(id, val); };
+
+  injectChildItemStyles();
+  if (ensureStructuredParents()) saveData();
+  populateFiltersFresh();
+  renderDashboard();
+  renderCostView();
+  applyFilters();
+})();
+
+<script>
+// --- ENTITY MODULE PATCH: persistent Merchandise + Samples modules with no task duplication ---
+(function(){
+  const ENTITY_SCHEMA_VERSION = 8;
+  const MERCH_STORAGE_KEY = 'ihff2026_merchandise_module';
+  const SAMPLES_STORAGE_KEY = 'ihff2026_samples_module';
+  const STAGE_OPTIONS = ['Not Started','In Progress','Review','Blocked','Done'];
+  const SAMPLE_STAGE_OPTIONS = ['Not Started','In Progress','Review','Blocked','Done'];
+
+  function numSafe(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
+  function hasAnyCostLike(item){ return numSafe(item.estimatedCost) || numSafe(item.actualCost) || numSafe(item.paidAmount); }
+  function uid(prefix='item'){ return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`; }
+  function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+  function text(v){ return v == null ? '' : String(v); }
+  function list(v){ return Array.isArray(v) ? v : []; }
+  function defaultPaymentStatus(v){ return v || 'Pending'; }
+
+  const DEFAULT_MERCH = [
+    {id:'merch-tshirts', itemName:'T-shirts', quantity:700, designStatus:'Not Started', sampleStatus:'Not Started', productionStatus:'Not Started', qcStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'merch-shakers', itemName:'Shakers', quantity:500, designStatus:'Not Started', sampleStatus:'In Progress', productionStatus:'Not Started', qcStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'merch-ganjis', itemName:'Ganjis', quantity:300, designStatus:'Not Started', sampleStatus:'Not Started', productionStatus:'Not Started', qcStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'merch-shoppingbags', itemName:'Shopping Bags', quantity:0, designStatus:'Not Started', sampleStatus:'In Progress', productionStatus:'Not Started', qcStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'merch-stickers', itemName:'Stickers', quantity:0, designStatus:'Not Started', sampleStatus:'Not Started', productionStatus:'Not Started', qcStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''}
+  ];
+
+  const DEFAULT_SAMPLES = [
+    {id:'sample-alpha', itemName:'Alpha', quantity:2500, packagingStatus:'Not Started', productionStatus:'Not Started', dispatchStatus:'Not Started', readinessStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'sample-sexyjmc', itemName:'Sexy JMC', quantity:2500, packagingStatus:'Not Started', productionStatus:'Not Started', dispatchStatus:'Not Started', readinessStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'sample-sexyvegan', itemName:'Sexy Vegan', quantity:2500, packagingStatus:'Not Started', productionStatus:'Not Started', dispatchStatus:'Not Started', readinessStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'sample-creatine', itemName:'Creatine', quantity:2500, packagingStatus:'Not Started', productionStatus:'Not Started', dispatchStatus:'Not Started', readinessStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'sample-protein', itemName:'Protein', quantity:2500, packagingStatus:'Not Started', productionStatus:'Not Started', dispatchStatus:'Not Started', readinessStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'sample-triplemagnesium', itemName:'Triple Magnesium', quantity:2500, packagingStatus:'Not Started', productionStatus:'Not Started', dispatchStatus:'Not Started', readinessStatus:'Not Started', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:''},
+    {id:'sample-dnd', itemName:'DND', quantity:2500, packagingStatus:'Blocked', productionStatus:'Not Started', dispatchStatus:'Not Started', readinessStatus:'Blocked', estimatedCost:0, actualCost:0, paidAmount:0, vendorName:'', paymentStatus:'Pending', notes:'Pill-format packaging unresolved is a critical blocker.'}
+  ];
+
+  function merchWithDefaults(item={}){
+    return {
+      id: item.id || uid('merch'),
+      itemName: text(item.itemName || item.title || ''),
+      quantity: numSafe(item.quantity),
+      designStatus: item.designStatus || item.status || 'Not Started',
+      sampleStatus: item.sampleStatus || 'Not Started',
+      productionStatus: item.productionStatus || 'Not Started',
+      qcStatus: item.qcStatus || 'Not Started',
+      estimatedCost: numSafe(item.estimatedCost),
+      actualCost: numSafe(item.actualCost),
+      paidAmount: numSafe(item.paidAmount),
+      vendorName: text(item.vendorName),
+      paymentStatus: defaultPaymentStatus(item.paymentStatus),
+      notes: text(item.notes)
+    };
+  }
+
+  function sampleWithDefaults(item={}){
+    return {
+      id: item.id || uid('sample'),
+      itemName: text(item.itemName || item.title || ''),
+      quantity: numSafe(item.quantity),
+      packagingStatus: item.packagingStatus || item.status || 'Not Started',
+      productionStatus: item.productionStatus || 'Not Started',
+      dispatchStatus: item.dispatchStatus || 'Not Started',
+      readinessStatus: item.readinessStatus || 'Not Started',
+      estimatedCost: numSafe(item.estimatedCost),
+      actualCost: numSafe(item.actualCost),
+      paidAmount: numSafe(item.paidAmount),
+      vendorName: text(item.vendorName),
+      paymentStatus: defaultPaymentStatus(item.paymentStatus),
+      notes: text(item.notes)
+    };
+  }
+
+  function readStore(key, defaults, normalizer){
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return defaults.map(normalizer);
+      const parsed = JSON.parse(raw);
+      const arr = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.items) ? parsed.items : []);
+      return (arr.length ? arr : defaults).map(normalizer);
+    } catch(e){
+      console.error(e);
+      return defaults.map(normalizer);
+    }
+  }
+  function writeStore(key, items){ localStorage.setItem(key, JSON.stringify({version:ENTITY_SCHEMA_VERSION, items})); }
+  function getMerchData(){ return readStore(MERCH_STORAGE_KEY, DEFAULT_MERCH, merchWithDefaults); }
+  function saveMerchData(items){ writeStore(MERCH_STORAGE_KEY, items.map(merchWithDefaults)); }
+  function getSamplesData(){ return readStore(SAMPLES_STORAGE_KEY, DEFAULT_SAMPLES, sampleWithDefaults); }
+  function saveSamplesData(items){ writeStore(SAMPLES_STORAGE_KEY, items.map(sampleWithDefaults)); }
+
+  function sumEst(list){ return list.reduce((a,x)=>a+numSafe(x.estimatedCost),0); }
+  function sumActual(list){ return list.reduce((a,x)=>a+numSafe(x.actualCost),0); }
+  function sumPaid(list){ return list.reduce((a,x)=>a+numSafe(x.paidAmount),0); }
+  function sumPending(list){ return list.reduce((a,x)=>a+Math.max(Math.max(numSafe(x.actualCost), numSafe(x.estimatedCost)) - numSafe(x.paidAmount), 0),0); }
+
+  function injectEntityStyles(){
+    if(document.getElementById('entity-module-style-patch')) return;
+    const style = document.createElement('style');
+    style.id = 'entity-module-style-patch';
+    style.textContent = `
+      .module-wrap{padding:16px 20px;}
+      .module-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+      .module-title{font-family:var(--fh);font-weight:700;font-size:18px;}
+      .module-sub{color:var(--t2);font-size:11px;margin-top:4px;max-width:860px;line-height:1.5;}
+      .module-actions{display:flex;gap:8px;flex-wrap:wrap;}
+      .module-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:14px;}
+      .module-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;}
+      .module-card-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);margin-bottom:6px;}
+      .module-card-val{font-family:var(--fh);font-weight:800;font-size:22px;line-height:1;}
+      .module-card-sub{font-size:10px;color:var(--t2);margin-top:4px;}
+      .module-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;background:var(--surface);}
+      .module-table{width:100%;border-collapse:collapse;min-width:1180px;}
+      .module-table th,.module-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+      .module-table th{background:var(--s2);text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);white-space:nowrap;}
+      .module-small{font-size:10px;color:var(--t2);}
+      .module-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;border:1px solid var(--border2);font-size:9px;text-transform:uppercase;letter-spacing:.6px;background:var(--s3);color:var(--t2);}
+      .module-linked{margin-top:14px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.02);}
+      .module-linked-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+      .module-linked-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;border:1px solid var(--border2);background:var(--s3);font-size:10px;color:var(--text);cursor:pointer;}
+      .module-linked-chip:hover{border-color:var(--accent);color:var(--accent);}
+      @media (max-width: 900px){ .module-table{min-width:980px;} }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function findTaskByPattern(testFn){ return (window.tasks || []).filter(t => testFn(t)); }
+  function linkedMerchTasks(){ return findTaskByPattern(t => t.workstream === 'Merch'); }
+  function linkedSampleTasks(){ return findTaskByPattern(t => t.workstream === 'Sampling'); }
+  function jumpToTask(id){ if(typeof jumpToTaskById==='function') return jumpToTaskById(id); if(typeof switchTab==='function') switchTab('tasks'); setTimeout(()=>{const row=document.getElementById(`row-${id}`); if(row){ row.scrollIntoView({behavior:'smooth',block:'center'}); row.classList.add('row-jump-target'); setTimeout(()=>row.classList.remove('row-jump-target'),1800);} },120); }
+
+  function statusSel(value, options, action){
+    return `<select class="status-sel" onchange="${action}">${options.map(opt=>`<option ${opt===value?'selected':''}>${opt}</option>`).join('')}</select>`;
+  }
+
+  function renderMerchandiseModule(){
+    const items = getMerchData();
+    const linked = linkedMerchTasks();
+    const doneStages = items.filter(i => i.designStatus==='Done' && i.productionStatus==='Done' && i.qcStatus==='Done').length;
+    const wrap = document.getElementById('merchandise-list'); if(!wrap) return;
+    wrap.innerHTML = `
+      <div class="module-grid">
+        <div class="module-card"><div class="module-card-label">Items</div><div class="module-card-val">${items.length}</div><div class="module-card-sub">Persistent merch entities</div></div>
+        <div class="module-card"><div class="module-card-label">Estimated</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(sumEst(items))}</div><div class="module-card-sub">Across all merch items</div></div>
+        <div class="module-card"><div class="module-card-label">Pending</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(sumPending(items))}</div><div class="module-card-sub">${formatCurrency(sumPaid(items))} paid</div></div>
+        <div class="module-card"><div class="module-card-label">QC Ready</div><div class="module-card-val">${doneStages}/${items.length}</div><div class="module-card-sub">Design + production + QC done</div></div>
+      </div>
+      <div class="module-table-wrap">
+        <table class="module-table">
+          <thead><tr><th>Item</th><th>Qty</th><th>Design</th><th>Sample</th><th>Production</th><th>QC</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Vendor</th><th>Payment</th><th>Notes</th><th>Actions</th></tr></thead>
+          <tbody>${items.map(i => `
+            <tr>
+              <td><div style="font-size:12px;line-height:1.35;">${i.itemName}</div></td>
+              <td>${i.quantity||'—'}</td>
+              <td>${statusSel(i.designStatus, STAGE_OPTIONS, `updateMerchStage('${i.id}','designStatus',this.value)`)}</td>
+              <td>${statusSel(i.sampleStatus, STAGE_OPTIONS, `updateMerchStage('${i.id}','sampleStatus',this.value)`)}</td>
+              <td>${statusSel(i.productionStatus, STAGE_OPTIONS, `updateMerchStage('${i.id}','productionStatus',this.value)`)}</td>
+              <td>${statusSel(i.qcStatus, STAGE_OPTIONS, `updateMerchStage('${i.id}','qcStatus',this.value)`)}</td>
+              <td>${formatCurrency(i.estimatedCost)}</td>
+              <td>${formatCurrency(i.actualCost)}</td>
+              <td>${formatCurrency(i.paidAmount)}</td>
+              <td>${formatCurrency(Math.max(Math.max(numSafe(i.actualCost), numSafe(i.estimatedCost)) - numSafe(i.paidAmount),0))}</td>
+              <td>${i.vendorName || '—'}</td>
+              <td><span class="cost-badge ${paymentClass(i.paymentStatus)}">${i.paymentStatus}</span></td>
+              <td><div class="module-small" style="max-width:220px;line-height:1.4;">${i.notes || '—'}</div></td>
+              <td><div class="action-btns" style="opacity:1;"><button class="act-btn" onclick="editMerchItem('${i.id}')" title="Edit">✏</button><button class="act-btn danger" onclick="deleteMerchItem('${i.id}')" title="Delete">✕</button></div></td>
+            </tr>`).join('')}</tbody>
+        </table>
+      </div>
+      <div class="module-linked">
+        <div class="module-card-label">Linked master tasks</div>
+        <div class="module-sub">These remain milestones in the main task system. Merchandise data lives only here, so there is no duplicate cost entry across multiple tasks.</div>
+        <div class="module-linked-list">${linked.map(t => `<span class="module-linked-chip" onclick="jumpToTask(${t.id})">#${t.id} ${t.title}</span>`).join('') || '<span class="module-small">No merch tasks found in master task list.</span>'}</div>
+      </div>`;
+  }
+
+  function renderSamplesModule(){
+    const items = getSamplesData();
+    const linked = linkedSampleTasks();
+    const ready = items.filter(i => i.readinessStatus==='Done').length;
+    const wrap = document.getElementById('samples-list'); if(!wrap) return;
+    wrap.innerHTML = `
+      <div class="module-grid">
+        <div class="module-card"><div class="module-card-label">Sample SKUs</div><div class="module-card-val">${items.length}</div><div class="module-card-sub">Persistent sampling entities</div></div>
+        <div class="module-card"><div class="module-card-label">Estimated</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(sumEst(items))}</div><div class="module-card-sub">Across all sample items</div></div>
+        <div class="module-card"><div class="module-card-label">Pending</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(sumPending(items))}</div><div class="module-card-sub">${formatCurrency(sumPaid(items))} paid</div></div>
+        <div class="module-card"><div class="module-card-label">Event Ready</div><div class="module-card-val">${ready}/${items.length}</div><div class="module-card-sub">Readiness status complete</div></div>
+      </div>
+      <div class="module-table-wrap">
+        <table class="module-table">
+          <thead><tr><th>Item</th><th>Qty</th><th>Packaging</th><th>Production</th><th>Dispatch</th><th>Readiness</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Vendor</th><th>Payment</th><th>Notes</th><th>Actions</th></tr></thead>
+          <tbody>${items.map(i => `
+            <tr>
+              <td><div style="font-size:12px;line-height:1.35;">${i.itemName}</div></td>
+              <td>${i.quantity||'—'}</td>
+              <td>${statusSel(i.packagingStatus, SAMPLE_STAGE_OPTIONS, `updateSampleStage('${i.id}','packagingStatus',this.value)`)}</td>
+              <td>${statusSel(i.productionStatus, SAMPLE_STAGE_OPTIONS, `updateSampleStage('${i.id}','productionStatus',this.value)`)}</td>
+              <td>${statusSel(i.dispatchStatus, SAMPLE_STAGE_OPTIONS, `updateSampleStage('${i.id}','dispatchStatus',this.value)`)}</td>
+              <td>${statusSel(i.readinessStatus, SAMPLE_STAGE_OPTIONS, `updateSampleStage('${i.id}','readinessStatus',this.value)`)}</td>
+              <td>${formatCurrency(i.estimatedCost)}</td>
+              <td>${formatCurrency(i.actualCost)}</td>
+              <td>${formatCurrency(i.paidAmount)}</td>
+              <td>${formatCurrency(Math.max(Math.max(numSafe(i.actualCost), numSafe(i.estimatedCost)) - numSafe(i.paidAmount),0))}</td>
+              <td>${i.vendorName || '—'}</td>
+              <td><span class="cost-badge ${paymentClass(i.paymentStatus)}">${i.paymentStatus}</span></td>
+              <td><div class="module-small" style="max-width:220px;line-height:1.4;">${i.notes || '—'}</div></td>
+              <td><div class="action-btns" style="opacity:1;"><button class="act-btn" onclick="editSampleItem('${i.id}')" title="Edit">✏</button><button class="act-btn danger" onclick="deleteSampleItem('${i.id}')" title="Delete">✕</button></div></td>
+            </tr>`).join('')}</tbody>
+        </table>
+      </div>
+      <div class="module-linked">
+        <div class="module-card-label">Linked master tasks</div>
+        <div class="module-sub">Sampling data lives only here. The master Sampling tasks remain execution milestones and do not hold separate SKU-by-SKU cost data.</div>
+        <div class="module-linked-list">${linked.map(t => `<span class="module-linked-chip" onclick="jumpToTask(${t.id})">#${t.id} ${t.title}</span>`).join('') || '<span class="module-small">No sampling tasks found in master task list.</span>'}</div>
+      </div>`;
+  }
+
+  function migrateTaskSubtasksToEntities(){
+    let merch = getMerchData();
+    let samples = getSamplesData();
+    let changed = false;
+    (window.tasks || []).forEach(task => {
+      if (task.workstream === 'Merch' && Array.isArray(task.subtasks) && task.subtasks.length) {
+        task.subtasks.forEach(st => {
+          const key = text(st.title).trim().toLowerCase();
+          if (!merch.some(x => x.itemName.trim().toLowerCase() === key)) merch.push(merchWithDefaults({...st, itemName: st.title}));
+        });
+        task.subtasks = [];
+        changed = true;
+      }
+      if (task.workstream === 'Sampling' && Array.isArray(task.subtasks) && task.subtasks.length) {
+        task.subtasks.forEach(st => {
+          const key = text(st.title).trim().toLowerCase();
+          if (!samples.some(x => x.itemName.trim().toLowerCase() === key)) samples.push(sampleWithDefaults({...st, itemName: st.title}));
+        });
+        task.subtasks = [];
+        changed = true;
+      }
+    });
+    saveMerchData(merch);
+    saveSamplesData(samples);
+    if (changed && typeof saveData === 'function') saveData();
+  }
+
+  function ensureEntityTabsAndViews(){
+    const tabBar = document.querySelector('.hdr-tabs');
+    if (tabBar && !tabBar.querySelector(".tab[onclick=\"switchTab('merchandise')\"]")) {
+      const merchTab = document.createElement('div'); merchTab.className='tab'; merchTab.setAttribute('onclick',"switchTab('merchandise')"); merchTab.textContent='Merchandise';
+      const samplesTab = document.createElement('div'); samplesTab.className='tab'; samplesTab.setAttribute('onclick',"switchTab('samples')"); samplesTab.textContent='Samples';
+      const talentTab = tabBar.querySelector(".tab[onclick=\"switchTab('talent')\"]") || tabBar.querySelector(".tab[onclick=\"switchTab('costs')\"]");
+      if(talentTab){ tabBar.insertBefore(samplesTab, talentTab); tabBar.insertBefore(merchTab, samplesTab); }
+      else { tabBar.appendChild(merchTab); tabBar.appendChild(samplesTab); }
+    }
+    if(!document.getElementById('view-merchandise')){
+      const view = document.createElement('div'); view.className='view'; view.id='view-merchandise';
+      view.innerHTML = `<div class="module-wrap"><div class="module-head"><div><div class="module-title">Merchandise Module</div><div class="module-sub">One persistent merchandise source of truth. Tasks like design, ordering, and QC stay in the master task list, while item-level quantities, costs, vendors, and stage statuses live here only.</div></div><div class="module-actions"><button class="btn btn-accent" onclick="addMerchItem()">+ Add Item</button></div></div><div id="merchandise-list"></div></div>`;
+      const anchor = document.getElementById('view-talent') || document.getElementById('view-costs');
+      if(anchor && anchor.parentNode) anchor.parentNode.insertBefore(view, anchor);
+      else document.body.appendChild(view);
+    }
+    if(!document.getElementById('view-samples')){
+      const view = document.createElement('div'); view.className='view'; view.id='view-samples';
+      view.innerHTML = `<div class="module-wrap"><div class="module-head"><div><div class="module-title">Samples Module</div><div class="module-sub">One persistent sampling source of truth. SKU-level quantities, packaging readiness, dispatch readiness, vendors, and costs live here only. Sampling tasks remain milestones in the master task system.</div></div><div class="module-actions"><button class="btn btn-accent" onclick="addSampleItem()">+ Add Item</button></div></div><div id="samples-list"></div></div>`;
+      const anchor = document.getElementById('view-talent') || document.getElementById('view-costs');
+      if(anchor && anchor.parentNode) anchor.parentNode.insertBefore(view, anchor);
+      else document.body.appendChild(view);
+    }
+  }
+
+  window.updateMerchStage = function(id, field, value){ const data=getMerchData(); const item=data.find(x=>x.id===id); if(!item) return; item[field]=value; saveMerchData(data); renderMerchandiseModule(); renderDashboard(); renderCostView(); };
+  window.updateSampleStage = function(id, field, value){ const data=getSamplesData(); const item=data.find(x=>x.id===id); if(!item) return; item[field]=value; saveSamplesData(data); renderSamplesModule(); renderDashboard(); renderCostView(); };
+
+
+  const MODULE_STAGE_OPTIONS = ['Not Started','In Progress','Blocked','Ready','Done'];
+  const MODULE_PAYMENT_OPTIONS = PAYMENT_STATUSES;
+  const ENTITY_ITEM_FIELDS = (labelName) => [
+    {key:'itemName', label:labelName, type:'text', required:true, full:true},
+    {key:'quantity', label:'Quantity', type:'number'},
+    {key:'vendorName', label:'Vendor Name', type:'text'},
+    {key:'estimatedCost', label:'Estimated Cost', type:'currency'},
+    {key:'actualCost', label:'Actual Cost', type:'currency'},
+    {key:'paidAmount', label:'Paid Amount', type:'currency'},
+    {key:'designStatus', label:'Design Status', type:'select', options:MODULE_STAGE_OPTIONS},
+    {key:'sampleStatus', label:'Sample Status', type:'select', options:MODULE_STAGE_OPTIONS},
+    {key:'productionStatus', label:'Production Status', type:'select', options:MODULE_STAGE_OPTIONS},
+    {key:'qcStatus', label:'QC Status', type:'select', options:MODULE_STAGE_OPTIONS},
+    {key:'paymentStatus', label:'Payment Status', type:'select', options:MODULE_PAYMENT_OPTIONS},
+    {key:'notes', label:'Notes', type:'textarea', full:true},
+  ];
+
+  window.addMerchItem = function(){
+    openEntityModal({
+      type:'merch',
+      title:'Add Merchandise Item',
+      fields:ENTITY_ITEM_FIELDS('Item Name'),
+      values:{quantity:0, paymentStatus:'Pending', designStatus:'Not Started', sampleStatus:'Not Started', productionStatus:'Not Started', qcStatus:'Not Started'},
+      onSave:(vals)=>{
+        const data = getMerchData();
+        data.push(merchWithDefaults({...vals}));
+        saveMerchData(data); renderMerchandiseModule(); renderDashboard(); renderCostView(); showToast('Merchandise item added');
+      }
+    });
+  };
+  window.editMerchItem = function(id){
+    const data=getMerchData(); const item=data.find(x=>x.id===id); if(!item) return;
+    openEntityModal({
+      type:'merch',
+      title:'Edit Merchandise Item',
+      fields:ENTITY_ITEM_FIELDS('Item Name'),
+      values:item,
+      onSave:(vals)=>{
+        Object.assign(item, vals, {
+          quantity:numSafe(vals.quantity),
+          estimatedCost:numSafe(vals.estimatedCost),
+          actualCost:numSafe(vals.actualCost),
+          paidAmount:numSafe(vals.paidAmount)
+        });
+        saveMerchData(data); renderMerchandiseModule(); renderDashboard(); renderCostView(); showToast('Merchandise item updated');
+      }
+    });
+  };
+  window.deleteMerchItem = function(id){ if(!confirm('Delete this merchandise item?')) return; const data=getMerchData().filter(x=>x.id!==id); saveMerchData(data); renderMerchandiseModule(); renderDashboard(); renderCostView(); showToast('Merchandise item deleted'); };
+
+  window.addSampleItem = function(){
+    openEntityModal({
+      type:'sample',
+      title:'Add Sample Item',
+      fields:ENTITY_ITEM_FIELDS('SKU / Item Name'),
+      values:{quantity:0, paymentStatus:'Pending', designStatus:'Not Started', sampleStatus:'Not Started', productionStatus:'Not Started', qcStatus:'Not Started'},
+      onSave:(vals)=>{
+        const data = getSamplesData();
+        data.push(sampleWithDefaults({...vals}));
+        saveSamplesData(data); renderSamplesModule(); renderDashboard(); renderCostView(); showToast('Sample item added');
+      }
+    });
+  };
+  window.editSampleItem = function(id){
+    const data=getSamplesData(); const item=data.find(x=>x.id===id); if(!item) return;
+    openEntityModal({
+      type:'sample',
+      title:'Edit Sample Item',
+      fields:ENTITY_ITEM_FIELDS('SKU / Item Name'),
+      values:item,
+      onSave:(vals)=>{
+        Object.assign(item, vals, {
+          quantity:numSafe(vals.quantity),
+          estimatedCost:numSafe(vals.estimatedCost),
+          actualCost:numSafe(vals.actualCost),
+          paidAmount:numSafe(vals.paidAmount)
+        });
+        saveSamplesData(data); renderSamplesModule(); renderDashboard(); renderCostView(); showToast('Sample item updated');
+      }
+    });
+  };
+  window.deleteSampleItem = function(id){ if(!confirm('Delete this sample item?')) return; const data=getSamplesData().filter(x=>x.id!==id); saveSamplesData(data); renderSamplesModule(); renderDashboard(); renderCostView(); showToast('Sample item deleted'); };
+
+  const __baseSwitchTabEntity = window.switchTab;
+  window.switchTab = function(id){
+    __baseSwitchTabEntity(id);
+    if(id==='merchandise') renderMerchandiseModule();
+    if(id==='samples') renderSamplesModule();
+  };
+
+  const __baseRenderDashboardEntity = window.renderDashboard;
+  window.renderDashboard = function(){
+    __baseRenderDashboardEntity();
+    const merch = getMerchData(), samples = getSamplesData();
+    const entityEst = sumEst(merch) + sumEst(samples);
+    const entityPending = sumPending(merch) + sumPending(samples);
+    const entityCount = merch.length + samples.length;
+    const grid = document.getElementById('kpi-grid');
+    if(grid){
+      const estCard = Array.from(grid.querySelectorAll('.kpi')).find(el => el.querySelector('.kpi-label') && el.querySelector('.kpi-label').textContent.trim() === 'Total Estimated');
+      if(estCard){
+        const taskEstimated = (window.tasks || []).filter(hasTaskCost).reduce((a,t)=>a+getTaskEstimated(t),0); const val = estCard.querySelector('.kpi-val'); if(val) val.textContent = formatCurrency(taskEstimated + entityEst);
+        const sub = estCard.querySelector('.kpi-sub'); if(sub) sub.textContent = `${entityCount} merch + sample items included`;
+      }
+      const pendingCard = Array.from(grid.querySelectorAll('.kpi')).find(el => el.querySelector('.kpi-label') && el.querySelector('.kpi-label').textContent.trim() === 'Pending Cost');
+      if(pendingCard){
+        const taskPending = (window.tasks || []).filter(hasTaskCost).reduce((a,t)=>a+getTaskPending(t),0);
+        const val = pendingCard.querySelector('.kpi-val'); if(val) val.textContent = formatCurrency(taskPending + entityPending);
+        const sub = pendingCard.querySelector('.kpi-sub'); if(sub) sub.textContent = `${formatCurrency(sumPaid(merch)+sumPaid(samples))} paid in merch + samples`; 
+      }
+      Array.from(grid.querySelectorAll('.entity-kpi')).forEach(el => el.remove());
+      grid.insertAdjacentHTML('beforeend', `<div class="kpi green entity-kpi"><div class="kpi-label">Merch + Samples</div><div class="kpi-val">${entityCount}</div><div class="kpi-sub">Persistent item entities tracked</div></div>`);
+    }
+  };
+
+  window.renderCostView = function(){
+    const costTasks = (window.tasks || []).filter(hasTaskCost);
+    const merch = getMerchData().filter(hasAnyCostLike);
+    const samples = getSamplesData().filter(hasAnyCostLike);
+    const vendors = typeof getVendorsData === 'function' ? getVendorsData() : [];
+
+    const totalEstimatedTasks = costTasks.reduce((a,t) => a + getTaskEstimated(t), 0);
+    const totalActualTasks = costTasks.reduce((a,t) => a + getTaskActual(t), 0);
+    const totalPaidTasks = costTasks.reduce((a,t) => a + getTaskPaid(t), 0);
+    const totalPendingTasks = costTasks.reduce((a,t) => a + getTaskPending(t), 0);
+    const totalEstimated = totalEstimatedTasks + sumEst(merch) + sumEst(samples);
+    const totalActualCombined = totalActualTasks + sumActual(merch) + sumActual(samples);
+    const totalPaidCombined = totalPaidTasks + sumPaid(merch) + sumPaid(samples);
+    const totalPendingCombined = totalPendingTasks + sumPending(merch) + sumPending(samples);
+
+    const summary = document.getElementById('cost-summary');
+    const tableView = document.getElementById('cost-table-view');
+    if(!summary || !tableView) return;
+
+    summary.innerHTML = `
+      <div class="cost-grid">
+        <div class="cost-card"><div class="cost-card-label">Total Estimated</div><div class="cost-card-value">${formatCurrency(totalEstimated)}</div><div class="cost-card-sub">Tasks + merchandise + samples</div></div>
+        <div class="cost-card"><div class="cost-card-label">Total Actual</div><div class="cost-card-value">${formatCurrency(totalActualCombined)}</div><div class="cost-card-sub">Filled actual values only</div></div>
+        <div class="cost-card"><div class="cost-card-label">Total Paid</div><div class="cost-card-value">${formatCurrency(totalPaidCombined)}</div><div class="cost-card-sub">Across task and entity layers</div></div>
+        <div class="cost-card"><div class="cost-card-label">Total Pending</div><div class="cost-card-value">${formatCurrency(totalPendingCombined)}</div><div class="cost-card-sub">Vendor totals remain separately listed below</div></div>
+      </div>`;
+
+    const taskRows = costTasks.map(t => `<tr><td>Task</td><td><div style="font-size:11px;line-height:1.3;">#${t.id} ${t.title}</div></td><td>${t.workstream}</td><td>${formatCurrency(getTaskEstimated(t))}</td><td>${formatCurrency(getTaskActual(t))}</td><td>${formatCurrency(getTaskPaid(t))}</td><td>${formatCurrency(getTaskPending(t))}</td><td>${t.vendorName||'—'}</td><td><span class="cost-badge ${paymentClass(t.paymentStatus)}">${t.paymentStatus||'Not Applicable'}</span></td></tr>`).join('');
+    const merchRows = merch.map(i => `<tr><td>Merchandise</td><td>${i.itemName}</td><td>Merchandise Module</td><td>${formatCurrency(i.estimatedCost)}</td><td>${formatCurrency(i.actualCost)}</td><td>${formatCurrency(i.paidAmount)}</td><td>${formatCurrency(Math.max(Math.max(numSafe(i.actualCost), numSafe(i.estimatedCost)) - numSafe(i.paidAmount),0))}</td><td>${i.vendorName||'—'}</td><td><span class="cost-badge ${paymentClass(i.paymentStatus)}">${i.paymentStatus}</span></td></tr>`).join('');
+    const sampleRows = samples.map(i => `<tr><td>Samples</td><td>${i.itemName}</td><td>Samples Module</td><td>${formatCurrency(i.estimatedCost)}</td><td>${formatCurrency(i.actualCost)}</td><td>${formatCurrency(i.paidAmount)}</td><td>${formatCurrency(Math.max(Math.max(numSafe(i.actualCost), numSafe(i.estimatedCost)) - numSafe(i.paidAmount),0))}</td><td>${i.vendorName||'—'}</td><td><span class="cost-badge ${paymentClass(i.paymentStatus)}">${i.paymentStatus}</span></td></tr>`).join('');
+    const vendorRows = vendors.map(v => `<tr><td>Vendor</td><td>${v.vendorName}</td><td>${v.category||'Vendor'}</td><td>${formatCurrency(v.estimatedCost)}</td><td>${formatCurrency(v.actualCost)}</td><td>${formatCurrency(v.paidAmount)}</td><td>${formatCurrency(getVendorPending(v))}</td><td>${v.contactPerson||'—'}</td><td><span class="cost-badge ${paymentClass(v.paymentStatus)}">${v.paymentStatus}</span></td></tr>`).join('');
+
+    tableView.innerHTML = `
+      <table class="cost-table">
+        <thead><tr><th>Layer</th><th>Name</th><th>Context</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Vendor / Contact</th><th>Payment</th></tr></thead>
+        <tbody>${taskRows || ''}${merchRows || ''}${sampleRows || ''}${vendorRows || ''}</tbody>
+      </table>`;
+  };
+
+  const __baseExportJsonEntity = window.exportJson;
+  window.exportJson = function(){
+    const payload = {
+      version: ENTITY_SCHEMA_VERSION,
+      exportedAt: new Date().toISOString(),
+      event: 'Be. IHFF 2026 — War Room',
+      tasks: window.tasks || [],
+      products: typeof getProductsData === 'function' ? getProductsData() : [],
+      talent: typeof getTalentData === 'function' ? getTalentData() : [],
+      manpower: typeof getManpowerData === 'function' ? getManpowerData() : [],
+      vendors: typeof getVendorsData === 'function' ? getVendorsData() : [],
+      merchandise: getMerchData(),
+      samplesModule: getSamplesData()
+    };
+    const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `ihff-war-room-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
+    showToast('JSON exported');
+  };
+
+  window.importJsonFile = function(file){
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e){
+      try{
+        const payload = JSON.parse(e.target.result);
+        const norm = typeof normalizeImportedPayload === 'function' ? normalizeImportedPayload(payload) : payload;
+        window.tasks = (norm.tasks || []).map(taskWithDefaults);
+        if(typeof applyDependencyDefaults === 'function') applyDependencyDefaults();
+        if(typeof saveData === 'function') saveData();
+        if(typeof saveProductsData === 'function') { const mappedProducts = (norm.products || []).map(p => (typeof productWithDefaults === 'function' ? productWithDefaults(p) : p)); saveProductsData(mappedProducts); }
+        if(typeof saveTalentData === 'function' && typeof talentWithDefaults === 'function') saveTalentData((norm.talent || []).map(talentWithDefaults));
+        if(typeof saveManpowerData === 'function' && typeof manpowerWithDefaults === 'function') saveManpowerData((norm.manpower || []).map(manpowerWithDefaults));
+        if(typeof saveVendorsData === 'function' && typeof vendorWithDefaults === 'function') saveVendorsData((norm.vendors || []).map(vendorWithDefaults));
+        saveMerchData((payload.merchandise || payload.merch || []).length ? (payload.merchandise || payload.merch).map(merchWithDefaults) : DEFAULT_MERCH.map(merchWithDefaults));
+        saveSamplesData((payload.samplesModule || payload.samples || []).length ? (payload.samplesModule || payload.samples).map(sampleWithDefaults) : DEFAULT_SAMPLES.map(sampleWithDefaults));
+        migrateTaskSubtasksToEntities();
+        const input = document.getElementById('json-import-input'); if(input) input.value='';
+        if (typeof populateFiltersFresh === 'function') populateFiltersFresh();
+        renderDashboard(); if(typeof applyFilters==='function') applyFilters(); if(typeof renderCriticalPath==='function') renderCriticalPath(); if(typeof renderBlockers==='function') renderBlockers(); if(typeof renderProducts==='function') renderProducts(); if(typeof renderTalent==='function') renderTalent(); if(typeof renderManpower==='function') renderManpower(); if(typeof renderVendors==='function') renderVendors(); renderMerchandiseModule(); renderSamplesModule(); renderCostView();
+        showToast('JSON imported and upgraded');
+      }catch(err){ console.error(err); showToast('Invalid JSON file'); }
+    };
+    reader.readAsText(file);
+  };
+
+  injectEntityStyles();
+  ensureEntityTabsAndViews();
+  migrateTaskSubtasksToEntities();
+  renderMerchandiseModule();
+  renderSamplesModule();
+  renderDashboard();
+  renderCostView();
+})();
+
+<script>
+// --- STABILITY PATCH: restore dashboard/blockers/costs and add working Gantt view ---
+(function(){
+  function safeNum(v){ const n=Number(v); return Number.isFinite(n)?n:0; }
+  function getMerchSafe(){ try { return typeof getMerchData==='function' ? (getMerchData()||[]) : []; } catch(e){ return []; } }
+  function getSamplesSafe(){ try { return typeof getSamplesData==='function' ? (getSamplesData()||[]) : []; } catch(e){ return []; } }
+  function getVendorsSafe(){ try { return typeof getVendorsData==='function' ? (getVendorsData()||[]) : []; } catch(e){ return []; } }
+  function sumField(list, field){ return (list||[]).reduce((a,x)=>a+safeNum(x && x[field]),0); }
+  function sumPendingEntity(list){ return (list||[]).reduce((a,x)=>a+Math.max(Math.max(safeNum(x && x.actualCost), safeNum(x && x.estimatedCost)) - safeNum(x && x.paidAmount), 0),0); }
+  function combinedCostTotals(){
+    const taskList = Array.isArray(window.tasks) ? window.tasks : [];
+    const taskCost = taskList.filter(t => typeof hasTaskCost==='function' ? hasTaskCost(t) : false);
+    const merch = getMerchSafe(), samples = getSamplesSafe(), vendors = getVendorsSafe();
+    return {
+      estimated: taskCost.reduce((a,t)=>a+(typeof getTaskEstimated==='function'?getTaskEstimated(t):0),0) + sumField(merch,'estimatedCost') + sumField(samples,'estimatedCost') + sumField(vendors,'estimatedCost'),
+      actual: taskCost.reduce((a,t)=>a+(typeof getTaskActual==='function'?getTaskActual(t):0),0) + sumField(merch,'actualCost') + sumField(samples,'actualCost') + sumField(vendors,'actualCost'),
+      paid: taskCost.reduce((a,t)=>a+(typeof getTaskPaid==='function'?getTaskPaid(t):0),0) + sumField(merch,'paidAmount') + sumField(samples,'paidAmount') + sumField(vendors,'paidAmount'),
+      pending: taskCost.reduce((a,t)=>a+(typeof getTaskPending==='function'?getTaskPending(t):0),0) + sumPendingEntity(merch) + sumPendingEntity(samples) + sumPendingEntity(vendors)
+    };
+  }
+
+  window.renderDashboard = function(){
+    const grid = document.getElementById('kpi-grid');
+    if(!grid) return;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const taskList = Array.isArray(window.tasks) ? window.tasks : [];
+    const total = taskList.length;
+    const done = taskList.filter(t => t.status === 'Done').length;
+    const blocked = taskList.filter(t => t.status === 'Blocked').length;
+    const inprog = taskList.filter(t => t.status === 'In Progress').length;
+    const overdue = taskList.filter(t => t.endDate && t.status !== 'Done' && new Date(t.endDate) < today).length;
+    const critical = taskList.filter(t => t.priority === 'CRITICAL' && t.status !== 'Done').length;
+    const depBlocked = taskList.filter(t => Array.isArray(t.dependencyIds) && t.dependencyIds.some(id => {
+      const dep = taskList.find(x => x.id === id);
+      return dep && dep.status !== 'Done';
+    })).length;
+    const overall = total ? Math.round(taskList.reduce((a,t)=>a+safeNum(t.progress),0)/total) : 0;
+    const costTotals = combinedCostTotals();
+    const costLinked = taskList.filter(t => typeof hasTaskCost==='function' ? hasTaskCost(t) : false).length + getMerchSafe().length + getSamplesSafe().length + getVendorsSafe().length;
+
+    grid.innerHTML = `
+      <div class="kpi lime"><div class="kpi-label">Overall Progress</div><div class="kpi-val">${overall}%</div><div class="progress-bar"><div class="progress-fill" style="width:${overall}%"></div></div><div class="kpi-sub">${done} of ${total} tasks done</div></div>
+      <div class="kpi blue"><div class="kpi-label">Total Tasks</div><div class="kpi-val">${total}</div><div class="kpi-sub">${inprog} in progress</div></div>
+      <div class="kpi green"><div class="kpi-label">Total Estimated</div><div class="kpi-val" style="font-size:20px;">${typeof formatCurrency==='function'?formatCurrency(costTotals.estimated):costTotals.estimated}</div><div class="kpi-sub">${costLinked} cost-linked records</div></div>
+      <div class="kpi purple"><div class="kpi-label">Pending Cost</div><div class="kpi-val" style="font-size:20px;">${typeof formatCurrency==='function'?formatCurrency(costTotals.pending):costTotals.pending}</div><div class="kpi-sub">${typeof formatCurrency==='function'?formatCurrency(costTotals.paid):costTotals.paid} paid</div></div>
+      <div class="kpi red"><div class="kpi-label">Blocked</div><div class="kpi-val">${blocked}</div><div class="kpi-sub">Needs immediate action</div></div>
+      <div class="kpi blue"><div class="kpi-label">Overdue</div><div class="kpi-val">${overdue}</div><div class="kpi-sub">Past due date</div></div>
+      <div class="kpi purple"><div class="kpi-label">Critical Open</div><div class="kpi-val">${critical}</div><div class="kpi-sub">CRITICAL priority pending</div></div>
+      <div class="kpi yellow"><div class="kpi-label">Dependency Blocked</div><div class="kpi-val">${depBlocked}</div><div class="kpi-sub">Waiting on prerequisite tasks</div></div>
+    `;
+
+    const blockers = taskList.filter(t => t.status === 'Blocked' || (t.riskNote && String(t.riskNote).trim()) || (Array.isArray(t.dependencyIds) && t.dependencyIds.some(id => { const dep = taskList.find(x => x.id===id); return dep && dep.status !== 'Done'; })) ).slice(0,8);
+    const banner = document.getElementById('blocker-banner');
+    if (banner) {
+      banner.innerHTML = blockers.length ? `<div class="blocker-banner"><div class="blocker-title">Current blockers & risk flags</div>${blockers.slice(0,4).map(t=>`<div class="blocker-item"><span class="blocker-dot"></span><span><strong>#${t.id}</strong> ${t.title}</span></div>`).join('')}</div>` : '';
+    }
+    const criticalList = document.getElementById('critical-list');
+    if (criticalList) {
+      criticalList.innerHTML = blockers.length ? blockers.map(t=>`<div style="background:rgba(255,59,59,.05);border:1px solid rgba(255,59,59,.22);border-radius:8px;padding:12px 14px;"><div style="font-family:var(--fh);font-weight:700;font-size:12px;margin-bottom:6px;">#${t.id} ${t.title}</div><div style="font-size:10px;color:var(--t2);margin-bottom:8px;">${t.phase} · ${t.owner} · ${t.workstream}</div><div style="font-size:11px;color:var(--warn);line-height:1.45;">${t.riskNote || 'Blocked / dependency issue'}</div></div>`).join('') : '<div class="empty">No blockers right now</div>';
+    }
+    const overdueList = document.getElementById('overdue-list');
+    const overdueTasks = taskList.filter(t => t.endDate && t.status !== 'Done' && new Date(t.endDate) < today).slice(0,8);
+    if (overdueList) {
+      overdueList.innerHTML = overdueTasks.length ? overdueTasks.map(t=>`<div style="background:rgba(255,170,0,.05);border:1px solid rgba(255,170,0,.2);border-radius:8px;padding:10px 14px;cursor:pointer;" onclick="switchTab('tasks')"><div style="font-family:var(--fh);font-weight:700;font-size:12px;margin-bottom:4px;">#${t.id} ${t.title}</div><div style="font-size:10px;color:var(--t2);">Due ${t.endDate} · ${t.owner}</div></div>`).join('') : '<div class="empty">No overdue tasks</div>';
+    }
+  };
+
+  window.renderCostView = function(){
+    const summary = document.getElementById('cost-summary');
+    const view = document.getElementById('cost-table-view');
+    if(!summary || !view) return;
+    const taskList = Array.isArray(window.tasks) ? window.tasks : [];
+    const taskCost = taskList.filter(t => typeof hasTaskCost==='function' ? hasTaskCost(t) : false);
+    const merch = getMerchSafe(), samples = getSamplesSafe(), vendors = getVendorsSafe();
+    const totals = combinedCostTotals();
+    summary.innerHTML = `
+      <div class="cost-grid">
+        <div class="cost-card"><div class="cost-card-label">Total Estimated</div><div class="cost-card-value">${formatCurrency(totals.estimated)}</div><div class="cost-card-sub">Tasks + modules + vendors</div></div>
+        <div class="cost-card"><div class="cost-card-label">Total Actual</div><div class="cost-card-value">${formatCurrency(totals.actual)}</div><div class="cost-card-sub">Filled actual values</div></div>
+        <div class="cost-card"><div class="cost-card-label">Total Paid</div><div class="cost-card-value">${formatCurrency(totals.paid)}</div><div class="cost-card-sub">Across all records</div></div>
+        <div class="cost-card"><div class="cost-card-label">Total Pending</div><div class="cost-card-value">${formatCurrency(totals.pending)}</div><div class="cost-card-sub">Remaining to be closed</div></div>
+      </div>`;
+    const rows = [];
+    taskCost.forEach(t => rows.push(`<tr><td>Task</td><td>#${t.id} ${t.title}</td><td>${t.workstream||'—'}</td><td>${formatCurrency(getTaskEstimated(t))}</td><td>${formatCurrency(getTaskActual(t))}</td><td>${formatCurrency(getTaskPaid(t))}</td><td>${formatCurrency(getTaskPending(t))}</td><td>${t.vendorName||'—'}</td><td><span class="cost-badge ${paymentClass(t.paymentStatus)}">${t.paymentStatus||'Not Applicable'}</span></td></tr>`));
+    merch.forEach(i => rows.push(`<tr><td>Merch</td><td>${i.itemName}</td><td>Merchandise</td><td>${formatCurrency(safeNum(i.estimatedCost))}</td><td>${formatCurrency(safeNum(i.actualCost))}</td><td>${formatCurrency(safeNum(i.paidAmount))}</td><td>${formatCurrency(Math.max(Math.max(safeNum(i.actualCost),safeNum(i.estimatedCost))-safeNum(i.paidAmount),0))}</td><td>${i.vendorName||'—'}</td><td><span class="cost-badge ${paymentClass(i.paymentStatus)}">${i.paymentStatus||'Pending'}</span></td></tr>`));
+    samples.forEach(i => rows.push(`<tr><td>Sample</td><td>${i.itemName}</td><td>Samples</td><td>${formatCurrency(safeNum(i.estimatedCost))}</td><td>${formatCurrency(safeNum(i.actualCost))}</td><td>${formatCurrency(safeNum(i.paidAmount))}</td><td>${formatCurrency(Math.max(Math.max(safeNum(i.actualCost),safeNum(i.estimatedCost))-safeNum(i.paidAmount),0))}</td><td>${i.vendorName||'—'}</td><td><span class="cost-badge ${paymentClass(i.paymentStatus)}">${i.paymentStatus||'Pending'}</span></td></tr>`));
+    vendors.forEach(v => rows.push(`<tr><td>Vendor</td><td>${v.vendorName||'Vendor'}</td><td>${v.vendorCategory||v.workstream||'—'}</td><td>${formatCurrency(safeNum(v.estimatedCost))}</td><td>${formatCurrency(safeNum(v.actualCost))}</td><td>${formatCurrency(safeNum(v.paidAmount))}</td><td>${formatCurrency(Math.max(Math.max(safeNum(v.actualCost),safeNum(v.estimatedCost))-safeNum(v.paidAmount),0))}</td><td>${v.vendorName||'—'}</td><td><span class="cost-badge ${paymentClass(v.paymentStatus)}">${v.paymentStatus||'Pending'}</span></td></tr>`));
+    view.innerHTML = `<table class="cost-table"><thead><tr><th>Layer</th><th>Item</th><th>Workstream</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Vendor</th><th>Payment</th></tr></thead><tbody>${rows.join('') || '<tr><td colspan="9"><div class="cost-empty">No cost data yet</div></td></tr>'}</tbody></table>`;
+  };
+
+  function inferStart(task){
+    if(task.startDate) return new Date(task.startDate);
+    if(!task.endDate) return null;
+    const end = new Date(task.endDate);
+    const days = task.priority==='CRITICAL'?14:task.priority==='HIGH'?10:task.priority==='MEDIUM'?7:5;
+    const d = new Date(end); d.setDate(d.getDate()-days); d.__inferred = true; return d;
+  }
+  function ensureGanttView(){
+    if(!document.getElementById('view-gantt')){
+      const view = document.createElement('div'); view.className='view'; view.id='view-gantt';
+      view.innerHTML = `<div class="gantt-view-wrap" style="padding:16px 20px;"><div class="gantt-toolbar" style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px;"><div><div style="font-family:var(--fh);font-weight:700;font-size:18px;margin-bottom:4px;">Gantt Timeline</div><div style="color:var(--t2);font-size:11px;">Read-only weekly timeline using real dates where available and inferred starts where needed.</div></div><div id="gantt-meta" style="font-size:10px;color:var(--t2);"></div></div><div class="gantt-shell" style="overflow:auto;border:1px solid var(--border);border-radius:10px;background:var(--surface);"><div id="gantt-root"></div></div></div>`;
+      document.body.appendChild(view);
+    }
+    const tabs = document.querySelector('.hdr-tabs');
+    if(tabs && !tabs.querySelector(".tab[onclick="switchTab('gantt')"]")){
+      const tab=document.createElement('div'); tab.className='tab'; tab.setAttribute('onclick',"switchTab('gantt')"); tab.textContent='Gantt'; tabs.appendChild(tab);
+    }
+  }
+  function renderGantt(){
+    ensureGanttView();
+    const root = document.getElementById('gantt-root'); const meta = document.getElementById('gantt-meta'); if(!root) return;
+    const taskList = (Array.isArray(window.tasks)?window.tasks:[]).filter(t=>t.endDate || t.startDate);
+    if(!taskList.length){ root.innerHTML = '<div class="empty">No dated tasks available for Gantt view</div>'; return; }
+    const items = taskList.map(t=>({task:t, start:inferStart(t), end:t.endDate?new Date(t.endDate):(t.startDate?new Date(t.startDate):null)})).filter(x=>x.start && x.end);
+    let min = new Date(Math.min(...items.map(x=>x.start.getTime()))); let max = new Date(Math.max(...items.map(x=>x.end.getTime())));
+    min.setDate(min.getDate() - min.getDay()); max.setDate(max.getDate() + (6-max.getDay()) + 7);
+    const weeks = []; const cur = new Date(min); while(cur<=max){ weeks.push(new Date(cur)); cur.setDate(cur.getDate()+7); }
+    const colW = 88; const leftW = 340; const today = new Date(); today.setHours(0,0,0,0);
+    meta.innerHTML = `${items.length} tasks · ${weeks.length} weeks · ~ = inferred start`;
+    const header = `<div style="display:grid;grid-template-columns:${leftW}px repeat(${weeks.length}, ${colW}px);position:sticky;top:0;z-index:2;background:var(--s2);border-bottom:1px solid var(--border);"><div style="padding:10px 12px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);">Task</div>${weeks.map(w=>`<div style="padding:10px 8px;border-left:1px solid var(--border);font-size:10px;color:var(--t2);">${w.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})}</div>`).join('')}</div>`;
+    const body = items.sort((a,b)=>a.start-b.start).map(({task,start,end})=>{
+      const startIdx = Math.max(0, Math.floor((start - min)/(7*86400000))); const span = Math.max(1, Math.ceil((end - start + 86400000)/(7*86400000)));
+      const color = task.status==='Done'?'rgba(0,230,118,.85)':task.status==='Blocked'?'rgba(255,59,59,.85)':task.status==='In Progress'?'rgba(56,182,255,.85)':task.status==='Review'?'rgba(255,170,0,.85)':'rgba(136,136,170,.75)';
+      const inferred = !task.startDate;
+      return `<div style="display:grid;grid-template-columns:${leftW}px repeat(${weeks.length}, ${colW}px);border-bottom:1px solid var(--border);min-height:46px;"><div style="padding:8px 12px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--border);"><div style="font-size:12px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;" onclick="jumpToTask(${task.id})">#${task.id} ${task.title}</div><div style="font-size:10px;color:var(--t2);margin-top:3px;">${task.owner} · ${task.phase}${inferred?' · ~ inferred':''}</div></div><div style="grid-column:2 / span ${weeks.length};position:relative;display:grid;grid-template-columns:repeat(${weeks.length}, ${colW}px);">${weeks.map((w,idx)=>`<div style="border-left:1px solid var(--border);${today>=w && today<new Date(w.getTime()+7*86400000)?'background:rgba(212,245,60,.04);':''}"></div>`).join('')}<div style="position:absolute;left:${startIdx*colW + 6}px;top:10px;width:${Math.max(span*colW - 12, 18)}px;height:24px;background:${color};border-radius:999px;display:flex;align-items:center;padding:0 10px;font-size:10px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 0 0 1px rgba(255,255,255,.06) inset;">${task.status}</div></div></div>`;
+    }).join('');
+    const todayOffset = ((today - min)/(7*86400000))*colW;
+    root.innerHTML = `<div style="min-width:${leftW + weeks.length*colW}px;position:relative;">${header}<div style="position:absolute;left:${leftW + todayOffset}px;top:0;bottom:0;width:2px;background:var(--accent);opacity:.7;z-index:1;"></div>${body}</div>`;
+  }
+  window.renderGantt = renderGantt;
+
+  window.switchTab = function(id){
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const target = document.getElementById(`view-${id}`); if(target) target.classList.add('active');
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    const active = document.querySelector(`.tab[onclick="switchTab('${id}')"]`); if(active) active.classList.add('active');
+    if(id==='dashboard') window.renderDashboard();
+    else if(id==='tasks' && typeof applyFilters==='function') applyFilters();
+    else if(id==='critical' && typeof renderCriticalPath==='function') renderCriticalPath();
+    else if(id==='blockers' && typeof renderBlockers==='function') renderBlockers();
+    else if(id==='products' && typeof renderProducts==='function') renderProducts();
+    else if(id==='merchandise' && typeof renderMerchandiseModule==='function') renderMerchandiseModule();
+    else if(id==='samples' && typeof renderSamplesModule==='function') renderSamplesModule();
+    else if(id==='talent' && typeof renderTalent==='function') renderTalent();
+    else if(id==='manpower' && typeof renderManpower==='function') renderManpower();
+    else if(id==='vendors' && typeof renderVendors==='function') renderVendors();
+    else if(id==='costs') window.renderCostView();
+    else if(id==='gantt') renderGantt();
+  };
+
+  function fullRefresh(){
+    try{ if(typeof populateFilters==='function') populateFilters(); }catch(e){}
+    try{ window.renderDashboard(); }catch(e){ console.error(e); }
+    try{ if(typeof applyFilters==='function') applyFilters(); }catch(e){ console.error(e); }
+    try{ if(typeof renderCriticalPath==='function') renderCriticalPath(); }catch(e){}
+    try{ if(typeof renderBlockers==='function') renderBlockers(); }catch(e){}
+    try{ if(typeof renderProducts==='function') renderProducts(); }catch(e){}
+    try{ if(typeof renderMerchandiseModule==='function') renderMerchandiseModule(); }catch(e){}
+    try{ if(typeof renderSamplesModule==='function') renderSamplesModule(); }catch(e){}
+    try{ if(typeof renderTalent==='function') renderTalent(); }catch(e){}
+    try{ if(typeof renderManpower==='function') renderManpower(); }catch(e){}
+    try{ if(typeof renderVendors==='function') renderVendors(); }catch(e){}
+    try{ window.renderCostView(); }catch(e){ console.error(e); }
+    try{ renderGantt(); }catch(e){ console.error(e); }
+  }
+  ensureGanttView();
+  setTimeout(fullRefresh, 0);
+})();
+
+<script>
+// --- UNIFIED AGGREGATE VIEWS PATCH ---
+(function(){
+  function getTaskState(){
+    try{ if (Array.isArray(tasks)) return tasks; }catch(e){}
+    try{ if (Array.isArray(window.tasks)) return window.tasks; }catch(e){}
+    return [];
+  }
+  const money = (n)=> {
+    const v = Number(n||0);
+    if(!Number.isFinite(v) || v===0) return '—';
+    try{ return typeof formatCurrency==='function' ? formatCurrency(v) : new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(v); }catch(e){ return `₹${v}`; }
+  };
+  const num = v => { const n = Number(v||0); return Number.isFinite(n) ? n : 0; };
+  const getTaskEstimatedSafe = t => typeof getTaskEstimated==='function' ? num(getTaskEstimated(t)) : num(t.estimatedCost);
+  const getTaskActualSafe = t => typeof getTaskActual==='function' ? num(getTaskActual(t)) : num(t.actualCost);
+  const getTaskPaidSafe = t => typeof getTaskPaid==='function' ? num(getTaskPaid(t)) : num(t.paidAmount);
+  const getTaskPendingSafe = t => typeof getTaskPending==='function' ? num(getTaskPending(t)) : Math.max(Math.max(getTaskActualSafe(t), getTaskEstimatedSafe(t)) - getTaskPaidSafe(t), 0);
+  const hasTaskCostSafe = t => typeof hasTaskCost==='function' ? hasTaskCost(t) : [getTaskEstimatedSafe(t),getTaskActualSafe(t),getTaskPaidSafe(t)].some(v=>v>0);
+  const paymentClassSafe = s => typeof paymentClass==='function' ? paymentClass(s||'Not Applicable') : 'pay-na';
+  const statusClassSafe = s => typeof statusClass==='function' ? statusClass(s||'To Do') : '';
+  const wsClassSafe = ws => typeof wsClass==='function' ? wsClass(ws||'') : '';
+  const isOverdueSafe = t => { try{ return typeof isOverdue==='function' ? isOverdue(t) : (!!t.endDate && t.status!=='Done' && new Date(t.endDate) < new Date()); }catch(e){ return false; } };
+  const getBlockedBySafe = t => { try{ return typeof getBlockedBy==='function' ? (getBlockedBy(t)||[]) : []; }catch(e){ return []; } };
+  const effectiveStatusSafe = t => { try{ return typeof effectiveStatus==='function' ? effectiveStatus(t) : (getBlockedBySafe(t).length ? 'Blocked' : (t.status||'To Do')); }catch(e){ return t.status||'To Do'; } };
+  const depLink = dep => `<span class="dep-jump" onclick="jumpToTask(${dep.id})">#${dep.id} ${dep.title}</span>`;
+  function getEntityData(fnName){ try{ return typeof window[fnName]==='function' ? (window[fnName]()||[]) : []; }catch(e){ return []; } }
+  function entityPending(x){ return Math.max(Math.max(num(x.actualCost), num(x.estimatedCost)) - num(x.paidAmount), 0); }
+
+  window.renderDashboard = function(){
+    const list = getTaskState();
+    const grid = document.getElementById('kpi-grid');
+    const bannerHost = document.getElementById('blocker-banner');
+    const criticalList = document.getElementById('critical-list');
+    const overdueList = document.getElementById('overdue-list');
+    if(!grid) return;
+    const merch = getEntityData('getMerchData');
+    const samples = getEntityData('getSamplesData');
+    const vendors = getEntityData('getVendorsData');
+    const totals = {
+      estimated: list.reduce((a,t)=>a+getTaskEstimatedSafe(t),0) + merch.reduce((a,x)=>a+num(x.estimatedCost),0) + samples.reduce((a,x)=>a+num(x.estimatedCost),0) + vendors.reduce((a,x)=>a+num(x.estimatedCost),0),
+      actual: list.reduce((a,t)=>a+getTaskActualSafe(t),0) + merch.reduce((a,x)=>a+num(x.actualCost),0) + samples.reduce((a,x)=>a+num(x.actualCost),0) + vendors.reduce((a,x)=>a+num(x.actualCost),0),
+      paid: list.reduce((a,t)=>a+getTaskPaidSafe(t),0) + merch.reduce((a,x)=>a+num(x.paidAmount),0) + samples.reduce((a,x)=>a+num(x.paidAmount),0) + vendors.reduce((a,x)=>a+num(x.paidAmount),0),
+    };
+    totals.pending = list.reduce((a,t)=>a+getTaskPendingSafe(t),0) + merch.reduce((a,x)=>a+entityPending(x),0) + samples.reduce((a,x)=>a+entityPending(x),0) + vendors.reduce((a,x)=>a+entityPending(x),0);
+    const total = list.length;
+    const done = list.filter(t => t.status === 'Done').length;
+    const blocked = list.filter(t => effectiveStatusSafe(t) === 'Blocked').length;
+    const criticalOpen = list.filter(t => t.priority === 'CRITICAL' && t.status !== 'Done').length;
+    const overdue = list.filter(isOverdueSafe).length;
+    const inProg = list.filter(t => t.status === 'In Progress').length;
+    const costLinked = list.filter(hasTaskCostSafe).length + merch.length + samples.length + vendors.length;
+    const progress = total ? Math.round(list.reduce((a,t)=>a+num(t.progress),0)/total) : 0;
+    grid.innerHTML = `
+      <div class="kpi lime"><div class="kpi-label">Overall Progress</div><div class="kpi-val">${progress}%</div><div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div><div class="kpi-sub">${done} of ${total} tasks done</div></div>
+      <div class="kpi blue"><div class="kpi-label">Total Tasks</div><div class="kpi-val">${total}</div><div class="kpi-sub">${inProg} in progress</div></div>
+      <div class="kpi red"><div class="kpi-label">Blocked</div><div class="kpi-val">${blocked}</div><div class="kpi-sub">Dependency and manual blockers</div></div>
+      <div class="kpi yellow"><div class="kpi-label">Overdue</div><div class="kpi-val">${overdue}</div><div class="kpi-sub">Past due date</div></div>
+      <div class="kpi purple"><div class="kpi-label">Critical Open</div><div class="kpi-val">${criticalOpen}</div><div class="kpi-sub">Priority CRITICAL</div></div>
+      <div class="kpi green"><div class="kpi-label">Total Estimated</div><div class="kpi-val" style="font-size:20px;">${money(totals.estimated)}</div><div class="kpi-sub">${costLinked} cost-linked records</div></div>
+      <div class="kpi blue"><div class="kpi-label">Total Paid</div><div class="kpi-val" style="font-size:20px;">${money(totals.paid)}</div><div class="kpi-sub">Actual ${money(totals.actual)}</div></div>
+      <div class="kpi yellow"><div class="kpi-label">Pending Cost</div><div class="kpi-val" style="font-size:20px;">${money(totals.pending)}</div><div class="kpi-sub">Remaining to close</div></div>`;
+    const blockers = list.filter(t => effectiveStatusSafe(t)==='Blocked' || !!String(t.riskNote||'').trim() || isOverdueSafe(t)).slice(0,8);
+    if(bannerHost) bannerHost.innerHTML = blockers.length ? `<div class="blocker-banner"><div class="blocker-title">Current blockers & risk flags</div>${blockers.slice(0,4).map(t=>`<div class="blocker-item"><span class="blocker-dot"></span><span><strong>#${t.id}</strong> ${t.title}</span></div>`).join('')}</div>` : '';
+    if(criticalList) criticalList.innerHTML = blockers.length ? blockers.map(t=>`<div style="background:rgba(255,59,59,.05);border:1px solid rgba(255,59,59,.22);border-radius:8px;padding:12px 14px;"><div style="font-family:var(--fh);font-weight:700;font-size:12px;margin-bottom:6px;">#${t.id} ${t.title}</div><div style="font-size:10px;color:var(--t2);margin-bottom:8px;">${t.phase||'—'} · ${t.owner||'—'} · ${t.workstream||'—'}</div><div style="font-size:11px;color:var(--warn);line-height:1.45;">${String(t.riskNote||'Blocked / dependency issue')}</div></div>`).join('') : '<div class="empty">No blockers right now</div>';
+    const overdueTasks = list.filter(isOverdueSafe).slice(0,8);
+    if(overdueList) overdueList.innerHTML = overdueTasks.length ? overdueTasks.map(t=>`<div style="background:rgba(255,170,0,.05);border:1px solid rgba(255,170,0,.2);border-radius:8px;padding:10px 14px;cursor:pointer;" onclick="switchTab('tasks');setTimeout(()=>jumpToTask(${t.id}),120)"><div style="font-family:var(--fh);font-weight:700;font-size:12px;margin-bottom:4px;">#${t.id} ${t.title}</div><div style="font-size:10px;color:var(--t2);">Due ${t.endDate||'—'} · ${t.owner||'—'}</div></div>`).join('') : '<div class="empty">No overdue tasks</div>';
+  };
+
+  window.renderCriticalPath = function(){
+    const tbody = document.getElementById('cp-tbody'); if(!tbody) return;
+    const list = getTaskState().filter(t => !!t.criticalPath);
+    if(!list.length){ tbody.innerHTML = '<tr><td colspan="9"><div class="empty">No critical path tasks</div></td></tr>'; return; }
+    tbody.innerHTML = list.map(t=>{ const blocked = getBlockedBySafe(t); const eStatus = effectiveStatusSafe(t); const overdue = isOverdueSafe(t); return `<tr><td class="task-id">${t.id}</td><td><div style="font-size:12px;max-width:360px;line-height:1.35;">${t.title}${blocked.length?`<div class="dep-line blocked">Waiting on ${blocked.map(depLink).join(', ')}</div>`:''}</div></td><td><span class="ws-badge ${wsClassSafe(t.workstream)}">${t.workstream||'—'}</span></td><td><span class="owner-badge">${t.owner||'—'}</span></td><td class="date-cell ${overdue?'overdue':''}">${t.endDate||'—'}${overdue?' ⚠':''}</td><td><span class="priority-badge p-${t.priority||'LOW'}">${t.priority||'LOW'}</span></td><td><select class="status-sel ${statusClassSafe(eStatus)}" onchange="updateStatus(${t.id}, this.value)"><option ${eStatus==='To Do'?'selected':''}>To Do</option><option ${eStatus==='In Progress'?'selected':''}>In Progress</option><option ${eStatus==='Review'?'selected':''}>Review</option><option ${eStatus==='Blocked'?'selected':''}>Blocked</option><option ${eStatus==='Done'?'selected':''}>Done</option></select></td><td>${blocked.length?`<span class="risk-flag">⛓ ${blocked.length} dependency pending</span>`:(t.riskNote?`<span class="risk-flag">⚠ ${String(t.riskNote).slice(0,60)}${String(t.riskNote).length>60?'…':''}</span>`:'—')}</td><td><div class="action-btns" style="opacity:1;"><button class="act-btn" onclick="openEditModal(${t.id})">✏</button></div></td></tr>`; }).join('');
+  };
+
+  window.renderBlockers = function(){
+    const el = document.getElementById('blocker-full-list'); if(!el) return;
+    const list = getTaskState().filter(t => effectiveStatusSafe(t)==='Blocked' || !!String(t.riskNote||'').trim() || isOverdueSafe(t));
+    if(!list.length){ el.innerHTML = '<div class="empty"><div class="empty-icon">✅</div>No blockers or at-risk tasks</div>'; return; }
+    el.innerHTML = `<table style="width:100%;border-collapse:collapse;min-width:860px;"><thead><tr><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">#</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Task</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Workstream</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Owner</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Due</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Status</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Risk / Reason</th></tr></thead><tbody>${list.map(t=>{ const blocked=getBlockedBySafe(t); const overdue=isOverdueSafe(t); const eStatus=effectiveStatusSafe(t); const tag=blocked.length?'DEPENDENCY':(t.status==='Blocked'?'BLOCKED':(overdue?'OVERDUE':'AT RISK')); const bg=blocked.length||t.status==='Blocked'?'rgba(255,59,59,.15)':'rgba(255,170,0,.1)'; const cl=blocked.length||t.status==='Blocked'?'var(--crit)':'var(--warn)'; return `<tr style="border-bottom:1px solid var(--border);"><td style="padding:7px 10px;color:var(--t3);font-size:10px;">${t.id}</td><td style="padding:7px 10px;"><div style="font-size:11px;max-width:320px;line-height:1.35;"><span style="background:${bg};color:${cl};font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">${tag}</span>${t.title}</div></td><td style="padding:7px 10px;"><span class="ws-badge ${wsClassSafe(t.workstream)}">${t.workstream||'—'}</span></td><td style="padding:7px 10px;"><span class="owner-badge">${t.owner||'—'}</span></td><td style="padding:7px 10px;" class="date-cell ${overdue?'overdue':''}">${t.endDate||'—'}</td><td style="padding:7px 10px;"><select class="status-sel ${statusClassSafe(eStatus)}" onchange="updateStatus(${t.id}, this.value)"><option ${eStatus==='To Do'?'selected':''}>To Do</option><option ${eStatus==='In Progress'?'selected':''}>In Progress</option><option ${eStatus==='Review'?'selected':''}>Review</option><option ${eStatus==='Blocked'?'selected':''}>Blocked</option><option ${eStatus==='Done'?'selected':''}>Done</option></select></td><td style="padding:7px 10px;font-size:11px;color:var(--warn);">${blocked.length?`Waiting on ${blocked.map(depLink).join(', ')}`:(String(t.riskNote||'')).trim()||'Past due / blocked'}</td></tr>`; }).join('')}</tbody></table>`;
+  };
+
+  window.renderCostView = function(){
+    const summary = document.getElementById('cost-summary'); const view = document.getElementById('cost-table-view'); if(!summary||!view) return;
+    const list = getTaskState(); const merch = getEntityData('getMerchData'); const samples = getEntityData('getSamplesData'); const vendors = getEntityData('getVendorsData');
+    const rows=[];
+    list.filter(hasTaskCostSafe).forEach(t => rows.push(`<tr><td>Task</td><td>#${t.id} ${t.title}</td><td>${t.workstream||'—'}</td><td>${money(getTaskEstimatedSafe(t))}</td><td>${money(getTaskActualSafe(t))}</td><td>${money(getTaskPaidSafe(t))}</td><td>${money(getTaskPendingSafe(t))}</td><td>${t.vendorName||'—'}</td><td><span class="cost-badge ${paymentClassSafe(t.paymentStatus)}">${t.paymentStatus||'Not Applicable'}</span></td></tr>`));
+    merch.forEach(i => rows.push(`<tr><td>Merch</td><td>${i.itemName}</td><td>Merchandise</td><td>${money(i.estimatedCost)}</td><td>${money(i.actualCost)}</td><td>${money(i.paidAmount)}</td><td>${money(entityPending(i))}</td><td>${i.vendorName||'—'}</td><td><span class="cost-badge ${paymentClassSafe(i.paymentStatus)}">${i.paymentStatus||'Pending'}</span></td></tr>`));
+    samples.forEach(i => rows.push(`<tr><td>Sample</td><td>${i.itemName}</td><td>Samples</td><td>${money(i.estimatedCost)}</td><td>${money(i.actualCost)}</td><td>${money(i.paidAmount)}</td><td>${money(entityPending(i))}</td><td>${i.vendorName||'—'}</td><td><span class="cost-badge ${paymentClassSafe(i.paymentStatus)}">${i.paymentStatus||'Pending'}</span></td></tr>`));
+    vendors.forEach(v => rows.push(`<tr><td>Vendor</td><td>${v.vendorName||'Vendor'}</td><td>${v.vendorCategory||v.workstream||'—'}</td><td>${money(v.estimatedCost)}</td><td>${money(v.actualCost)}</td><td>${money(v.paidAmount)}</td><td>${money(entityPending(v))}</td><td>${v.vendorName||'—'}</td><td><span class="cost-badge ${paymentClassSafe(v.paymentStatus)}">${v.paymentStatus||'Pending'}</span></td></tr>`));
+    const totEst = list.reduce((a,t)=>a+getTaskEstimatedSafe(t),0)+merch.reduce((a,x)=>a+num(x.estimatedCost),0)+samples.reduce((a,x)=>a+num(x.estimatedCost),0)+vendors.reduce((a,x)=>a+num(x.estimatedCost),0);
+    const totAct = list.reduce((a,t)=>a+getTaskActualSafe(t),0)+merch.reduce((a,x)=>a+num(x.actualCost),0)+samples.reduce((a,x)=>a+num(x.actualCost),0)+vendors.reduce((a,x)=>a+num(x.actualCost),0);
+    const totPaid = list.reduce((a,t)=>a+getTaskPaidSafe(t),0)+merch.reduce((a,x)=>a+num(x.paidAmount),0)+samples.reduce((a,x)=>a+num(x.paidAmount),0)+vendors.reduce((a,x)=>a+num(x.paidAmount),0);
+    const totPending = list.reduce((a,t)=>a+getTaskPendingSafe(t),0)+merch.reduce((a,x)=>a+entityPending(x),0)+samples.reduce((a,x)=>a+entityPending(x),0)+vendors.reduce((a,x)=>a+entityPending(x),0);
+    summary.innerHTML = `<div class="cost-grid"><div class="cost-card"><div class="cost-card-label">Total Estimated</div><div class="cost-card-value">${money(totEst)}</div><div class="cost-card-sub">Tasks + merchandise + samples + vendors</div></div><div class="cost-card"><div class="cost-card-label">Total Actual</div><div class="cost-card-value">${money(totAct)}</div><div class="cost-card-sub">Filled actual values only</div></div><div class="cost-card"><div class="cost-card-label">Total Paid</div><div class="cost-card-value">${money(totPaid)}</div><div class="cost-card-sub">Across all layers</div></div><div class="cost-card"><div class="cost-card-label">Total Pending</div><div class="cost-card-value">${money(totPending)}</div><div class="cost-card-sub">Remaining to close</div></div></div>`;
+    view.innerHTML = `<table class="cost-table"><thead><tr><th>Layer</th><th>Name</th><th>Context</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Vendor / Contact</th><th>Payment</th></tr></thead><tbody>${rows.join('') || '<tr><td colspan="9"><div class="cost-empty">No cost data yet</div></td></tr>'}</tbody></table>`;
+  };
+
+  function ensureGantt(){
+    if(!document.getElementById('view-gantt')){ const view = document.createElement('div'); view.className='view'; view.id='view-gantt'; view.innerHTML = `<div style="padding:16px 20px;"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px;"><div><div style="font-family:var(--fh);font-weight:700;font-size:18px;margin-bottom:4px;">Gantt Timeline</div><div style="color:var(--t2);font-size:11px;">Read-only weekly timeline using real dates where available and inferred starts where needed.</div></div><div id="gantt-meta" style="font-size:10px;color:var(--t2);"></div></div><div style="overflow:auto;border:1px solid var(--border);border-radius:10px;background:var(--surface);"><div id="gantt-root"></div></div></div>`; document.body.insertBefore(view, document.getElementById('task-modal')); }
+    const tabs = document.querySelector('.hdr-tabs'); if(tabs && !tabs.querySelector('.tab[data-tab="gantt"]')){ const tab = document.createElement('div'); tab.className='tab'; tab.dataset.tab='gantt'; tab.setAttribute('onclick',"switchTab('gantt')"); tab.textContent='Gantt'; tabs.appendChild(tab); }
+  }
+  function inferStart(task){ if(task.startDate) return new Date(task.startDate); if(!task.endDate) return null; const end = new Date(task.endDate); const days = task.priority==='CRITICAL'?14:task.priority==='HIGH'?10:task.priority==='MEDIUM'?7:5; const d=new Date(end); d.setDate(d.getDate()-days); return d; }
+  window.renderGantt = function(){ ensureGantt(); const root = document.getElementById('gantt-root'); const meta = document.getElementById('gantt-meta'); if(!root) return; const items = getTaskState().map(t=>({task:t,start:inferStart(t),end:t.endDate?new Date(t.endDate):(t.startDate?new Date(t.startDate):null)})).filter(x=>x.start && x.end); if(!items.length){ root.innerHTML='<div class="empty">No dated tasks available for Gantt view</div>'; if(meta) meta.textContent=''; return; } let min = new Date(Math.min(...items.map(x=>x.start.getTime()))), max = new Date(Math.max(...items.map(x=>x.end.getTime()))); min.setDate(min.getDate()-min.getDay()); max.setDate(max.getDate()+(6-max.getDay())+7); const weeks=[]; for(let d=new Date(min); d<=max; d.setDate(d.getDate()+7)) weeks.push(new Date(d)); const leftW=340, colW=88; const today=new Date(); today.setHours(0,0,0,0); if(meta) meta.textContent = `${items.length} tasks · ${weeks.length} weeks · ~ inferred starts`; const header = `<div style="display:grid;grid-template-columns:${leftW}px repeat(${weeks.length}, ${colW}px);position:sticky;top:0;background:var(--s2);z-index:2;border-bottom:1px solid var(--border);"><div style="padding:10px 12px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);">Task</div>${weeks.map(w=>`<div style="padding:10px 8px;border-left:1px solid var(--border);font-size:10px;color:var(--t2);">${w.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})}</div>`).join('')}</div>`; const body = items.sort((a,b)=>a.start-b.start).map(({task,start,end})=>{ const idx=Math.max(0,Math.floor((start-min)/(7*86400000))); const span=Math.max(1,Math.ceil((end-start+86400000)/(7*86400000))); const color = task.status==='Done'?'rgba(0,230,118,.85)':task.status==='Blocked'?'rgba(255,59,59,.85)':task.status==='In Progress'?'rgba(56,182,255,.85)':task.status==='Review'?'rgba(255,170,0,.85)':'rgba(136,136,170,.75)'; return `<div style="display:grid;grid-template-columns:${leftW}px repeat(${weeks.length}, ${colW}px);border-bottom:1px solid var(--border);min-height:46px;"><div style="padding:8px 12px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--border);"><div style="font-size:12px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;" onclick="switchTab('tasks');setTimeout(()=>jumpToTask(${task.id}),120)">#${task.id} ${task.title}</div><div style="font-size:10px;color:var(--t2);margin-top:3px;">${task.owner||'—'} · ${task.phase||'—'}${task.startDate?'':' · ~ inferred'}</div></div><div style="grid-column:2 / span ${weeks.length};position:relative;display:grid;grid-template-columns:repeat(${weeks.length}, ${colW}px);">${weeks.map(w=>`<div style="border-left:1px solid var(--border);${today>=w && today<new Date(w.getTime()+7*86400000)?'background:rgba(212,245,60,.04);':''}"></div>`).join('')}<div style="position:absolute;left:${idx*colW+6}px;top:10px;width:${Math.max(span*colW-12,18)}px;height:24px;background:${color};border-radius:999px;display:flex;align-items:center;padding:0 10px;font-size:10px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 0 0 1px rgba(255,255,255,.06) inset;">${task.status||'To Do'}</div></div></div>`; }).join(''); const todayOffset = ((today-min)/(7*86400000))*colW; root.innerHTML = `<div style="min-width:${leftW+weeks.length*colW}px;position:relative;">${header}<div style="position:absolute;left:${leftW+todayOffset}px;top:0;bottom:0;width:2px;background:var(--accent);opacity:.7;z-index:1;"></div>${body}</div>`; };
+
+  window.switchTab = function(id){ ensureGantt(); document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); const target = document.getElementById(`view-${id}`); if(target) target.classList.add('active'); document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); const tab = document.querySelector(`.tab[onclick="switchTab('${id}')"]`); if(tab) tab.classList.add('active'); if(id==='dashboard') window.renderDashboard(); else if(id==='tasks' && typeof applyFilters==='function') applyFilters(); else if(id==='critical') window.renderCriticalPath(); else if(id==='blockers') window.renderBlockers(); else if(id==='products' && typeof renderProducts==='function') renderProducts(); else if(id==='merchandise' && typeof renderMerchandiseModule==='function') renderMerchandiseModule(); else if(id==='samples' && typeof renderSamplesModule==='function') renderSamplesModule(); else if(id==='talent' && typeof renderTalent==='function') renderTalent(); else if(id==='manpower' && typeof renderManpower==='function') renderManpower(); else if(id==='vendors' && typeof renderVendors==='function') renderVendors(); else if(id==='costs') window.renderCostView(); else if(id==='gantt') window.renderGantt(); };
+  ensureGantt();
+  setTimeout(()=>{ try{ if(typeof populateFilters==='function') populateFilters(); }catch(e){} try{ window.renderDashboard(); }catch(e){console.error(e);} try{ if(typeof applyFilters==='function') applyFilters(); }catch(e){console.error(e);} try{ window.renderCriticalPath(); }catch(e){console.error(e);} try{ window.renderBlockers(); }catch(e){console.error(e);} try{ window.renderCostView(); }catch(e){console.error(e);} try{ window.renderGantt(); }catch(e){console.error(e);} }, 0);
+})();
+
+<script>
+/* --- STABILIZATION PATCH: shared live-state sync, vendors/costs, countdown cleanup, remove gantt --- */
+(function(){
+  const money = (n) => {
+    const v = Number(n || 0);
+    if (!Number.isFinite(v) || v === 0) return '—';
+    try { return new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(v); }
+    catch(e){ return `₹${Math.round(v)}`; }
+  };
+  const num = (v) => {
+    const n = Number(v || 0);
+    return Number.isFinite(n) ? n : 0;
+  };
+  const fmtInt = (n) => {
+    const v = Math.round(Number(n||0));
+    return new Intl.NumberFormat('en-IN').format(v);
+  };
+  function getLiveTasks(){
+    try{ if(Array.isArray(window.tasks)) return window.tasks; }catch(e){}
+    try{ if(Array.isArray(tasks)) return tasks; }catch(e){}
+    return [];
+  }
+  function getArr(fnName){
+    try{
+      if(typeof window[fnName]==='function'){
+        const out = window[fnName]();
+        return Array.isArray(out) ? out : [];
+      }
+    }catch(e){}
+    return [];
+  }
+  function taskEstimated(t){ try { return typeof getTaskEstimated==='function' ? num(getTaskEstimated(t)) : num(t.estimatedCost); } catch(e){ return num(t.estimatedCost); } }
+  function taskActual(t){ try { return typeof getTaskActual==='function' ? num(getTaskActual(t)) : num(t.actualCost); } catch(e){ return num(t.actualCost); } }
+  function taskPaid(t){ try { return typeof getTaskPaid==='function' ? num(getTaskPaid(t)) : num(t.paidAmount); } catch(e){ return num(t.paidAmount); } }
+  function taskPending(t){
+    try { if(typeof getTaskPending==='function') return num(getTaskPending(t)); } catch(e){}
+    return Math.max(Math.max(taskActual(t), taskEstimated(t)) - taskPaid(t), 0);
+  }
+  function taskHasCost(t){
+    const status = String(t.paymentStatus || 'Not Applicable');
+    return taskEstimated(t) > 0 || taskActual(t) > 0 || taskPaid(t) > 0 || !!String(t.vendorName||'').trim() || status !== 'Not Applicable';
+  }
+  function entityPending(x){ return Math.max(Math.max(num(x.actualCost), num(x.estimatedCost)) - num(x.paidAmount), 0); }
+  function effective(t){
+    try{ if(typeof effectiveStatus==='function') return effectiveStatus(t); }catch(e){}
+    const blocked = blockedBy(t);
+    return blocked.length ? 'Blocked' : (t.status || 'To Do');
+  }
+  function blockedBy(t){
+    try{ if(typeof getBlockedBy==='function') return getBlockedBy(t) || []; }catch(e){}
+    return [];
+  }
+  function overdue(t){
+    if(!t || !t.endDate) return false;
+    if((t.status||'') === 'Done') return false;
+    const d = new Date(t.endDate);
+    if(Number.isNaN(d.getTime())) return false;
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    d.setHours(0,0,0,0);
+    return d < today;
+  }
+  function statusCls(s){
+    try{ if(typeof statusClass==='function') return statusClass(s||'To Do'); }catch(e){}
+    return '';
+  }
+  function wsCls(w){
+    try{ if(typeof wsClass==='function') return wsClass(w||''); }catch(e){}
+    return '';
+  }
+  function payCls(s){
+    try{ if(typeof paymentClass==='function') return paymentClass(s||'Not Applicable'); }catch(e){}
+    return 'pay-na';
+  }
+  function depLink(dep){
+    return `<span class="dep-jump" onclick="switchTab('tasks');setTimeout(()=>jumpToTask(${dep.id}),120)">#${dep.id} ${dep.title}</span>`;
+  }
+  function rootTasks(){
+    return getLiveTasks().filter(t => !t.parentId && !t.__entityChild && !String(t.title||'').startsWith('LINE ITEM '));
+  }
+  function linkedProcurementTasks(){
+    const keys = new Set(['Stand','Merch','Sampling','IHFF','Stage','B2B','Ops']);
+    return rootTasks().filter(t => keys.has(t.workstream) || taskHasCost(t));
+  }
+
+  // Better countdown UI
+  window.updateCountdown = function(){
+    const el = document.getElementById('countdown');
+    if(!el) return;
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const eventDate = new Date('2026-06-12');
+    eventDate.setHours(0,0,0,0);
+    const diffMs = eventDate - today;
+    const totalDays = Math.max(0, Math.ceil(diffMs / 86400000));
+    const weeks = Math.floor(totalDays / 7);
+    const daysRemainder = totalDays % 7;
+    el.innerHTML = `
+      <div class="cd-block" style="min-width:92px;">
+        <div class="cd-num">${totalDays}</div>
+        <div class="cd-label">Days Left</div>
+      </div>
+      <div class="cd-block" style="min-width:96px;">
+        <div class="cd-num" style="font-size:16px;">${weeks}w ${daysRemainder}d</div>
+        <div class="cd-label">Time Remaining</div>
+      </div>
+      <div class="cd-block" style="min-width:82px;">
+        <div class="cd-num" style="font-size:16px;">Jun 12</div>
+        <div class="cd-label">Event Date</div>
+      </div>`;
+  };
+
+  // Dashboard derived from live task/entity state
+  window.renderDashboard = function(){
+    const list = rootTasks();
+    const merch = getArr('getMerchData');
+    const samples = getArr('getSamplesData');
+    const vendors = getArr('getVendorsData');
+
+    const total = list.length;
+    const done = list.filter(t => (t.status||'')==='Done').length;
+    const inProg = list.filter(t => (t.status||'')==='In Progress').length;
+    const blocked = list.filter(t => effective(t)==='Blocked').length;
+    const overdueCount = list.filter(overdue).length;
+    const criticalOpen = list.filter(t => t.priority==='CRITICAL' && (t.status||'')!=='Done').length;
+    const progress = total ? Math.round(list.reduce((a,t)=>a+num(t.progress),0) / total) : 0;
+
+    const totalEstimated = list.reduce((a,t)=>a+taskEstimated(t),0) + merch.reduce((a,x)=>a+num(x.estimatedCost),0) + samples.reduce((a,x)=>a+num(x.estimatedCost),0) + vendors.reduce((a,x)=>a+num(x.estimatedCost),0);
+    const totalPaid = list.reduce((a,t)=>a+taskPaid(t),0) + merch.reduce((a,x)=>a+num(x.paidAmount),0) + samples.reduce((a,x)=>a+num(x.paidAmount),0) + vendors.reduce((a,x)=>a+num(x.paidAmount),0);
+    const totalPending = list.reduce((a,t)=>a+taskPending(t),0) + merch.reduce((a,x)=>a+entityPending(x),0) + samples.reduce((a,x)=>a+entityPending(x),0) + vendors.reduce((a,x)=>a+entityPending(x),0);
+
+    const grid = document.getElementById('kpi-grid');
+    if(grid){
+      grid.innerHTML = `
+        <div class="kpi lime"><div class="kpi-label">Overall Progress</div><div class="kpi-val">${progress}%</div><div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div><div class="kpi-sub">${done} of ${total} root tasks done</div></div>
+        <div class="kpi blue"><div class="kpi-label">Active Tasks</div><div class="kpi-val">${total}</div><div class="kpi-sub">${inProg} in progress</div></div>
+        <div class="kpi red"><div class="kpi-label">Blocked</div><div class="kpi-val">${blocked}</div><div class="kpi-sub">Manual + dependency blocked</div></div>
+        <div class="kpi yellow"><div class="kpi-label">Overdue</div><div class="kpi-val">${overdueCount}</div><div class="kpi-sub">Past due date</div></div>
+        <div class="kpi purple"><div class="kpi-label">Critical Open</div><div class="kpi-val">${criticalOpen}</div><div class="kpi-sub">Critical tasks not done</div></div>
+        <div class="kpi green"><div class="kpi-label">Estimated Cost</div><div class="kpi-val" style="font-size:20px;">${money(totalEstimated)}</div><div class="kpi-sub">Tasks + entities + vendors</div></div>
+        <div class="kpi blue"><div class="kpi-label">Paid</div><div class="kpi-val" style="font-size:20px;">${money(totalPaid)}</div><div class="kpi-sub">Across all tracked layers</div></div>
+        <div class="kpi yellow"><div class="kpi-label">Pending Cost</div><div class="kpi-val" style="font-size:20px;">${money(totalPending)}</div><div class="kpi-sub">Remaining to close</div></div>`;
+    }
+
+    const blockerHost = document.getElementById('blocker-banner');
+    const criticalList = document.getElementById('critical-list');
+    const overdueList = document.getElementById('overdue-list');
+
+    const blockers = list.filter(t => effective(t)==='Blocked' || overdue(t) || !!String(t.riskNote||'').trim());
+    if(blockerHost){
+      blockerHost.innerHTML = blockers.length ? `<div class="blocker-banner"><div class="blocker-title">Current blockers & risk flags</div>${blockers.slice(0,4).map(t=>`<div class="blocker-item"><span class="blocker-dot"></span><span><strong>#${t.id}</strong> ${t.title}</span></div>`).join('')}</div>` : '';
+    }
+    if(criticalList){
+      const criticalCards = blockers.slice(0,8).map(t=>`
+        <div style="background:rgba(255,59,59,.05);border:1px solid rgba(255,59,59,.22);border-radius:8px;padding:12px 14px;">
+          <div style="font-family:var(--fh);font-weight:700;font-size:12px;margin-bottom:6px;">#${t.id} ${t.title}</div>
+          <div style="font-size:10px;color:var(--t2);margin-bottom:8px;">${t.phase||'—'} · ${t.owner||'—'} · ${t.workstream||'—'}</div>
+          <div style="font-size:11px;color:var(--warn);line-height:1.45;">${blockedBy(t).length ? `Waiting on ${blockedBy(t).map(depLink).join(', ')}` : (String(t.riskNote||'Past due / blocked'))}</div>
+        </div>`).join('');
+      criticalList.innerHTML = criticalCards || '<div class="empty">No blockers right now</div>';
+    }
+    if(overdueList){
+      const overdueCards = list.filter(overdue).slice(0,8).map(t=>`
+        <div style="background:rgba(255,170,0,.05);border:1px solid rgba(255,170,0,.2);border-radius:8px;padding:10px 14px;cursor:pointer;" onclick="switchTab('tasks');setTimeout(()=>jumpToTask(${t.id}),120)">
+          <div style="font-family:var(--fh);font-weight:700;font-size:12px;margin-bottom:4px;">#${t.id} ${t.title}</div>
+          <div style="font-size:10px;color:var(--t2);">Due ${t.endDate||'—'} · ${t.owner||'—'}</div>
+        </div>`).join('');
+      overdueList.innerHTML = overdueCards || '<div class="empty">No overdue tasks</div>';
+    }
+  };
+
+  window.renderCriticalPath = function(){
+    const tbody = document.getElementById('cp-tbody');
+    if(!tbody) return;
+    const list = rootTasks().filter(t => !!t.criticalPath);
+    if(!list.length){
+      tbody.innerHTML = '<tr><td colspan="9"><div class="empty">No critical path tasks</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(t => {
+      const blocked = blockedBy(t);
+      const eStatus = effective(t);
+      return `<tr>
+        <td class="task-id">${t.id}</td>
+        <td><div style="font-size:12px;max-width:360px;line-height:1.35;">${t.title}${blocked.length?`<div class="dep-line blocked">Waiting on ${blocked.map(depLink).join(', ')}</div>`:''}</div></td>
+        <td><span class="ws-badge ${wsCls(t.workstream)}">${t.workstream||'—'}</span></td>
+        <td><span class="owner-badge">${t.owner||'—'}</span></td>
+        <td class="date-cell ${overdue(t)?'overdue':''}">${t.endDate||'—'}${overdue(t)?' ⚠':''}</td>
+        <td><span class="priority-badge p-${t.priority||'LOW'}">${t.priority||'LOW'}</span></td>
+        <td><select class="status-sel ${statusCls(eStatus)}" onchange="updateStatus(${t.id}, this.value)"><option ${eStatus==='To Do'?'selected':''}>To Do</option><option ${eStatus==='In Progress'?'selected':''}>In Progress</option><option ${eStatus==='Review'?'selected':''}>Review</option><option ${eStatus==='Blocked'?'selected':''}>Blocked</option><option ${eStatus==='Done'?'selected':''}>Done</option></select></td>
+        <td>${blocked.length?`<span class="risk-flag">⛓ ${blocked.length} dependency pending</span>`:(t.riskNote?`<span class="risk-flag">⚠ ${String(t.riskNote).slice(0,60)}${String(t.riskNote).length>60?'…':''}</span>`:'—')}</td>
+        <td><div class="action-btns" style="opacity:1;"><button class="act-btn" onclick="openEditModal(${t.id})">✏</button></div></td>
+      </tr>`;
+    }).join('');
+  };
+
+  window.renderBlockers = function(){
+    const el = document.getElementById('blocker-full-list');
+    if(!el) return;
+    const list = rootTasks().filter(t => effective(t)==='Blocked' || !!String(t.riskNote||'').trim() || overdue(t));
+    if(!list.length){
+      el.innerHTML = '<div class="empty"><div class="empty-icon">✅</div>No blockers or at-risk tasks</div>';
+      return;
+    }
+    el.innerHTML = `<table style="width:100%;border-collapse:collapse;min-width:860px;"><thead><tr><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">#</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Task</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Workstream</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Owner</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Due</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Status</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Risk / Reason</th></tr></thead><tbody>${
+      list.map(t => {
+        const blocked = blockedBy(t);
+        const tag = blocked.length ? 'DEPENDENCY' : ((t.status||'')==='Blocked' ? 'BLOCKED' : (overdue(t)?'OVERDUE':'AT RISK'));
+        const bg = blocked.length || (t.status||'')==='Blocked' ? 'rgba(255,59,59,.15)' : 'rgba(255,170,0,.1)';
+        const cl = blocked.length || (t.status||'')==='Blocked' ? 'var(--crit)' : 'var(--warn)';
+        return `<tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:7px 10px;color:var(--t3);font-size:10px;">${t.id}</td>
+          <td style="padding:7px 10px;"><div style="font-size:11px;max-width:320px;line-height:1.35;"><span style="background:${bg};color:${cl};font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">${tag}</span>${t.title}</div></td>
+          <td style="padding:7px 10px;"><span class="ws-badge ${wsCls(t.workstream)}">${t.workstream||'—'}</span></td>
+          <td style="padding:7px 10px;"><span class="owner-badge">${t.owner||'—'}</span></td>
+          <td style="padding:7px 10px;" class="date-cell ${overdue(t)?'overdue':''}">${t.endDate||'—'}</td>
+          <td style="padding:7px 10px;"><select class="status-sel ${statusCls(effective(t))}" onchange="updateStatus(${t.id}, this.value)"><option ${(effective(t)==='To Do')?'selected':''}>To Do</option><option ${(effective(t)==='In Progress')?'selected':''}>In Progress</option><option ${(effective(t)==='Review')?'selected':''}>Review</option><option ${(effective(t)==='Blocked')?'selected':''}>Blocked</option><option ${(effective(t)==='Done')?'selected':''}>Done</option></select></td>
+          <td style="padding:7px 10px;font-size:11px;color:var(--warn);">${blocked.length?`Waiting on ${blocked.map(depLink).join(', ')}`:(String(t.riskNote||'')).trim()||'Past due / blocked'}</td>
+        </tr>`;
+      }).join('')
+    }</tbody></table>`;
+  };
+
+  window.renderCostView = function(){
+    const summary = document.getElementById('cost-summary');
+    const view = document.getElementById('cost-table-view');
+    if(!summary || !view) return;
+    const tasks = rootTasks();
+    const taskCost = tasks.filter(taskHasCost);
+    const merch = getArr('getMerchData');
+    const samples = getArr('getSamplesData');
+    const vendors = getArr('getVendorsData');
+
+    const rows = [];
+    taskCost.forEach(t => rows.push(`<tr><td>Task</td><td>#${t.id} ${t.title}</td><td>${t.workstream||'—'}</td><td>${money(taskEstimated(t))}</td><td>${money(taskActual(t))}</td><td>${money(taskPaid(t))}</td><td>${money(taskPending(t))}</td><td>${t.vendorName||'—'}</td><td><span class="cost-badge ${payCls(t.paymentStatus)}">${t.paymentStatus||'Not Applicable'}</span></td></tr>`));
+    merch.filter(x => num(x.estimatedCost)||num(x.actualCost)||num(x.paidAmount)||String(x.vendorName||'').trim()).forEach(i => rows.push(`<tr><td>Merch</td><td>${i.itemName}</td><td>Merchandise</td><td>${money(i.estimatedCost)}</td><td>${money(i.actualCost)}</td><td>${money(i.paidAmount)}</td><td>${money(entityPending(i))}</td><td>${i.vendorName||'—'}</td><td><span class="cost-badge ${payCls(i.paymentStatus)}">${i.paymentStatus||'Pending'}</span></td></tr>`));
+    samples.filter(x => num(x.estimatedCost)||num(x.actualCost)||num(x.paidAmount)||String(x.vendorName||'').trim()).forEach(i => rows.push(`<tr><td>Sample</td><td>${i.itemName}</td><td>Samples</td><td>${money(i.estimatedCost)}</td><td>${money(i.actualCost)}</td><td>${money(i.paidAmount)}</td><td>${money(entityPending(i))}</td><td>${i.vendorName||'—'}</td><td><span class="cost-badge ${payCls(i.paymentStatus)}">${i.paymentStatus||'Pending'}</span></td></tr>`));
+    vendors.forEach(v => {
+      const name = v.vendorName || v.name || 'Vendor';
+      const cat = v.vendorCategory || v.category || v.workstream || '—';
+      rows.push(`<tr><td>Vendor</td><td>${name}</td><td>${cat}</td><td>${money(v.estimatedCost)}</td><td>${money(v.actualCost)}</td><td>${money(v.paidAmount)}</td><td>${money(entityPending(v))}</td><td>${name}</td><td><span class="cost-badge ${payCls(v.paymentStatus)}">${v.paymentStatus||'Pending'}</span></td></tr>`);
+    });
+
+    const totEst = taskCost.reduce((a,t)=>a+taskEstimated(t),0)+merch.reduce((a,x)=>a+num(x.estimatedCost),0)+samples.reduce((a,x)=>a+num(x.estimatedCost),0)+vendors.reduce((a,x)=>a+num(x.estimatedCost),0);
+    const totAct = taskCost.reduce((a,t)=>a+taskActual(t),0)+merch.reduce((a,x)=>a+num(x.actualCost),0)+samples.reduce((a,x)=>a+num(x.actualCost),0)+vendors.reduce((a,x)=>a+num(x.actualCost),0);
+    const totPaid = taskCost.reduce((a,t)=>a+taskPaid(t),0)+merch.reduce((a,x)=>a+num(x.paidAmount),0)+samples.reduce((a,x)=>a+num(x.paidAmount),0)+vendors.reduce((a,x)=>a+num(x.paidAmount),0);
+    const totPending = taskCost.reduce((a,t)=>a+taskPending(t),0)+merch.reduce((a,x)=>a+entityPending(x),0)+samples.reduce((a,x)=>a+entityPending(x),0)+vendors.reduce((a,x)=>a+entityPending(x),0);
+
+    summary.innerHTML = `<div class="cost-grid">
+      <div class="cost-card"><div class="cost-card-label">Total Estimated</div><div class="cost-card-value">${money(totEst)}</div><div class="cost-card-sub">Tasks + merchandise + samples + vendors</div></div>
+      <div class="cost-card"><div class="cost-card-label">Total Actual</div><div class="cost-card-value">${money(totAct)}</div><div class="cost-card-sub">Filled actual values only</div></div>
+      <div class="cost-card"><div class="cost-card-label">Total Paid</div><div class="cost-card-value">${money(totPaid)}</div><div class="cost-card-sub">Across all layers</div></div>
+      <div class="cost-card"><div class="cost-card-label">Total Pending</div><div class="cost-card-value">${money(totPending)}</div><div class="cost-card-sub">Remaining to close</div></div>
+    </div>`;
+    view.innerHTML = `<table class="cost-table"><thead><tr><th>Layer</th><th>Name</th><th>Context</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Vendor / Contact</th><th>Payment</th></tr></thead><tbody>${rows.length ? rows.join('') : '<tr><td colspan="9"><div class="cost-empty">No cost data yet</div></td></tr>'}</tbody></table>`;
+  };
+
+  window.renderVendors = function(){
+    const summary = document.getElementById('vendor-summary');
+    const wrap = document.getElementById('vendor-table-wrap');
+    const linkedHost = document.getElementById('vendor-linked-tasks');
+    if(!summary || !wrap || !linkedHost) return;
+    const vendors = getArr('getVendorsData');
+    const overduePayments = vendors.filter(v => v.paymentDueDate && new Date(v.paymentDueDate) < new Date() && entityPending(v) > 0).length;
+    const totalEstimated = vendors.reduce((a,v)=>a+num(v.estimatedCost),0);
+    const totalActual = vendors.reduce((a,v)=>a+num(v.actualCost),0);
+    const totalPaid = vendors.reduce((a,v)=>a+num(v.paidAmount),0);
+    const totalPending = vendors.reduce((a,v)=>a+entityPending(v),0);
+
+    summary.innerHTML = `
+      <div class="module-summary">
+        <div class="module-card"><div class="module-card-label">Vendors Tracked</div><div class="module-card-val">${vendors.length}</div></div>
+        <div class="module-card"><div class="module-card-label">Vendor Estimated</div><div class="module-card-val" style="font-size:18px;">${money(totalEstimated)}</div></div>
+        <div class="module-card"><div class="module-card-label">Vendor Actual</div><div class="module-card-val" style="font-size:18px;">${money(totalActual)}</div></div>
+        <div class="module-card"><div class="module-card-label">Vendor Pending</div><div class="module-card-val" style="font-size:18px;">${money(totalPending)}</div></div>
+        <div class="module-card"><div class="module-card-label">Overdue Payments</div><div class="module-card-val">${overduePayments}</div></div>
+      </div>
+      <div class="module-section-title">Vendor Entities</div>`;
+    wrap.innerHTML = vendors.length ? `<table class="module-table"><thead><tr><th>Name</th><th>Category</th><th>Workstream</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Due Date</th><th>Payment</th><th>Actions</th></tr></thead><tbody>${
+      vendors.map(v=>{
+        const name = v.vendorName || v.name || 'Vendor';
+        const category = v.vendorCategory || v.category || 'Misc';
+        return `<tr>
+          <td><div style="font-size:12px;line-height:1.3;">${name}</div><div class="small-muted">${v.notes || ''}</div></td>
+          <td><span class="module-badge">${category}</span></td>
+          <td>${v.workstream ? `<span class="ws-badge ${wsCls(v.workstream)}">${v.workstream}</span>` : '—'}</td>
+          <td>${money(v.estimatedCost)}</td>
+          <td>${money(v.actualCost)}</td>
+          <td>${money(v.paidAmount)}</td>
+          <td>${money(entityPending(v))}</td>
+          <td>${v.paymentDueDate || '—'}</td>
+          <td><span class="cost-badge ${payCls(v.paymentStatus)}">${v.paymentStatus||'Pending'}</span></td>
+          <td><div class="module-actions"><button class="act-btn" onclick="editVendor(${v.id})">✏</button><button class="act-btn danger" onclick="deleteVendor(${v.id})">✕</button></div></td>
+        </tr>`;
+      }).join('')
+    }</tbody></table>` : '<div class="module-empty">No vendor entities added yet. Add actual vendors here; procurement tasks remain in the master task system below.</div>';
+
+    const linked = linkedProcurementTasks();
+    linkedHost.innerHTML = linked.length ? linked.slice(0,12).map(t=>`
+      <div class="linked-card">
+        <div class="linked-card-title">${t.title}</div>
+        <div class="linked-card-meta">
+          <span class="priority-badge p-${t.priority||'LOW'}">${t.priority||'LOW'}</span>
+        </div>
+        <div class="linked-card-pills">
+          <span class="ws-badge ${wsCls(t.workstream)}">${t.workstream||'—'}</span>
+          <span class="owner-badge">${t.owner||'—'}</span>
+        </div>
+        <div class="small-muted">Due ${t.endDate || '—'} · Status ${t.status||'To Do'}${taskHasCost(t) ? ` · Pending ${money(taskPending(t))}` : ''}</div>
+      </div>`).join('') : '<div class="module-empty">No linked procurement tasks found.</div>';
+  };
+
+  function refreshStableViews(){
+    try{ window.renderDashboard(); }catch(e){ console.error(e); }
+    try{ if(typeof applyFilters==='function') applyFilters(); }catch(e){ console.error(e); }
+    try{ window.renderCriticalPath(); }catch(e){ console.error(e); }
+    try{ window.renderBlockers(); }catch(e){ console.error(e); }
+    try{ if(typeof renderProducts==='function') renderProducts(); }catch(e){ console.error(e); }
+    try{ if(typeof renderTalent==='function') renderTalent(); }catch(e){ console.error(e); }
+    try{ if(typeof renderManpower==='function') renderManpower(); }catch(e){ console.error(e); }
+    try{ if(typeof renderMerchandiseModule==='function') renderMerchandiseModule(); }catch(e){ console.error(e); }
+    try{ if(typeof renderSamplesModule==='function') renderSamplesModule(); }catch(e){ console.error(e); }
+    try{ window.renderVendors(); }catch(e){ console.error(e); }
+    try{ window.renderCostView(); }catch(e){ console.error(e); }
+  }
+  window.refreshStableViews = refreshStableViews;
+
+  // Wrap mutators so everything stays in sync
+  const _updateStatus = window.updateStatus;
+  window.updateStatus = function(id, val){
+    if(typeof _updateStatus === 'function') _updateStatus(id, val);
+    else {
+      const t = getLiveTasks().find(x=>x.id===id);
+      if(t){
+        t.status = val;
+        if(val==='Done') t.progress = 100;
+        if(typeof saveData==='function') saveData();
+      }
+    }
+    setTimeout(refreshStableViews, 0);
+  };
+  const _commitProgress = window.commitProgress;
+  window.commitProgress = function(id, val){
+    if(typeof _commitProgress === 'function') _commitProgress(id, val);
+    else {
+      const t = getLiveTasks().find(x=>x.id===id);
+      if(t){ t.progress = Math.max(0, Math.min(100, parseInt(val)||0)); if(typeof saveData==='function') saveData(); }
+    }
+    setTimeout(refreshStableViews, 0);
+  };
+  const _saveTask = window.saveTask;
+  window.saveTask = function(){
+    if(typeof _saveTask === 'function') _saveTask();
+    setTimeout(refreshStableViews, 0);
+  };
+  const _saveEntityModal = window.saveEntityModal;
+  window.saveEntityModal = function(){
+    if(typeof _saveEntityModal === 'function') _saveEntityModal();
+    setTimeout(refreshStableViews, 0);
+  };
+  const _deleteVendor = window.deleteVendor;
+  if(typeof _deleteVendor === 'function'){
+    window.deleteVendor = function(id){ _deleteVendor(id); setTimeout(refreshStableViews, 0); };
+  }
+
+  // Remove gantt cleanly
+  function removeGantt(){
+    document.querySelectorAll('.tab[data-tab="gantt"], .tab[onclick="switchTab(\'gantt\')"]').forEach(el=>el.remove());
+    const gantt = document.getElementById('view-gantt');
+    if(gantt) gantt.remove();
+  }
+  removeGantt();
+
+  // override switchTab without gantt
+  const _switch = window.switchTab;
+  window.switchTab = function(id){
+    if(id === 'gantt') id = 'dashboard';
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    const target = document.getElementById(`view-${id}`);
+    if(target) target.classList.add('active');
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    const tab = document.querySelector(`.tab[onclick="switchTab('${id}')"]`);
+    if(tab) tab.classList.add('active');
+    if(id==='dashboard') window.renderDashboard();
+    else if(id==='tasks' && typeof applyFilters==='function') applyFilters();
+    else if(id==='critical') window.renderCriticalPath();
+    else if(id==='blockers') window.renderBlockers();
+    else if(id==='products' && typeof renderProducts==='function') renderProducts();
+    else if(id==='merchandise' && typeof renderMerchandiseModule==='function') renderMerchandiseModule();
+    else if(id==='samples' && typeof renderSamplesModule==='function') renderSamplesModule();
+    else if(id==='talent' && typeof renderTalent==='function') renderTalent();
+    else if(id==='manpower' && typeof renderManpower==='function') renderManpower();
+    else if(id==='vendors') window.renderVendors();
+    else if(id==='costs') window.renderCostView();
+  };
+
+  setTimeout(()=>{
+    removeGantt();
+    window.updateCountdown();
+    refreshStableViews();
+  }, 0);
+})();
