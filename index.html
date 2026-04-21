@@ -488,9 +488,7 @@ textarea.form-input{resize:vertical;min-height:60px;}
         </div>
         <div class="form-group">
           <label class="form-label">Owner</label>
-          <select class="form-input" id="f-owner-in">
-            <option>Atul</option><option>Angela</option><option>Deeksha</option><option>Tejal</option><option>TBD</option>
-          </select>
+          <select class="form-input" id="f-owner-in"></select>
         </div>
         <div class="form-group">
           <label class="form-label">Priority</label>
@@ -1133,6 +1131,60 @@ function populateFilters() {
   populateFiltersFresh();
 }
 
+const BASE_OWNER_OPTIONS = ['Atul','Angela','Deeksha','Tejal','TBD'];
+
+function getAllOwnerOptions() {
+  const pool = new Set(BASE_OWNER_OPTIONS);
+  const collect = arr => (Array.isArray(arr) ? arr : []).forEach(item => {
+    if (!item || typeof item !== 'object') return;
+    if (item.owner) pool.add(item.owner);
+    if (Array.isArray(item.subtasks)) collect(item.subtasks);
+  });
+  collect(tasks);
+  if (typeof talent !== 'undefined' && Array.isArray(talent)) talent.forEach(item => item && item.owner && pool.add(item.owner));
+  if (typeof manpower !== 'undefined' && Array.isArray(manpower)) manpower.forEach(item => item && item.owner && pool.add(item.owner));
+  if (typeof vendors !== 'undefined' && Array.isArray(vendors)) vendors.forEach(item => item && item.owner && pool.add(item.owner));
+  return Array.from(pool).filter(Boolean).sort((a,b) => {
+    const ai = BASE_OWNER_OPTIONS.indexOf(a), bi = BASE_OWNER_OPTIONS.indexOf(b);
+    if (ai !== -1 && bi !== -1) return ai - bi;
+    if (ai !== -1) return -1;
+    if (bi !== -1) return 1;
+    return a.localeCompare(b);
+  });
+}
+
+function populateOwnerSelect(selectedValue) {
+  const ownerEl = document.getElementById('f-owner-in');
+  if (!ownerEl) return;
+  const current = selectedValue || ownerEl.value || 'Atul';
+  const owners = getAllOwnerOptions();
+  if (current && !owners.includes(current)) owners.push(current);
+  ownerEl.innerHTML = '';
+  owners.forEach(owner => {
+    const option = document.createElement('option');
+    option.value = owner;
+    option.textContent = owner;
+    ownerEl.appendChild(option);
+  });
+  const addOption = document.createElement('option');
+  addOption.value = '__new_owner__';
+  addOption.textContent = '+ New Owner';
+  ownerEl.appendChild(addOption);
+  ownerEl.value = current && owners.includes(current) ? current : 'Atul';
+}
+
+function handleOwnerSelectChange() {
+  const ownerEl = document.getElementById('f-owner-in');
+  if (!ownerEl || ownerEl.value !== '__new_owner__') return;
+  const entered = prompt('Enter new owner name');
+  const clean = entered ? entered.trim() : '';
+  if (!clean) {
+    populateOwnerSelect('Atul');
+    return;
+  }
+  populateOwnerSelect(clean);
+}
+
 // ─── TASK TABLE ──────────────────────────────────────────────────────────────
 function wsClass(ws) {
   const map = {
@@ -1564,7 +1616,7 @@ function openAddModal() {
   document.getElementById('f-title').value = '';
   document.getElementById('f-phase-in').value = '';
   document.getElementById('f-ws-in').value = '';
-  document.getElementById('f-owner-in').value = 'Atul';
+  populateOwnerSelect('Atul');
   document.getElementById('f-priority-in').value = 'HIGH';
   document.getElementById('f-start').value = '';
   document.getElementById('f-end').value = '';
@@ -1589,7 +1641,7 @@ function openEditModal(id) {
   document.getElementById('f-title').value = t.title;
   document.getElementById('f-phase-in').value = t.phase || '';
   document.getElementById('f-ws-in').value = t.workstream || '';
-  document.getElementById('f-owner-in').value = t.owner || 'Atul';
+  populateOwnerSelect(t.owner || 'Atul');
   document.getElementById('f-priority-in').value = t.priority || 'HIGH';
   document.getElementById('f-start').value = t.startDate || '';
   document.getElementById('f-end').value = t.endDate || '';
@@ -1737,6 +1789,9 @@ document.addEventListener('DOMContentLoaded', () => {
       importJsonFile(file);
     });
   }
+  const ownerSelect = document.getElementById('f-owner-in');
+  if (ownerSelect) ownerSelect.addEventListener('change', handleOwnerSelectChange);
+  populateOwnerSelect('Atul');
 });
 
 // Close modal on overlay click
@@ -3045,7 +3100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('f-title').value = t.title || '';
     document.getElementById('f-phase-in').value = t.phase || '';
     document.getElementById('f-ws-in').value = t.workstream || '';
-    document.getElementById('f-owner-in').value = t.owner || 'Atul';
+    populateOwnerSelect(t.owner || 'Atul');
     document.getElementById('f-priority-in').value = t.priority || 'HIGH';
     document.getElementById('f-start').value = t.startDate || '';
     document.getElementById('f-end').value = t.endDate || '';
@@ -3069,7 +3124,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('f-title').value = '';
     document.getElementById('f-phase-in').value = '';
     document.getElementById('f-ws-in').value = '';
-    document.getElementById('f-owner-in').value = 'Atul';
+    populateOwnerSelect('Atul');
     document.getElementById('f-priority-in').value = 'HIGH';
     document.getElementById('f-start').value = '';
     document.getElementById('f-end').value = '';
@@ -3096,7 +3151,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('f-title').value = '';
     document.getElementById('f-phase-in').value = parent.phase || '';
     document.getElementById('f-ws-in').value = parent.workstream || '';
-    document.getElementById('f-owner-in').value = parent.owner || 'Atul';
+    populateOwnerSelect(parent.owner || 'Atul');
     document.getElementById('f-priority-in').value = parent.priority || 'MEDIUM';
     document.getElementById('f-start').value = parent.startDate || '';
     document.getElementById('f-end').value = parent.endDate || '';
@@ -3192,6 +3247,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (typeof applyDependencyDefaults === 'function') applyDependencyDefaults();
     saveData();
+    populateOwnerSelect(document.getElementById('f-owner-in').value);
     populateFiltersFresh();
     closeModal();
     applyFilters();
