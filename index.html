@@ -4251,5 +4251,410 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 </script>
 
+
+<script>
+/* --- STABILIZATION PATCH: shared live-state sync, vendors/costs, countdown cleanup, remove gantt --- */
+(function(){
+  const money = (n) => {
+    const v = Number(n || 0);
+    if (!Number.isFinite(v) || v === 0) return '—';
+    try { return new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(v); }
+    catch(e){ return `₹${Math.round(v)}`; }
+  };
+  const num = (v) => {
+    const n = Number(v || 0);
+    return Number.isFinite(n) ? n : 0;
+  };
+  const fmtInt = (n) => {
+    const v = Math.round(Number(n||0));
+    return new Intl.NumberFormat('en-IN').format(v);
+  };
+  function getLiveTasks(){
+    try{ if(Array.isArray(window.tasks)) return window.tasks; }catch(e){}
+    try{ if(Array.isArray(tasks)) return tasks; }catch(e){}
+    return [];
+  }
+  function getArr(fnName){
+    try{
+      if(typeof window[fnName]==='function'){
+        const out = window[fnName]();
+        return Array.isArray(out) ? out : [];
+      }
+    }catch(e){}
+    return [];
+  }
+  function taskEstimated(t){ try { return typeof getTaskEstimated==='function' ? num(getTaskEstimated(t)) : num(t.estimatedCost); } catch(e){ return num(t.estimatedCost); } }
+  function taskActual(t){ try { return typeof getTaskActual==='function' ? num(getTaskActual(t)) : num(t.actualCost); } catch(e){ return num(t.actualCost); } }
+  function taskPaid(t){ try { return typeof getTaskPaid==='function' ? num(getTaskPaid(t)) : num(t.paidAmount); } catch(e){ return num(t.paidAmount); } }
+  function taskPending(t){
+    try { if(typeof getTaskPending==='function') return num(getTaskPending(t)); } catch(e){}
+    return Math.max(Math.max(taskActual(t), taskEstimated(t)) - taskPaid(t), 0);
+  }
+  function taskHasCost(t){
+    const status = String(t.paymentStatus || 'Not Applicable');
+    return taskEstimated(t) > 0 || taskActual(t) > 0 || taskPaid(t) > 0 || !!String(t.vendorName||'').trim() || status !== 'Not Applicable';
+  }
+  function entityPending(x){ return Math.max(Math.max(num(x.actualCost), num(x.estimatedCost)) - num(x.paidAmount), 0); }
+  function effective(t){
+    try{ if(typeof effectiveStatus==='function') return effectiveStatus(t); }catch(e){}
+    const blocked = blockedBy(t);
+    return blocked.length ? 'Blocked' : (t.status || 'To Do');
+  }
+  function blockedBy(t){
+    try{ if(typeof getBlockedBy==='function') return getBlockedBy(t) || []; }catch(e){}
+    return [];
+  }
+  function overdue(t){
+    if(!t || !t.endDate) return false;
+    if((t.status||'') === 'Done') return false;
+    const d = new Date(t.endDate);
+    if(Number.isNaN(d.getTime())) return false;
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    d.setHours(0,0,0,0);
+    return d < today;
+  }
+  function statusCls(s){
+    try{ if(typeof statusClass==='function') return statusClass(s||'To Do'); }catch(e){}
+    return '';
+  }
+  function wsCls(w){
+    try{ if(typeof wsClass==='function') return wsClass(w||''); }catch(e){}
+    return '';
+  }
+  function payCls(s){
+    try{ if(typeof paymentClass==='function') return paymentClass(s||'Not Applicable'); }catch(e){}
+    return 'pay-na';
+  }
+  function depLink(dep){
+    return `<span class="dep-jump" onclick="switchTab('tasks');setTimeout(()=>jumpToTask(${dep.id}),120)">#${dep.id} ${dep.title}</span>`;
+  }
+  function rootTasks(){
+    return getLiveTasks().filter(t => !t.parentId && !t.__entityChild && !String(t.title||'').startsWith('LINE ITEM '));
+  }
+  function linkedProcurementTasks(){
+    const keys = new Set(['Stand','Merch','Sampling','IHFF','Stage','B2B','Ops']);
+    return rootTasks().filter(t => keys.has(t.workstream) || taskHasCost(t));
+  }
+
+  // Better countdown UI
+  window.updateCountdown = function(){
+    const el = document.getElementById('countdown');
+    if(!el) return;
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const eventDate = new Date('2026-06-12');
+    eventDate.setHours(0,0,0,0);
+    const diffMs = eventDate - today;
+    const totalDays = Math.max(0, Math.ceil(diffMs / 86400000));
+    const weeks = Math.floor(totalDays / 7);
+    const daysRemainder = totalDays % 7;
+    el.innerHTML = `
+      <div class="cd-block" style="min-width:92px;">
+        <div class="cd-num">${totalDays}</div>
+        <div class="cd-label">Days Left</div>
+      </div>
+      <div class="cd-block" style="min-width:96px;">
+        <div class="cd-num" style="font-size:16px;">${weeks}w ${daysRemainder}d</div>
+        <div class="cd-label">Time Remaining</div>
+      </div>
+      <div class="cd-block" style="min-width:82px;">
+        <div class="cd-num" style="font-size:16px;">Jun 12</div>
+        <div class="cd-label">Event Date</div>
+      </div>`;
+  };
+
+  // Dashboard derived from live task/entity state
+  window.renderDashboard = function(){
+    const list = rootTasks();
+    const merch = getArr('getMerchData');
+    const samples = getArr('getSamplesData');
+    const vendors = getArr('getVendorsData');
+
+    const total = list.length;
+    const done = list.filter(t => (t.status||'')==='Done').length;
+    const inProg = list.filter(t => (t.status||'')==='In Progress').length;
+    const blocked = list.filter(t => effective(t)==='Blocked').length;
+    const overdueCount = list.filter(overdue).length;
+    const criticalOpen = list.filter(t => t.priority==='CRITICAL' && (t.status||'')!=='Done').length;
+    const progress = total ? Math.round(list.reduce((a,t)=>a+num(t.progress),0) / total) : 0;
+
+    const totalEstimated = list.reduce((a,t)=>a+taskEstimated(t),0) + merch.reduce((a,x)=>a+num(x.estimatedCost),0) + samples.reduce((a,x)=>a+num(x.estimatedCost),0) + vendors.reduce((a,x)=>a+num(x.estimatedCost),0);
+    const totalPaid = list.reduce((a,t)=>a+taskPaid(t),0) + merch.reduce((a,x)=>a+num(x.paidAmount),0) + samples.reduce((a,x)=>a+num(x.paidAmount),0) + vendors.reduce((a,x)=>a+num(x.paidAmount),0);
+    const totalPending = list.reduce((a,t)=>a+taskPending(t),0) + merch.reduce((a,x)=>a+entityPending(x),0) + samples.reduce((a,x)=>a+entityPending(x),0) + vendors.reduce((a,x)=>a+entityPending(x),0);
+
+    const grid = document.getElementById('kpi-grid');
+    if(grid){
+      grid.innerHTML = `
+        <div class="kpi lime"><div class="kpi-label">Overall Progress</div><div class="kpi-val">${progress}%</div><div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div><div class="kpi-sub">${done} of ${total} root tasks done</div></div>
+        <div class="kpi blue"><div class="kpi-label">Active Tasks</div><div class="kpi-val">${total}</div><div class="kpi-sub">${inProg} in progress</div></div>
+        <div class="kpi red"><div class="kpi-label">Blocked</div><div class="kpi-val">${blocked}</div><div class="kpi-sub">Manual + dependency blocked</div></div>
+        <div class="kpi yellow"><div class="kpi-label">Overdue</div><div class="kpi-val">${overdueCount}</div><div class="kpi-sub">Past due date</div></div>
+        <div class="kpi purple"><div class="kpi-label">Critical Open</div><div class="kpi-val">${criticalOpen}</div><div class="kpi-sub">Critical tasks not done</div></div>
+        <div class="kpi green"><div class="kpi-label">Estimated Cost</div><div class="kpi-val" style="font-size:20px;">${money(totalEstimated)}</div><div class="kpi-sub">Tasks + entities + vendors</div></div>
+        <div class="kpi blue"><div class="kpi-label">Paid</div><div class="kpi-val" style="font-size:20px;">${money(totalPaid)}</div><div class="kpi-sub">Across all tracked layers</div></div>
+        <div class="kpi yellow"><div class="kpi-label">Pending Cost</div><div class="kpi-val" style="font-size:20px;">${money(totalPending)}</div><div class="kpi-sub">Remaining to close</div></div>`;
+    }
+
+    const blockerHost = document.getElementById('blocker-banner');
+    const criticalList = document.getElementById('critical-list');
+    const overdueList = document.getElementById('overdue-list');
+
+    const blockers = list.filter(t => effective(t)==='Blocked' || overdue(t) || !!String(t.riskNote||'').trim());
+    if(blockerHost){
+      blockerHost.innerHTML = blockers.length ? `<div class="blocker-banner"><div class="blocker-title">Current blockers & risk flags</div>${blockers.slice(0,4).map(t=>`<div class="blocker-item"><span class="blocker-dot"></span><span><strong>#${t.id}</strong> ${t.title}</span></div>`).join('')}</div>` : '';
+    }
+    if(criticalList){
+      const criticalCards = blockers.slice(0,8).map(t=>`
+        <div style="background:rgba(255,59,59,.05);border:1px solid rgba(255,59,59,.22);border-radius:8px;padding:12px 14px;">
+          <div style="font-family:var(--fh);font-weight:700;font-size:12px;margin-bottom:6px;">#${t.id} ${t.title}</div>
+          <div style="font-size:10px;color:var(--t2);margin-bottom:8px;">${t.phase||'—'} · ${t.owner||'—'} · ${t.workstream||'—'}</div>
+          <div style="font-size:11px;color:var(--warn);line-height:1.45;">${blockedBy(t).length ? `Waiting on ${blockedBy(t).map(depLink).join(', ')}` : (String(t.riskNote||'Past due / blocked'))}</div>
+        </div>`).join('');
+      criticalList.innerHTML = criticalCards || '<div class="empty">No blockers right now</div>';
+    }
+    if(overdueList){
+      const overdueCards = list.filter(overdue).slice(0,8).map(t=>`
+        <div style="background:rgba(255,170,0,.05);border:1px solid rgba(255,170,0,.2);border-radius:8px;padding:10px 14px;cursor:pointer;" onclick="switchTab('tasks');setTimeout(()=>jumpToTask(${t.id}),120)">
+          <div style="font-family:var(--fh);font-weight:700;font-size:12px;margin-bottom:4px;">#${t.id} ${t.title}</div>
+          <div style="font-size:10px;color:var(--t2);">Due ${t.endDate||'—'} · ${t.owner||'—'}</div>
+        </div>`).join('');
+      overdueList.innerHTML = overdueCards || '<div class="empty">No overdue tasks</div>';
+    }
+  };
+
+  window.renderCriticalPath = function(){
+    const tbody = document.getElementById('cp-tbody');
+    if(!tbody) return;
+    const list = rootTasks().filter(t => !!t.criticalPath);
+    if(!list.length){
+      tbody.innerHTML = '<tr><td colspan="9"><div class="empty">No critical path tasks</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(t => {
+      const blocked = blockedBy(t);
+      const eStatus = effective(t);
+      return `<tr>
+        <td class="task-id">${t.id}</td>
+        <td><div style="font-size:12px;max-width:360px;line-height:1.35;">${t.title}${blocked.length?`<div class="dep-line blocked">Waiting on ${blocked.map(depLink).join(', ')}</div>`:''}</div></td>
+        <td><span class="ws-badge ${wsCls(t.workstream)}">${t.workstream||'—'}</span></td>
+        <td><span class="owner-badge">${t.owner||'—'}</span></td>
+        <td class="date-cell ${overdue(t)?'overdue':''}">${t.endDate||'—'}${overdue(t)?' ⚠':''}</td>
+        <td><span class="priority-badge p-${t.priority||'LOW'}">${t.priority||'LOW'}</span></td>
+        <td><select class="status-sel ${statusCls(eStatus)}" onchange="updateStatus(${t.id}, this.value)"><option ${eStatus==='To Do'?'selected':''}>To Do</option><option ${eStatus==='In Progress'?'selected':''}>In Progress</option><option ${eStatus==='Review'?'selected':''}>Review</option><option ${eStatus==='Blocked'?'selected':''}>Blocked</option><option ${eStatus==='Done'?'selected':''}>Done</option></select></td>
+        <td>${blocked.length?`<span class="risk-flag">⛓ ${blocked.length} dependency pending</span>`:(t.riskNote?`<span class="risk-flag">⚠ ${String(t.riskNote).slice(0,60)}${String(t.riskNote).length>60?'…':''}</span>`:'—')}</td>
+        <td><div class="action-btns" style="opacity:1;"><button class="act-btn" onclick="openEditModal(${t.id})">✏</button></div></td>
+      </tr>`;
+    }).join('');
+  };
+
+  window.renderBlockers = function(){
+    const el = document.getElementById('blocker-full-list');
+    if(!el) return;
+    const list = rootTasks().filter(t => effective(t)==='Blocked' || !!String(t.riskNote||'').trim() || overdue(t));
+    if(!list.length){
+      el.innerHTML = '<div class="empty"><div class="empty-icon">✅</div>No blockers or at-risk tasks</div>';
+      return;
+    }
+    el.innerHTML = `<table style="width:100%;border-collapse:collapse;min-width:860px;"><thead><tr><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">#</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Task</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Workstream</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Owner</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Due</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Status</th><th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Risk / Reason</th></tr></thead><tbody>${
+      list.map(t => {
+        const blocked = blockedBy(t);
+        const tag = blocked.length ? 'DEPENDENCY' : ((t.status||'')==='Blocked' ? 'BLOCKED' : (overdue(t)?'OVERDUE':'AT RISK'));
+        const bg = blocked.length || (t.status||'')==='Blocked' ? 'rgba(255,59,59,.15)' : 'rgba(255,170,0,.1)';
+        const cl = blocked.length || (t.status||'')==='Blocked' ? 'var(--crit)' : 'var(--warn)';
+        return `<tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:7px 10px;color:var(--t3);font-size:10px;">${t.id}</td>
+          <td style="padding:7px 10px;"><div style="font-size:11px;max-width:320px;line-height:1.35;"><span style="background:${bg};color:${cl};font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">${tag}</span>${t.title}</div></td>
+          <td style="padding:7px 10px;"><span class="ws-badge ${wsCls(t.workstream)}">${t.workstream||'—'}</span></td>
+          <td style="padding:7px 10px;"><span class="owner-badge">${t.owner||'—'}</span></td>
+          <td style="padding:7px 10px;" class="date-cell ${overdue(t)?'overdue':''}">${t.endDate||'—'}</td>
+          <td style="padding:7px 10px;"><select class="status-sel ${statusCls(effective(t))}" onchange="updateStatus(${t.id}, this.value)"><option ${(effective(t)==='To Do')?'selected':''}>To Do</option><option ${(effective(t)==='In Progress')?'selected':''}>In Progress</option><option ${(effective(t)==='Review')?'selected':''}>Review</option><option ${(effective(t)==='Blocked')?'selected':''}>Blocked</option><option ${(effective(t)==='Done')?'selected':''}>Done</option></select></td>
+          <td style="padding:7px 10px;font-size:11px;color:var(--warn);">${blocked.length?`Waiting on ${blocked.map(depLink).join(', ')}`:(String(t.riskNote||'')).trim()||'Past due / blocked'}</td>
+        </tr>`;
+      }).join('')
+    }</tbody></table>`;
+  };
+
+  window.renderCostView = function(){
+    const summary = document.getElementById('cost-summary');
+    const view = document.getElementById('cost-table-view');
+    if(!summary || !view) return;
+    const tasks = rootTasks();
+    const taskCost = tasks.filter(taskHasCost);
+    const merch = getArr('getMerchData');
+    const samples = getArr('getSamplesData');
+    const vendors = getArr('getVendorsData');
+
+    const rows = [];
+    taskCost.forEach(t => rows.push(`<tr><td>Task</td><td>#${t.id} ${t.title}</td><td>${t.workstream||'—'}</td><td>${money(taskEstimated(t))}</td><td>${money(taskActual(t))}</td><td>${money(taskPaid(t))}</td><td>${money(taskPending(t))}</td><td>${t.vendorName||'—'}</td><td><span class="cost-badge ${payCls(t.paymentStatus)}">${t.paymentStatus||'Not Applicable'}</span></td></tr>`));
+    merch.filter(x => num(x.estimatedCost)||num(x.actualCost)||num(x.paidAmount)||String(x.vendorName||'').trim()).forEach(i => rows.push(`<tr><td>Merch</td><td>${i.itemName}</td><td>Merchandise</td><td>${money(i.estimatedCost)}</td><td>${money(i.actualCost)}</td><td>${money(i.paidAmount)}</td><td>${money(entityPending(i))}</td><td>${i.vendorName||'—'}</td><td><span class="cost-badge ${payCls(i.paymentStatus)}">${i.paymentStatus||'Pending'}</span></td></tr>`));
+    samples.filter(x => num(x.estimatedCost)||num(x.actualCost)||num(x.paidAmount)||String(x.vendorName||'').trim()).forEach(i => rows.push(`<tr><td>Sample</td><td>${i.itemName}</td><td>Samples</td><td>${money(i.estimatedCost)}</td><td>${money(i.actualCost)}</td><td>${money(i.paidAmount)}</td><td>${money(entityPending(i))}</td><td>${i.vendorName||'—'}</td><td><span class="cost-badge ${payCls(i.paymentStatus)}">${i.paymentStatus||'Pending'}</span></td></tr>`));
+    vendors.forEach(v => {
+      const name = v.vendorName || v.name || 'Vendor';
+      const cat = v.vendorCategory || v.category || v.workstream || '—';
+      rows.push(`<tr><td>Vendor</td><td>${name}</td><td>${cat}</td><td>${money(v.estimatedCost)}</td><td>${money(v.actualCost)}</td><td>${money(v.paidAmount)}</td><td>${money(entityPending(v))}</td><td>${name}</td><td><span class="cost-badge ${payCls(v.paymentStatus)}">${v.paymentStatus||'Pending'}</span></td></tr>`);
+    });
+
+    const totEst = taskCost.reduce((a,t)=>a+taskEstimated(t),0)+merch.reduce((a,x)=>a+num(x.estimatedCost),0)+samples.reduce((a,x)=>a+num(x.estimatedCost),0)+vendors.reduce((a,x)=>a+num(x.estimatedCost),0);
+    const totAct = taskCost.reduce((a,t)=>a+taskActual(t),0)+merch.reduce((a,x)=>a+num(x.actualCost),0)+samples.reduce((a,x)=>a+num(x.actualCost),0)+vendors.reduce((a,x)=>a+num(x.actualCost),0);
+    const totPaid = taskCost.reduce((a,t)=>a+taskPaid(t),0)+merch.reduce((a,x)=>a+num(x.paidAmount),0)+samples.reduce((a,x)=>a+num(x.paidAmount),0)+vendors.reduce((a,x)=>a+num(x.paidAmount),0);
+    const totPending = taskCost.reduce((a,t)=>a+taskPending(t),0)+merch.reduce((a,x)=>a+entityPending(x),0)+samples.reduce((a,x)=>a+entityPending(x),0)+vendors.reduce((a,x)=>a+entityPending(x),0);
+
+    summary.innerHTML = `<div class="cost-grid">
+      <div class="cost-card"><div class="cost-card-label">Total Estimated</div><div class="cost-card-value">${money(totEst)}</div><div class="cost-card-sub">Tasks + merchandise + samples + vendors</div></div>
+      <div class="cost-card"><div class="cost-card-label">Total Actual</div><div class="cost-card-value">${money(totAct)}</div><div class="cost-card-sub">Filled actual values only</div></div>
+      <div class="cost-card"><div class="cost-card-label">Total Paid</div><div class="cost-card-value">${money(totPaid)}</div><div class="cost-card-sub">Across all layers</div></div>
+      <div class="cost-card"><div class="cost-card-label">Total Pending</div><div class="cost-card-value">${money(totPending)}</div><div class="cost-card-sub">Remaining to close</div></div>
+    </div>`;
+    view.innerHTML = `<table class="cost-table"><thead><tr><th>Layer</th><th>Name</th><th>Context</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Vendor / Contact</th><th>Payment</th></tr></thead><tbody>${rows.length ? rows.join('') : '<tr><td colspan="9"><div class="cost-empty">No cost data yet</div></td></tr>'}</tbody></table>`;
+  };
+
+  window.renderVendors = function(){
+    const summary = document.getElementById('vendor-summary');
+    const wrap = document.getElementById('vendor-table-wrap');
+    const linkedHost = document.getElementById('vendor-linked-tasks');
+    if(!summary || !wrap || !linkedHost) return;
+    const vendors = getArr('getVendorsData');
+    const overduePayments = vendors.filter(v => v.paymentDueDate && new Date(v.paymentDueDate) < new Date() && entityPending(v) > 0).length;
+    const totalEstimated = vendors.reduce((a,v)=>a+num(v.estimatedCost),0);
+    const totalActual = vendors.reduce((a,v)=>a+num(v.actualCost),0);
+    const totalPaid = vendors.reduce((a,v)=>a+num(v.paidAmount),0);
+    const totalPending = vendors.reduce((a,v)=>a+entityPending(v),0);
+
+    summary.innerHTML = `
+      <div class="module-summary">
+        <div class="module-card"><div class="module-card-label">Vendors Tracked</div><div class="module-card-val">${vendors.length}</div></div>
+        <div class="module-card"><div class="module-card-label">Vendor Estimated</div><div class="module-card-val" style="font-size:18px;">${money(totalEstimated)}</div></div>
+        <div class="module-card"><div class="module-card-label">Vendor Actual</div><div class="module-card-val" style="font-size:18px;">${money(totalActual)}</div></div>
+        <div class="module-card"><div class="module-card-label">Vendor Pending</div><div class="module-card-val" style="font-size:18px;">${money(totalPending)}</div></div>
+        <div class="module-card"><div class="module-card-label">Overdue Payments</div><div class="module-card-val">${overduePayments}</div></div>
+      </div>
+      <div class="module-section-title">Vendor Entities</div>`;
+    wrap.innerHTML = vendors.length ? `<table class="module-table"><thead><tr><th>Name</th><th>Category</th><th>Workstream</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Due Date</th><th>Payment</th><th>Actions</th></tr></thead><tbody>${
+      vendors.map(v=>{
+        const name = v.vendorName || v.name || 'Vendor';
+        const category = v.vendorCategory || v.category || 'Misc';
+        return `<tr>
+          <td><div style="font-size:12px;line-height:1.3;">${name}</div><div class="small-muted">${v.notes || ''}</div></td>
+          <td><span class="module-badge">${category}</span></td>
+          <td>${v.workstream ? `<span class="ws-badge ${wsCls(v.workstream)}">${v.workstream}</span>` : '—'}</td>
+          <td>${money(v.estimatedCost)}</td>
+          <td>${money(v.actualCost)}</td>
+          <td>${money(v.paidAmount)}</td>
+          <td>${money(entityPending(v))}</td>
+          <td>${v.paymentDueDate || '—'}</td>
+          <td><span class="cost-badge ${payCls(v.paymentStatus)}">${v.paymentStatus||'Pending'}</span></td>
+          <td><div class="module-actions"><button class="act-btn" onclick="editVendor(${v.id})">✏</button><button class="act-btn danger" onclick="deleteVendor(${v.id})">✕</button></div></td>
+        </tr>`;
+      }).join('')
+    }</tbody></table>` : '<div class="module-empty">No vendor entities added yet. Add actual vendors here; procurement tasks remain in the master task system below.</div>';
+
+    const linked = linkedProcurementTasks();
+    linkedHost.innerHTML = linked.length ? linked.slice(0,12).map(t=>`
+      <div class="linked-card">
+        <div class="linked-card-title">${t.title}</div>
+        <div class="linked-card-meta">
+          <span class="priority-badge p-${t.priority||'LOW'}">${t.priority||'LOW'}</span>
+        </div>
+        <div class="linked-card-pills">
+          <span class="ws-badge ${wsCls(t.workstream)}">${t.workstream||'—'}</span>
+          <span class="owner-badge">${t.owner||'—'}</span>
+        </div>
+        <div class="small-muted">Due ${t.endDate || '—'} · Status ${t.status||'To Do'}${taskHasCost(t) ? ` · Pending ${money(taskPending(t))}` : ''}</div>
+      </div>`).join('') : '<div class="module-empty">No linked procurement tasks found.</div>';
+  };
+
+  function refreshStableViews(){
+    try{ window.renderDashboard(); }catch(e){ console.error(e); }
+    try{ if(typeof applyFilters==='function') applyFilters(); }catch(e){ console.error(e); }
+    try{ window.renderCriticalPath(); }catch(e){ console.error(e); }
+    try{ window.renderBlockers(); }catch(e){ console.error(e); }
+    try{ if(typeof renderProducts==='function') renderProducts(); }catch(e){ console.error(e); }
+    try{ if(typeof renderTalent==='function') renderTalent(); }catch(e){ console.error(e); }
+    try{ if(typeof renderManpower==='function') renderManpower(); }catch(e){ console.error(e); }
+    try{ if(typeof renderMerchandiseModule==='function') renderMerchandiseModule(); }catch(e){ console.error(e); }
+    try{ if(typeof renderSamplesModule==='function') renderSamplesModule(); }catch(e){ console.error(e); }
+    try{ window.renderVendors(); }catch(e){ console.error(e); }
+    try{ window.renderCostView(); }catch(e){ console.error(e); }
+  }
+  window.refreshStableViews = refreshStableViews;
+
+  // Wrap mutators so everything stays in sync
+  const _updateStatus = window.updateStatus;
+  window.updateStatus = function(id, val){
+    if(typeof _updateStatus === 'function') _updateStatus(id, val);
+    else {
+      const t = getLiveTasks().find(x=>x.id===id);
+      if(t){
+        t.status = val;
+        if(val==='Done') t.progress = 100;
+        if(typeof saveData==='function') saveData();
+      }
+    }
+    setTimeout(refreshStableViews, 0);
+  };
+  const _commitProgress = window.commitProgress;
+  window.commitProgress = function(id, val){
+    if(typeof _commitProgress === 'function') _commitProgress(id, val);
+    else {
+      const t = getLiveTasks().find(x=>x.id===id);
+      if(t){ t.progress = Math.max(0, Math.min(100, parseInt(val)||0)); if(typeof saveData==='function') saveData(); }
+    }
+    setTimeout(refreshStableViews, 0);
+  };
+  const _saveTask = window.saveTask;
+  window.saveTask = function(){
+    if(typeof _saveTask === 'function') _saveTask();
+    setTimeout(refreshStableViews, 0);
+  };
+  const _saveEntityModal = window.saveEntityModal;
+  window.saveEntityModal = function(){
+    if(typeof _saveEntityModal === 'function') _saveEntityModal();
+    setTimeout(refreshStableViews, 0);
+  };
+  const _deleteVendor = window.deleteVendor;
+  if(typeof _deleteVendor === 'function'){
+    window.deleteVendor = function(id){ _deleteVendor(id); setTimeout(refreshStableViews, 0); };
+  }
+
+  // Remove gantt cleanly
+  function removeGantt(){
+    document.querySelectorAll('.tab[data-tab="gantt"], .tab[onclick="switchTab(\'gantt\')"]').forEach(el=>el.remove());
+    const gantt = document.getElementById('view-gantt');
+    if(gantt) gantt.remove();
+  }
+  removeGantt();
+
+  // override switchTab without gantt
+  const _switch = window.switchTab;
+  window.switchTab = function(id){
+    if(id === 'gantt') id = 'dashboard';
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    const target = document.getElementById(`view-${id}`);
+    if(target) target.classList.add('active');
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    const tab = document.querySelector(`.tab[onclick="switchTab('${id}')"]`);
+    if(tab) tab.classList.add('active');
+    if(id==='dashboard') window.renderDashboard();
+    else if(id==='tasks' && typeof applyFilters==='function') applyFilters();
+    else if(id==='critical') window.renderCriticalPath();
+    else if(id==='blockers') window.renderBlockers();
+    else if(id==='products' && typeof renderProducts==='function') renderProducts();
+    else if(id==='merchandise' && typeof renderMerchandiseModule==='function') renderMerchandiseModule();
+    else if(id==='samples' && typeof renderSamplesModule==='function') renderSamplesModule();
+    else if(id==='talent' && typeof renderTalent==='function') renderTalent();
+    else if(id==='manpower' && typeof renderManpower==='function') renderManpower();
+    else if(id==='vendors') window.renderVendors();
+    else if(id==='costs') window.renderCostView();
+  };
+
+  setTimeout(()=>{
+    removeGantt();
+    window.updateCountdown();
+    refreshStableViews();
+  }, 0);
+})();
+</script>
+
 </body>
 </html>
