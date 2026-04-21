@@ -248,6 +248,35 @@ textarea.form-input{resize:vertical;min-height:60px;}
   .task-title-cell{min-width:180px;max-width:260px;}
 }
 
+
+/* COST TRACKING */
+.cost-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;font-size:9px;letter-spacing:.6px;text-transform:uppercase;border:1px solid var(--border2);white-space:nowrap;}
+.pay-na{color:var(--t2);background:rgba(136,136,170,.08);}
+.pay-pending{color:var(--warn);background:rgba(255,170,0,.08);border-color:rgba(255,170,0,.2);}
+.pay-advance{color:var(--accent3);background:rgba(56,182,255,.08);border-color:rgba(56,182,255,.2);}
+.pay-partial{color:#f59e0b;background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2);}
+.pay-full{color:var(--ok);background:rgba(0,230,118,.08);border-color:rgba(0,230,118,.2);}
+.cost-stack{display:flex;flex-direction:column;gap:3px;min-width:110px;}
+.cost-main{font-size:11px;color:var(--text);}
+.cost-sub{font-size:10px;color:var(--t2);}
+.cost-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px;}
+.cost-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.cost-card-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);margin-bottom:6px;}
+.cost-card-value{font-family:var(--fh);font-weight:800;font-size:24px;line-height:1;}
+.cost-card-sub{font-size:10px;color:var(--t2);margin-top:4px;}
+.cost-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;background:var(--surface);}
+.cost-table{width:100%;border-collapse:collapse;min-width:980px;}
+.cost-table th,.cost-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.cost-table th{background:var(--s2);text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);}
+.cost-empty{padding:32px 20px;text-align:center;color:var(--t2);}
+@media (max-width: 900px){
+  .cost-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media (max-width: 640px){
+  .cost-grid{grid-template-columns:1fr;}
+  .cost-table{min-width:760px;}
+}
+
 </style>
 </head>
 <body>
@@ -269,6 +298,9 @@ textarea.form-input{resize:vertical;min-height:60px;}
     <div class="tab" onclick="switchTab('critical')">Critical Path</div>
     <div class="tab" onclick="switchTab('blockers')">Blockers</div>
     <div class="tab" onclick="switchTab('products')">Product Launches</div>
+    <div class="tab" onclick="switchTab('talent')">Talent</div>
+    <div class="tab" onclick="switchTab('manpower')">Manpower</div>
+    <div class="tab" onclick="switchTab('costs')">Costs</div>
   </div>
 </div>
 
@@ -342,6 +374,7 @@ textarea.form-input{resize:vertical;min-height:60px;}
           <th>Progress</th>
           <th>CP</th>
           <th>Risk</th>
+          <th>Cost</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -381,6 +414,49 @@ textarea.form-input{resize:vertical;min-height:60px;}
     <div style="font-family:var(--fh);font-weight:700;font-size:18px;margin-bottom:4px;">Product Launch Workflows</div>
     <div style="color:var(--t2);font-size:11px;margin-bottom:16px;">3-product critical path. Each product tracks compliance → packaging → production → readiness.</div>
     <div id="products-list"></div>
+  </div>
+</div>
+
+
+
+
+<!-- TALENT -->
+<div class="view" id="view-talent">
+  <div style="padding:16px 20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+      <div>
+        <div style="font-family:var(--fh);font-weight:700;font-size:18px;margin-bottom:4px;">Athlete / Creator Contracts</div>
+        <div style="color:var(--t2);font-size:11px;">Track commercials, contract status, payment status, deliverables, and event attendance.</div>
+      </div>
+      <button class="btn btn-accent" onclick="addTalent()">+ Add Talent</button>
+    </div>
+    <div id="talent-summary"></div>
+    <div id="talent-table-wrap" class="table-wrap"></div>
+  </div>
+</div>
+
+<!-- MANPOWER -->
+<div class="view" id="view-manpower">
+  <div style="padding:16px 20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+      <div>
+        <div style="font-family:var(--fh);font-weight:700;font-size:18px;margin-bottom:4px;">Manpower Planning</div>
+        <div style="color:var(--t2);font-size:11px;">Track role coverage, booth zones, shift ownership, and confirmation gaps.</div>
+      </div>
+      <button class="btn btn-accent" onclick="addManpower()">+ Add Role</button>
+    </div>
+    <div id="manpower-summary"></div>
+    <div id="manpower-table-wrap" class="table-wrap"></div>
+  </div>
+</div>
+
+<!-- COSTS -->
+<div class="view" id="view-costs">
+  <div style="padding:16px 20px;">
+    <div style="font-family:var(--fh);font-weight:700;font-size:18px;margin-bottom:4px;">Cost Tracker</div>
+    <div style="color:var(--t2);font-size:11px;margin-bottom:16px;">Optional cost fields per task. Estimated, actual and paid amounts roll into total event cost.</div>
+    <div id="cost-summary"></div>
+    <div id="cost-table-view" class="cost-table-wrap"></div>
   </div>
 </div>
 
@@ -444,6 +520,32 @@ textarea.form-input{resize:vertical;min-height:60px;}
         <div class="form-group full">
           <label class="form-label">Risk Note</label>
           <textarea class="form-input" id="f-risk" placeholder="Any risk or blocker note…"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estimated Cost (₹)</label>
+          <input class="form-input" id="f-estimated" type="number" min="0" step="0.01" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Actual Cost (₹)</label>
+          <input class="form-input" id="f-actual" type="number" min="0" step="0.01" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Paid Amount (₹)</label>
+          <input class="form-input" id="f-paid" type="number" min="0" step="0.01" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Status</label>
+          <select class="form-input" id="f-payment-status">
+            <option>Not Applicable</option>
+            <option>Pending</option>
+            <option>Advance Paid</option>
+            <option>Partially Paid</option>
+            <option>Fully Paid</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Vendor Name</label>
+          <input class="form-input" id="f-vendor" type="text" placeholder="Optional vendor / supplier name">
         </div>
         <div class="form-group full">
           <label class="form-label">Notes</label>
@@ -580,85 +682,239 @@ const RAW_TASKS = [
 ];
 
 // Product launch data
-const PRODUCTS = [
-  {name:"Whey Protein — Be. Performance",sku:"PRO-WHY-01",steps:[
+const RAW_PRODUCTS = [
+  {name:"Creatine",sku:"CRT-IHFF-01",steps:[
     {step:"Compliance Check (FSSAI)",status:"To Do",due:"2026-03-31",owner:"Atul",risk:"Mandatory before any packaging or claims work"},
     {step:"Endorsement (Sapiens)",status:"To Do",due:"2026-04-10",owner:"Angela",risk:""},
     {step:"Endorsement (Be.)",status:"To Do",due:"2026-04-15",owner:"Atul",risk:""},
-    {step:"Packaging Design (Initial)",status:"To Do",due:"2026-04-20",owner:"Angela",risk:""},
-    {step:"Claims Compliance Check",status:"To Do",due:"2026-04-25",owner:"Atul",risk:"Must complete before final packaging"},
-    {step:"Packaging Material Finalisation",status:"To Do",due:"2026-04-30",owner:"Deeksha",risk:""},
-    {step:"Packaging Final Revision",status:"To Do",due:"2026-05-05",owner:"Angela",risk:""},
-    {step:"Packaging Print — Sampling",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:"2,500 units needed"},
-    {step:"Packaging Print — Commercial",status:"To Do",due:"2026-05-15",owner:"Deeksha",risk:""},
+    {step:"Packaging Material Finalisation",status:"To Do",due:"2026-04-20",owner:"Deeksha",risk:""},
+    {step:"Packaging Design (Initial)",status:"To Do",due:"2026-04-25",owner:"Angela",risk:"Include all mandatory FSSAI elements"},
+    {step:"Claims & Marketing Compliance",status:"To Do",due:"2026-04-28",owner:"Atul",risk:"Must complete before final packaging"},
+    {step:"Packaging Design (Final Revision)",status:"To Do",due:"2026-05-02",owner:"Angela",risk:""},
+    {step:"Packaging Print — Commercial",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:""},
+    {step:"Packaging Print — Sampling",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:"2,500 sample units needed"},
     {step:"Lab Testing & COA",status:"To Do",due:"2026-05-15",owner:"Atul",risk:"Required for commercial release"},
-    {step:"Barcode & SKU Setup",status:"To Do",due:"2026-05-20",owner:"Deeksha",risk:""},
+    {step:"Print & Packaging Execution",status:"To Do",due:"2026-05-18",owner:"Deeksha",risk:"Manufacturer alignment required"},
     {step:"Commercial Production",status:"To Do",due:"2026-05-25",owner:"Deeksha",risk:""},
-    {step:"Marketplace Setup",status:"To Do",due:"2026-06-01",owner:"Deeksha",risk:""},
+    {step:"Barcode & SKU Setup",status:"To Do",due:"2026-05-20",owner:"Deeksha",risk:"Can run parallel to production"},
+    {step:"Marketplace / Sales Setup",status:"To Do",due:"2026-06-01",owner:"Deeksha",risk:"Must finish before event week"},
   ]},
-  {name:"Pre-Workout — Be. Energy",sku:"PRE-ENR-02",steps:[
-    {step:"Compliance Check (FSSAI)",status:"To Do",due:"2026-03-31",owner:"Atul",risk:""},
+  {name:"Protein",sku:"PRO-IHFF-02",steps:[
+    {step:"Compliance Check (FSSAI)",status:"To Do",due:"2026-03-31",owner:"Atul",risk:"Mandatory before any packaging or claims work"},
     {step:"Endorsement (Sapiens)",status:"To Do",due:"2026-04-10",owner:"Angela",risk:""},
     {step:"Endorsement (Be.)",status:"To Do",due:"2026-04-15",owner:"Atul",risk:""},
-    {step:"Packaging Design (Initial)",status:"To Do",due:"2026-04-20",owner:"Angela",risk:""},
-    {step:"Claims Compliance Check",status:"To Do",due:"2026-04-25",owner:"Atul",risk:""},
-    {step:"Packaging Material Finalisation",status:"To Do",due:"2026-04-30",owner:"Deeksha",risk:""},
-    {step:"Packaging Final Revision",status:"To Do",due:"2026-05-05",owner:"Angela",risk:""},
-    {step:"Packaging Print — Sampling",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:"2,500 units needed — PILL FORMAT UNRESOLVED = BLOCKER"},
-    {step:"Packaging Print — Commercial",status:"To Do",due:"2026-05-15",owner:"Deeksha",risk:"Blocked by pill packaging decision"},
-    {step:"Lab Testing & COA",status:"To Do",due:"2026-05-15",owner:"Atul",risk:""},
-    {step:"Barcode & SKU Setup",status:"To Do",due:"2026-05-20",owner:"Deeksha",risk:""},
+    {step:"Packaging Material Finalisation",status:"To Do",due:"2026-04-20",owner:"Deeksha",risk:""},
+    {step:"Packaging Design (Initial)",status:"To Do",due:"2026-04-25",owner:"Angela",risk:"Include all mandatory FSSAI elements"},
+    {step:"Claims & Marketing Compliance",status:"To Do",due:"2026-04-28",owner:"Atul",risk:"Must complete before final packaging"},
+    {step:"Packaging Design (Final Revision)",status:"To Do",due:"2026-05-02",owner:"Angela",risk:""},
+    {step:"Packaging Print — Commercial",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:""},
+    {step:"Packaging Print — Sampling",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:"2,500 sample units needed"},
+    {step:"Lab Testing & COA",status:"To Do",due:"2026-05-15",owner:"Atul",risk:"Required for commercial release"},
+    {step:"Print & Packaging Execution",status:"To Do",due:"2026-05-18",owner:"Deeksha",risk:"Manufacturer alignment required"},
     {step:"Commercial Production",status:"To Do",due:"2026-05-25",owner:"Deeksha",risk:""},
-    {step:"Marketplace Setup",status:"To Do",due:"2026-06-01",owner:"Deeksha",risk:""},
+    {step:"Barcode & SKU Setup",status:"To Do",due:"2026-05-20",owner:"Deeksha",risk:"Can run parallel to production"},
+    {step:"Marketplace / Sales Setup",status:"To Do",due:"2026-06-01",owner:"Deeksha",risk:"Must finish before event week"},
   ]},
-  {name:"Wellness Blend — Be. Daily",sku:"WEL-DLY-03",steps:[
-    {step:"Compliance Check (FSSAI)",status:"To Do",due:"2026-03-31",owner:"Atul",risk:""},
+  {name:"Triple Magnesium",sku:"TRIMAG-IHFF-03",steps:[
+    {step:"Compliance Check (FSSAI)",status:"To Do",due:"2026-03-31",owner:"Atul",risk:"Mandatory before any packaging or claims work"},
     {step:"Endorsement (Sapiens)",status:"To Do",due:"2026-04-10",owner:"Angela",risk:""},
     {step:"Endorsement (Be.)",status:"To Do",due:"2026-04-15",owner:"Atul",risk:""},
-    {step:"Packaging Design (Initial)",status:"To Do",due:"2026-04-20",owner:"Angela",risk:""},
-    {step:"Claims Compliance Check",status:"To Do",due:"2026-04-25",owner:"Atul",risk:""},
-    {step:"Packaging Material Finalisation",status:"To Do",due:"2026-04-30",owner:"Deeksha",risk:""},
-    {step:"Packaging Final Revision",status:"To Do",due:"2026-05-05",owner:"Angela",risk:""},
-    {step:"Packaging Print — Sampling",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:"2,500 units needed"},
-    {step:"Packaging Print — Commercial",status:"To Do",due:"2026-05-15",owner:"Deeksha",risk:""},
-    {step:"Lab Testing & COA",status:"To Do",due:"2026-05-15",owner:"Atul",risk:""},
-    {step:"Barcode & SKU Setup",status:"To Do",due:"2026-05-20",owner:"Deeksha",risk:""},
-    {step:"Commercial Production",status:"To Do",due:"2026-05-25",owner:"Deeksha",risk:""},
-    {step:"Marketplace Setup",status:"To Do",due:"2026-06-01",owner:"Deeksha",risk:""},
+    {step:"Packaging Material Finalisation",status:"To Do",due:"2026-04-20",owner:"Deeksha",risk:""},
+    {step:"Packaging Design (Initial)",status:"To Do",due:"2026-04-25",owner:"Angela",risk:"Include all mandatory FSSAI elements"},
+    {step:"Claims & Marketing Compliance",status:"To Do",due:"2026-04-28",owner:"Atul",risk:"Must complete before final packaging"},
+    {step:"Packaging Design (Final Revision)",status:"To Do",due:"2026-05-02",owner:"Angela",risk:""},
+    {step:"Packaging Print — Commercial",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:""},
+    {step:"Packaging Print — Sampling",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:"Pill-format sample packaging unresolved = BLOCKER"},
+    {step:"Lab Testing & COA",status:"To Do",due:"2026-05-15",owner:"Atul",risk:"Required for commercial release"},
+    {step:"Print & Packaging Execution",status:"To Do",due:"2026-05-18",owner:"Deeksha",risk:"Manufacturer alignment required"},
+    {step:"Commercial Production",status:"To Do",due:"2026-05-25",owner:"Deeksha",risk:"Packaging decision must close first"},
+    {step:"Barcode & SKU Setup",status:"To Do",due:"2026-05-20",owner:"Deeksha",risk:"Can run parallel to production"},
+    {step:"Marketplace / Sales Setup",status:"To Do",due:"2026-06-01",owner:"Deeksha",risk:"Must finish before event week"},
   ]}
 ];
 
 // ─── STATE ─────────────────────────────────────────────────────────────────
+const APP_SCHEMA_VERSION = 2;
 const TASKS_STORAGE_KEY = 'ihff2026_tasks';
 const PRODUCTS_STORAGE_KEY = 'ihff2026_products';
+const PAYMENT_STATUSES = ['Not Applicable','Pending','Advance Paid','Partially Paid','Fully Paid'];
 let tasks = [];
 let editingId = null;
 let sortKey = null;
 let sortDir = 1;
 
+function num(v) {
+  const n = parseFloat(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function taskWithDefaults(t) {
+  return {
+    ...t,
+    startDate: t.startDate || '',
+    progress: Number.isFinite(Number(t.progress)) ? Number(t.progress) : 0,
+    estimatedCost: num(t.estimatedCost),
+    actualCost: num(t.actualCost),
+    paidAmount: num(t.paidAmount),
+    vendorName: t.vendorName || '',
+    paymentStatus: t.paymentStatus || 'Not Applicable',
+    subtasks: Array.isArray(t.subtasks) ? t.subtasks.map(st => taskWithDefaults(st)) : []
+  };
+}
+
+function sumSubtaskValue(t, key) {
+  if (!Array.isArray(t.subtasks) || !t.subtasks.length) return 0;
+  return t.subtasks.reduce((acc, st) => acc + (key === 'paidAmount' ? getTaskPaid(st) : key === 'estimatedCost' ? getTaskEstimated(st) : getTaskActual(st)), 0);
+}
+
+function getTaskEstimated(t) {
+  const sub = sumSubtaskValue(t, 'estimatedCost');
+  return sub > 0 ? sub : num(t.estimatedCost);
+}
+
+function getTaskActual(t) {
+  const sub = sumSubtaskValue(t, 'actualCost');
+  return sub > 0 ? sub : num(t.actualCost);
+}
+
+function getTaskPaid(t) {
+  const sub = sumSubtaskValue(t, 'paidAmount');
+  if (sub > 0) return sub;
+  const paid = num(t.paidAmount);
+  if (paid > 0) return paid;
+  if ((t.paymentStatus || '') === 'Fully Paid') return Math.max(getTaskActual(t), getTaskEstimated(t));
+  return 0;
+}
+
+function getTaskPending(t) {
+  const baseline = Math.max(getTaskActual(t), getTaskEstimated(t));
+  return Math.max(baseline - getTaskPaid(t), 0);
+}
+
+function hasTaskCost(t) {
+  return getTaskEstimated(t) > 0 || getTaskActual(t) > 0 || getTaskPaid(t) > 0 || !!(t.vendorName || '').trim() || ((t.paymentStatus || 'Not Applicable') !== 'Not Applicable');
+}
+
+function formatCurrency(v) {
+  const value = num(v);
+  if (!value) return '—';
+  return '₹' + new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(value);
+}
+
+function paymentClass(status) {
+  const map = {
+    'Not Applicable':'pay-na',
+    'Pending':'pay-pending',
+    'Advance Paid':'pay-advance',
+    'Partially Paid':'pay-partial',
+    'Fully Paid':'pay-full'
+  };
+  return map[status] || 'pay-na';
+}
+
+function productStepWithDefaults(step, fallbackStep = {}) {
+  return {
+    ...fallbackStep,
+    ...step,
+    step: (step && step.step) || fallbackStep.step || '',
+    status: (step && step.status) || fallbackStep.status || 'To Do',
+    due: (step && step.due) || fallbackStep.due || '',
+    owner: (step && step.owner) || fallbackStep.owner || 'TBD',
+    risk: (step && step.risk) || fallbackStep.risk || ''
+  };
+}
+
+function productWithDefaults(product, fallbackProduct = {}) {
+  const fallbackSteps = Array.isArray(fallbackProduct.steps) ? fallbackProduct.steps : [];
+  const incomingSteps = Array.isArray(product && product.steps) ? product.steps : [];
+  const stepMap = new Map();
+  incomingSteps.forEach((st, idx) => {
+    const key = ((st && st.step) || (fallbackSteps[idx] && fallbackSteps[idx].step) || `step-${idx}`).toLowerCase();
+    stepMap.set(key, st);
+  });
+  const mergedSteps = fallbackSteps.map((fallbackStep, idx) => {
+    const key = (fallbackStep.step || `step-${idx}`).toLowerCase();
+    return productStepWithDefaults(stepMap.get(key) || incomingSteps[idx] || {}, fallbackStep);
+  });
+  const extraSteps = incomingSteps.slice(fallbackSteps.length).map(st => productStepWithDefaults(st));
+  return {
+    ...fallbackProduct,
+    ...product,
+    name: (product && product.name) || fallbackProduct.name || 'Unnamed Product',
+    sku: (product && product.sku) || fallbackProduct.sku || '',
+    steps: [...mergedSteps, ...extraSteps]
+  };
+}
+
+function migrateProductsData(products, version = 0) {
+  const defaults = JSON.parse(JSON.stringify(RAW_PRODUCTS));
+  if (!Array.isArray(products) || !products.length) return defaults;
+  return defaults.map((fallbackProduct, idx) => {
+    const incoming = products.find(p => p && (p.sku === fallbackProduct.sku || p.name === fallbackProduct.name)) || products[idx] || {};
+    return productWithDefaults(incoming, fallbackProduct);
+  });
+}
+
+function normalizeImportedPayload(data) {
+  if (Array.isArray(data)) {
+    return { version: 0, tasks: data, products: [] };
+  }
+  if (!data || typeof data !== 'object') {
+    return { version: 0, tasks: [], products: [] };
+  }
+  return {
+    version: Number.isFinite(Number(data.version)) ? Number(data.version) : 0,
+    tasks: Array.isArray(data.tasks) ? data.tasks : [],
+    products: Array.isArray(data.products) ? data.products : []
+  };
+}
+
 function loadData() {
   const saved = localStorage.getItem(TASKS_STORAGE_KEY);
   if (saved) {
-    tasks = JSON.parse(saved);
+    const parsed = normalizeImportedPayload(JSON.parse(saved));
+    tasks = parsed.tasks.map(taskWithDefaults);
   } else {
-    tasks = RAW_TASKS.map(t => ({...t, startDate: t.startDate || '', progress: t.progress || 0}));
+    tasks = RAW_TASKS.map(t => taskWithDefaults({...t}));
     saveData();
   }
 }
 
 function saveData() {
-  localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(tasks));
+  const payload = {
+    version: APP_SCHEMA_VERSION,
+    exportedAt: new Date().toISOString(),
+    tasks
+  };
+  localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(payload));
+}
+
+function saveProductsData(prodData) {
+  const payload = {
+    version: APP_SCHEMA_VERSION,
+    exportedAt: new Date().toISOString(),
+    products: prodData
+  };
+  localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(payload));
 }
 
 function getProductsData() {
-  let prodData = getProductsData();
-  return prodData;
+  const saved = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+  if (saved) {
+    const parsed = normalizeImportedPayload(JSON.parse(saved));
+    const migrated = migrateProductsData(parsed.products, parsed.version);
+    saveProductsData(migrated);
+    return migrated;
+  }
+  const initial = JSON.parse(JSON.stringify(RAW_PRODUCTS));
+  saveProductsData(initial);
+  return initial;
 }
 
 function exportJson() {
   try {
     const payload = {
-      version: 1,
+      version: APP_SCHEMA_VERSION,
       exportedAt: new Date().toISOString(),
       event: 'Be. IHFF 2026 — War Room',
       tasks,
@@ -691,13 +947,12 @@ function importJsonFile(file) {
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
-      const data = JSON.parse(e.target.result);
-      if (!data || !Array.isArray(data.tasks)) throw new Error('Invalid file');
-      tasks = data.tasks;
-      localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(tasks));
-      if (Array.isArray(data.products)) {
-        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(data.products));
-      }
+      const payload = normalizeImportedPayload(JSON.parse(e.target.result));
+      if (!payload.tasks.length && !payload.products.length) throw new Error('Invalid file');
+      tasks = (payload.tasks || []).map(taskWithDefaults);
+      saveData();
+      const migratedProducts = migrateProductsData(payload.products, payload.version);
+      saveProductsData(migratedProducts);
       document.getElementById('json-import-input').value = '';
       populateFiltersFresh();
       renderDashboard();
@@ -705,7 +960,8 @@ function importJsonFile(file) {
       renderCriticalPath();
       renderBlockers();
       renderProducts();
-      showToast('JSON imported');
+      renderCostView();
+      showToast(`JSON imported${payload.version < APP_SCHEMA_VERSION ? ' and upgraded' : ''}`);
     } catch (err) {
       console.error(err);
       showToast('Invalid JSON file');
@@ -748,6 +1004,16 @@ function renderDashboard() {
   }).length;
   const critical = tasks.filter(t => t.priority === 'CRITICAL' && t.status !== 'Done').length;
   const overall = total ? Math.round(tasks.reduce((a,t) => a + (t.progress||0), 0) / total) : 0;
+  const costLinked = tasks.filter(hasTaskCost);
+  const totalEstimated = costLinked.reduce((a,t) => a + getTaskEstimated(t), 0);
+  const totalActual = costLinked.reduce((a,t) => a + getTaskActual(t), 0);
+  const totalPaid = costLinked.reduce((a,t) => a + getTaskPaid(t), 0);
+  const totalPending = costLinked.reduce((a,t) => a + getTaskPending(t), 0);
+  const talent = getTalentData();
+  const manpower = getManpowerData();
+  const signedTalent = talent.filter(t => t.contractStatus === 'Signed' || t.contractStatus === 'Closed').length;
+  const confirmedTalent = talent.filter(t => t.attendanceStatus === 'Confirmed').length;
+  const manpowerGaps = manpower.reduce((a,m) => a + Math.max(num(m.countRequired)-num(m.countConfirmed),0), 0);
 
   document.getElementById('kpi-grid').innerHTML = `
     <div class="kpi lime">
@@ -762,16 +1028,21 @@ function renderDashboard() {
       <div class="kpi-sub">${inprog} in progress</div>
     </div>
     <div class="kpi green">
-      <div class="kpi-label">Completed</div>
-      <div class="kpi-val">${done}</div>
-      <div class="kpi-sub">${Math.round(done/total*100)||0}% completion rate</div>
+      <div class="kpi-label">Total Estimated</div>
+      <div class="kpi-val" style="font-size:20px;">${formatCurrency(totalEstimated)}</div>
+      <div class="kpi-sub">${costLinked.length} cost-linked tasks</div>
+    </div>
+    <div class="kpi purple">
+      <div class="kpi-label">Pending Cost</div>
+      <div class="kpi-val" style="font-size:20px;">${formatCurrency(totalPending)}</div>
+      <div class="kpi-sub">${formatCurrency(totalPaid)} paid</div>
     </div>
     <div class="kpi red">
       <div class="kpi-label">Blocked</div>
       <div class="kpi-val">${blocked}</div>
       <div class="kpi-sub">Needs immediate action</div>
     </div>
-    <div class="kpi yellow">
+    <div class="kpi blue">
       <div class="kpi-label">Overdue</div>
       <div class="kpi-val">${overdue}</div>
       <div class="kpi-sub">Past due date</div>
@@ -780,6 +1051,16 @@ function renderDashboard() {
       <div class="kpi-label">Critical Open</div>
       <div class="kpi-val">${critical}</div>
       <div class="kpi-sub">CRITICAL priority pending</div>
+    </div>
+    <div class="kpi yellow">
+      <div class="kpi-label">Talent Signed</div>
+      <div class="kpi-val">${signedTalent}/${talent.length}</div>
+      <div class="kpi-sub">${confirmedTalent} confirmed for event</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">Manpower Gaps</div>
+      <div class="kpi-val">${manpowerGaps}</div>
+      <div class="kpi-sub">${manpower.length} manpower roles tracked</div>
     </div>
   `;
 
@@ -800,18 +1081,17 @@ function renderDashboard() {
     </div>
   `).join('');
 
-  // Overdue
-  const today2 = new Date(); today2.setHours(0,0,0,0);
-  const overdueList = tasks.filter(t => t.endDate && t.status !== 'Done' && new Date(t.endDate) < today2);
+  const overdueList = tasks.filter(t => t.endDate && t.status !== 'Done' && new Date(t.endDate) < today);
   document.getElementById('overdue-list').innerHTML = overdueList.length ? overdueList.map(t => `
     <div style="background:rgba(255,170,0,.05);border:1px solid rgba(255,170,0,.2);border-radius:8px;padding:10px 14px;cursor:pointer;" onclick="switchTab('tasks')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
         <div style="font-size:11px;line-height:1.4;flex:1;">${t.title}</div>
         <span class="priority-badge p-${t.priority}">${t.priority}</span>
       </div>
-      <div style="display:flex;gap:12px;margin-top:6px;">
+      <div style="display:flex;gap:12px;margin-top:6px;flex-wrap:wrap;">
         <span style="font-size:10px;color:var(--crit);">Due: ${t.endDate}</span>
         <span style="font-size:10px;color:var(--t2);">Owner: ${t.owner}</span>
+        ${hasTaskCost(t) ? `<span style="font-size:10px;color:var(--t2);">Pending: <span style="color:var(--text)">${formatCurrency(getTaskPending(t))}</span></span>` : ''}
       </div>
     </div>
   `).join('') : '<div style="color:var(--t2);font-size:12px;padding:20px;">✅ No overdue tasks</div>';
@@ -909,8 +1189,10 @@ function updateStats(filtered) {
     else if (t.status==='Done') counts.done++;
     else if (t.status==='Review') counts.review++;
   });
+  const costLinked = filtered.filter(hasTaskCost).length;
   document.getElementById('stats-row').innerHTML = `
     <span style="font-size:10px;color:var(--t2);margin-right:4px;">${filtered.length} tasks</span>
+    <span style="font-size:10px;color:var(--t2);margin-right:8px;">${costLinked} cost-linked</span>
     <span class="stat-pill s-todo"><span class="stat-count">${counts.todo}</span> To Do</span>
     <span class="stat-pill s-inprog"><span class="stat-count">${counts.inprog}</span> In Progress</span>
     <span class="stat-pill s-blocked"><span class="stat-count">${counts.blocked}</span> Blocked</span>
@@ -922,7 +1204,7 @@ function updateStats(filtered) {
 function renderTaskTable(list) {
   const tbody = document.getElementById('task-tbody');
   if (!list.length) {
-    tbody.innerHTML = '<tr><td colspan="11"><div class="empty"><div class="empty-icon">🔍</div>No tasks match your filters</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="12"><div class="empty"><div class="empty-icon">🔍</div>No tasks match your filters</div></td></tr>';
     return;
   }
 
@@ -936,7 +1218,7 @@ function renderTaskTable(list) {
 
   let html = '';
   phases.forEach(ph => {
-    html += `<tr class="phase-row"><td colspan="11">${ph}</td></tr>`;
+    html += `<tr class="phase-row"><td colspan="12">${ph}</td></tr>`;
     phaseMap[ph].forEach(t => {
       const overdue = isOverdue(t);
       const sc = statusClass(t.status);
@@ -970,6 +1252,13 @@ function renderTaskTable(list) {
         </td>
         <td><span class="${t.criticalPath ? 'cp-yes' : 'cp-no'}">${t.criticalPath ? '🔴 YES' : '—'}</span></td>
         <td>${t.riskNote ? `<span class="risk-flag" title="${t.riskNote}">⚠ Risk</span>` : '—'}</td>
+        <td>
+          <div class="cost-stack">
+            <div class="cost-main">${formatCurrency(getTaskActual(t))}</div>
+            <div class="cost-sub">Est ${formatCurrency(getTaskEstimated(t))}</div>
+            ${hasTaskCost(t) ? `<span class="cost-badge ${paymentClass(t.paymentStatus)}">${t.paymentStatus || 'Not Applicable'}</span>` : '<span class="cost-sub">—</span>'}
+          </div>
+        </td>
         <td>
           <div class="action-btns">
             <button class="act-btn" onclick="openEditModal(${t.id})" title="Edit">✏</button>
@@ -1091,23 +1380,40 @@ function renderBlockers() {
 function renderProducts() {
   const el = document.getElementById('products-list');
   const STEP_STATUSES = ['To Do','In Progress','Review','Blocked','Done'];
+  const readinessGate = [
+    'Compliance Check (FSSAI)',
+    'Endorsement (Sapiens)',
+    'Endorsement (Be.)',
+    'Packaging Design (Final Revision)',
+    'Packaging Print — Sampling',
+    'Packaging Print — Commercial',
+    'Lab Testing & COA',
+    'Print & Packaging Execution',
+    'Commercial Production',
+    'Marketplace / Sales Setup'
+  ];
 
-  // Load product data from localStorage
   let prodData = getProductsData();
 
   el.innerHTML = prodData.map((prod, pi) => {
     const done = prod.steps.filter(s => s.status === 'Done').length;
     const pct = Math.round(done / prod.steps.length * 100);
-    const hasBlocker = prod.steps.some(s => s.status === 'Blocked' || s.risk.includes('BLOCKER'));
+    const hasBlocker = prod.steps.some(s => s.status === 'Blocked' || (s.risk || '').includes('BLOCKER'));
+    const gateDone = readinessGate.every(name => (prod.steps.find(s => s.step === name) || {}).status === 'Done');
+    const eventReady = hasBlocker ? 'Blocked' : gateDone ? 'Ready' : pct >= 75 ? 'At Risk' : 'Not Ready';
+    const currentStep = (prod.steps.find(s => s.status !== 'Done') || {}).step || 'Completed';
+    const readyColor = eventReady === 'Ready' ? 'var(--ok)' : eventReady === 'Blocked' ? 'var(--crit)' : 'var(--warn)';
     return `
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden;">
-      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
         <div>
           <div style="font-family:var(--fh);font-weight:700;font-size:14px;">${prod.name}</div>
           <div style="font-size:10px;color:var(--t2);margin-top:2px;">SKU: ${prod.sku} · ${done}/${prod.steps.length} steps complete</div>
+          <div style="font-size:10px;color:var(--t2);margin-top:4px;">Current Stage: <span style="color:var(--text)">${currentStep}</span></div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
           ${hasBlocker ? '<span style="background:rgba(255,59,59,.15);color:var(--crit);font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;border:1px solid rgba(255,59,59,.3);">🔴 BLOCKER</span>' : ''}
+          <span style="background:rgba(255,255,255,.03);border:1px solid var(--border2);color:${readyColor};font-size:10px;font-weight:700;padding:4px 8px;border-radius:4px;">Event Ready: ${eventReady}</span>
           <div style="text-align:right;">
             <div style="font-family:var(--fh);font-weight:800;font-size:20px;color:var(--accent);">${pct}%</div>
             <div style="font-size:9px;color:var(--t2);">complete</div>
@@ -1145,11 +1451,105 @@ function renderProducts() {
 }
 
 function updateProductStep(pi, si, val) {
-  let prodData = JSON.parse(localStorage.getItem(PRODUCTS_STORAGE_KEY));
+  let prodData = getProductsData();
   prodData[pi].steps[si].status = val;
-  localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(prodData));
+  saveProductsData(prodData);
   renderProducts();
   showToast('Product step updated');
+}
+
+// ─── COST VIEW ──────────────────────────────────────────────────────────────
+function renderCostView() {
+  const costTasks = tasks.filter(hasTaskCost);
+  const totalEstimated = costTasks.reduce((a,t) => a + getTaskEstimated(t), 0);
+  const totalActual = costTasks.reduce((a,t) => a + getTaskActual(t), 0);
+  const totalPaid = costTasks.reduce((a,t) => a + getTaskPaid(t), 0);
+  const totalPending = costTasks.reduce((a,t) => a + getTaskPending(t), 0);
+
+  const workstreamTotals = {};
+  costTasks.forEach(t => {
+    const key = t.workstream || 'Unassigned';
+    if (!workstreamTotals[key]) workstreamTotals[key] = { estimated:0, actual:0, paid:0, pending:0, count:0 };
+    workstreamTotals[key].estimated += getTaskEstimated(t);
+    workstreamTotals[key].actual += getTaskActual(t);
+    workstreamTotals[key].paid += getTaskPaid(t);
+    workstreamTotals[key].pending += getTaskPending(t);
+    workstreamTotals[key].count += 1;
+  });
+
+  document.getElementById('cost-summary').innerHTML = `
+    <div class="cost-grid">
+      <div class="cost-card">
+        <div class="cost-card-label">Total Estimated</div>
+        <div class="cost-card-value">${formatCurrency(totalEstimated)}</div>
+        <div class="cost-card-sub">${costTasks.length} cost-linked tasks</div>
+      </div>
+      <div class="cost-card">
+        <div class="cost-card-label">Total Actual</div>
+        <div class="cost-card-value">${formatCurrency(totalActual)}</div>
+        <div class="cost-card-sub">Filled actual values</div>
+      </div>
+      <div class="cost-card">
+        <div class="cost-card-label">Total Paid</div>
+        <div class="cost-card-value">${formatCurrency(totalPaid)}</div>
+        <div class="cost-card-sub">From paid amount / fully-paid tasks</div>
+      </div>
+      <div class="cost-card">
+        <div class="cost-card-label">Total Pending</div>
+        <div class="cost-card-value">${formatCurrency(totalPending)}</div>
+        <div class="cost-card-sub">Remaining to be closed</div>
+      </div>
+    </div>
+  `;
+
+  const rows = costTasks.map(t => `
+    <tr>
+      <td>${t.id}</td>
+      <td style="min-width:280px;"><div style="font-size:12px;line-height:1.4;">${t.title}</div></td>
+      <td><span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span></td>
+      <td><span class="owner-badge">${t.owner}</span></td>
+      <td>${formatCurrency(getTaskEstimated(t))}</td>
+      <td>${formatCurrency(getTaskActual(t))}</td>
+      <td>${formatCurrency(getTaskPaid(t))}</td>
+      <td>${formatCurrency(getTaskPending(t))}</td>
+      <td>${t.vendorName ? `<span class="owner-badge">${t.vendorName}</span>` : '—'}</td>
+      <td><span class="cost-badge ${paymentClass(t.paymentStatus)}">${t.paymentStatus || 'Not Applicable'}</span></td>
+    </tr>
+  `).join('');
+
+  const workstreamRows = Object.entries(workstreamTotals).sort((a,b) => b[1].estimated - a[1].estimated).map(([ws, v]) => `
+    <tr>
+      <td colspan="2"><span class="ws-badge ${wsClass(ws)}">${ws}</span></td>
+      <td>${v.count}</td>
+      <td>${formatCurrency(v.estimated)}</td>
+      <td>${formatCurrency(v.actual)}</td>
+      <td>${formatCurrency(v.paid)}</td>
+      <td>${formatCurrency(v.pending)}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('cost-table-view').innerHTML = `
+    ${costTasks.length ? `
+      <div style="padding:14px 14px 8px;font-family:var(--fh);font-weight:700;font-size:13px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;">Task-Level Costs</div>
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>#</th><th>Task</th><th>Workstream</th><th>Owner</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Vendor</th><th>Payment</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div style="padding:20px 14px 8px;font-family:var(--fh);font-weight:700;font-size:13px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;">Workstream Summary</div>
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th colspan="2">Workstream</th><th>Tasks</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th>
+          </tr>
+        </thead>
+        <tbody>${workstreamRows}</tbody>
+      </table>
+    ` : `<div class="cost-empty">No costs added yet. Edit any task to add estimated cost, actual cost, vendor, and payment status.</div>`}
+  `;
 }
 
 // ─── MODAL ──────────────────────────────────────────────────────────────────
@@ -1167,6 +1567,11 @@ function openAddModal() {
   document.getElementById('f-progress').value = 0;
   document.getElementById('f-cp').value = 'false';
   document.getElementById('f-risk').value = '';
+  document.getElementById('f-estimated').value = '';
+  document.getElementById('f-actual').value = '';
+  document.getElementById('f-paid').value = '';
+  document.getElementById('f-payment-status').value = 'Not Applicable';
+  document.getElementById('f-vendor').value = '';
   document.getElementById('f-notes').value = '';
   document.getElementById('task-modal').classList.add('show');
 }
@@ -1187,6 +1592,11 @@ function openEditModal(id) {
   document.getElementById('f-progress').value = t.progress || 0;
   document.getElementById('f-cp').value = t.criticalPath ? 'true' : 'false';
   document.getElementById('f-risk').value = t.riskNote || '';
+  document.getElementById('f-estimated').value = t.estimatedCost || '';
+  document.getElementById('f-actual').value = t.actualCost || '';
+  document.getElementById('f-paid').value = t.paidAmount || '';
+  document.getElementById('f-payment-status').value = t.paymentStatus || 'Not Applicable';
+  document.getElementById('f-vendor').value = t.vendorName || '';
   document.getElementById('f-notes').value = t.notes || '';
   document.getElementById('task-modal').classList.add('show');
 }
@@ -1213,6 +1623,11 @@ function saveTask() {
       t.progress = parseInt(document.getElementById('f-progress').value)||0;
       t.criticalPath = document.getElementById('f-cp').value === 'true';
       t.riskNote = document.getElementById('f-risk').value;
+      t.estimatedCost = num(document.getElementById('f-estimated').value);
+      t.actualCost = num(document.getElementById('f-actual').value);
+      t.paidAmount = num(document.getElementById('f-paid').value);
+      t.paymentStatus = document.getElementById('f-payment-status').value;
+      t.vendorName = document.getElementById('f-vendor').value.trim();
       t.notes = document.getElementById('f-notes').value;
       showToast('Task updated');
     }
@@ -1231,6 +1646,11 @@ function saveTask() {
       progress: parseInt(document.getElementById('f-progress').value)||0,
       criticalPath: document.getElementById('f-cp').value === 'true',
       riskNote: document.getElementById('f-risk').value,
+      estimatedCost: num(document.getElementById('f-estimated').value),
+      actualCost: num(document.getElementById('f-actual').value),
+      paidAmount: num(document.getElementById('f-paid').value),
+      paymentStatus: document.getElementById('f-payment-status').value,
+      vendorName: document.getElementById('f-vendor').value.trim(),
       notes: document.getElementById('f-notes').value,
     });
     showToast('Task added');
@@ -1240,6 +1660,7 @@ function saveTask() {
   closeModal();
   applyFilters();
   renderDashboard();
+  renderCostView();
 }
 
 function deleteTask(id) {
@@ -1249,6 +1670,7 @@ function deleteTask(id) {
   populateFiltersFresh();
   applyFilters();
   renderDashboard();
+  renderCostView();
   showToast('Task deleted');
 }
 
@@ -1277,6 +1699,9 @@ function switchTab(id) {
   if (id === 'critical') renderCriticalPath();
   if (id === 'blockers') renderBlockers();
   if (id === 'products') renderProducts();
+  if (id === 'talent') renderTalent();
+  if (id === 'manpower') renderManpower();
+  if (id === 'costs') renderCostView();
   if (id === 'dashboard') renderDashboard();
 }
 
@@ -1295,6 +1720,10 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(updateCountdown, 60000);
   populateFilters();
   renderDashboard();
+  renderProducts();
+  renderTalent();
+  renderManpower();
+  renderCostView();
   applyFilters();
   const importInput = document.getElementById('json-import-input');
   if (importInput) {
@@ -1310,5 +1739,851 @@ document.getElementById('task-modal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
 </script>
+
+<script>
+// --- MODULE PATCH: talent, manpower, vendors, version-safe import/export ---
+const MODULE_SCHEMA_VERSION = 5;
+const TALENT_STORAGE_KEY = 'ihff2026_talent';
+const MANPOWER_STORAGE_KEY = 'ihff2026_manpower';
+const VENDORS_STORAGE_KEY = 'ihff2026_vendors';
+
+const RAW_TALENT = [
+  {id:1,name:'Mohan Vashisht',type:'Athlete',owner:'Angela',followers:'25,300',niche:'Bodybuilding (Men’s Classic Physique)',commercials:125000,deliverables:'4–5 posts + up to 10 stories',contractStatus:'In Discussion',paymentStatus:'Pending',attendanceStatus:'Planned',deliverableStatus:'Not Started',notes:''},
+  {id:2,name:'Manoj Sarangpani',type:'Athlete',owner:'Angela',followers:'7,80,000',niche:'IFBB Pro Bodybuilding',commercials:130000,deliverables:'4 posts + min 10 stories',contractStatus:'In Discussion',paymentStatus:'Pending',attendanceStatus:'Planned',deliverableStatus:'Not Started',notes:''},
+  {id:3,name:'Anand Yadav',type:'Athlete',owner:'Angela',followers:'9,60,000',niche:'IFBB Pro Bodybuilding',commercials:120000,deliverables:'4 posts + min 10 stories',contractStatus:'In Discussion',paymentStatus:'Pending',attendanceStatus:'Planned',deliverableStatus:'Not Started',notes:''}
+];
+
+const RAW_MANPOWER = [
+  {id:1,role:'MBF Trainers',assignedTo:'Tejal / MBF Team',owner:'Tejal',countRequired:4,countConfirmed:0,zone:'Be. Booth',shift:'All 3 days',status:'Open',notes:'Coordinate 4 MBF trainers at the booth'},
+  {id:2,role:'B2B Sales',assignedTo:'Atul team',owner:'Atul',countRequired:2,countConfirmed:0,zone:'B2B Area',shift:'Show days',status:'Open',notes:'2 B2B sales people'},
+  {id:3,role:'Frozen Fun Booth Oversight',assignedTo:'Vanshika',owner:'Vanshika',countRequired:1,countConfirmed:1,zone:'Frozen Fun Booth',shift:'Show days',status:'Confirmed',notes:'Oversee frozen fun booth'},
+  {id:4,role:'Counters Oversight',assignedTo:'Shivam, Abhishek Jr., Maitri, Mizghan',owner:'Shivam',countRequired:4,countConfirmed:4,zone:'Counters',shift:'Show days',status:'Confirmed',notes:'Overseeing counters'},
+  {id:5,role:'Receptionist',assignedTo:'Parul to hire',owner:'Parul',countRequired:1,countConfirmed:0,zone:'Reception',shift:'Show days',status:'Open',notes:'Presentable, very well spoken female receptionist'},
+  {id:6,role:'Tasting Booth Team',assignedTo:'Team Be.',owner:'Deeksha',countRequired:2,countConfirmed:0,zone:'Protein & Creatine Tasting Booth',shift:'Show days',status:'Open',notes:'2 people from Team Be.'},
+  {id:7,role:'Sampling Station',assignedTo:'Sahil and Neeraj',owner:'Deeksha',countRequired:2,countConfirmed:2,zone:'Sampling Station',shift:'Show days',status:'Confirmed',notes:'Sampling station coverage'},
+  {id:8,role:'Bodyguard',assignedTo:'Rampal',owner:'Atul',countRequired:1,countConfirmed:1,zone:'Talent / Show Floor',shift:'Show days',status:'Confirmed',notes:'1 body guard'},
+  {id:9,role:'Team T-shirts Coordination',assignedTo:'Tejal',owner:'Tejal',countRequired:1,countConfirmed:1,zone:'Backstage / Team',shift:'Pre-show',status:'Confirmed',notes:'T-shirts for everyone at the Be. booth'}
+];
+
+const RAW_VENDORS = [];
+const CONTRACT_STATUSES = ['Not Started','In Discussion','Draft Sent','Under Review','Signed','Closed'];
+const DELIVERABLE_STATUSES = ['Not Started','In Progress','Submitted','Approved','Closed'];
+const ATTENDANCE_STATUSES = ['Planned','Tentative','Confirmed','Attended','Cancelled'];
+const MANPOWER_STATUSES = ['Open','Partially Filled','Confirmed','At Risk','Closed'];
+const VENDOR_CATEGORIES = ['Booth / Fabrication','Printing','Merchandise','Packaging','Staffing','Logistics','Talent','Misc'];
+
+function injectModuleStyles(){
+  if(document.getElementById('module-patch-styles')) return;
+  const style=document.createElement('style');
+  style.id='module-patch-styles';
+  style.textContent=`
+    .module-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px;}
+    .module-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;}
+    .module-card-label{font-size:9px;text-transform:uppercase;letter-spacing:1.3px;color:var(--t2);margin-bottom:6px;}
+    .module-card-val{font-family:var(--fh);font-size:22px;font-weight:800;line-height:1;}
+    .module-table{width:100%;border-collapse:collapse;min-width:980px;}
+    .module-table th,.module-table td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+    .module-table th{background:var(--s2);text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);white-space:nowrap;}
+    .module-table tr:hover{background:var(--s2);}
+    .module-actions{display:flex;gap:4px;}
+    .module-actions .act-btn{opacity:1;}
+    .module-badge{display:inline-block;padding:2px 6px;border-radius:999px;font-size:9px;border:1px solid var(--border2);background:var(--s3);color:var(--t2);white-space:nowrap;}
+    .module-section-title{font-family:var(--fh);font-weight:700;font-size:13px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;margin:18px 0 8px;}
+    .module-empty{padding:24px;border:1px dashed var(--border2);border-radius:8px;color:var(--t2);font-size:12px;text-align:center;}
+    .linked-task-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;}
+    .linked-task-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;}
+    .linked-task-title{font-size:11px;line-height:1.4;margin-bottom:6px;}
+    .small-muted{font-size:10px;color:var(--t2);}
+  `;
+  document.head.appendChild(style);
+}
+
+function ensureVendorUi(){
+  const tabBar = document.querySelector('.hdr-tabs');
+  if(tabBar && !tabBar.querySelector(".tab[onclick=\"switchTab('vendors')\"]")){
+    const tab=document.createElement('div');
+    tab.className='tab';
+    tab.setAttribute('onclick',"switchTab('vendors')");
+    tab.textContent='Vendors';
+    const costsTab = tabBar.querySelector(".tab[onclick=\"switchTab('costs')\"]");
+    if(costsTab) tabBar.insertBefore(tab, costsTab); else tabBar.appendChild(tab);
+  }
+  if(!document.getElementById('view-vendors')){
+    const view=document.createElement('div');
+    view.className='view';
+    view.id='view-vendors';
+    view.innerHTML=`
+      <div style="padding:16px 20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+          <div>
+            <div style="font-family:var(--fh);font-weight:700;font-size:18px;margin-bottom:4px;">Vendor & Payment Tracking</div>
+            <div style="color:var(--t2);font-size:11px;">Separate vendor entities live here. Master task procurement work is shown below as linked task coverage, not duplicated records.</div>
+          </div>
+          <button class="btn btn-accent" onclick="addVendor()">+ Add Vendor</button>
+        </div>
+        <div id="vendor-summary"></div>
+        <div id="vendor-table-wrap"></div>
+        <div class="module-section-title">Linked Procurement Tasks</div>
+        <div id="vendor-linked-tasks"></div>
+      </div>`;
+    const costsView = document.getElementById('view-costs');
+    if(costsView && costsView.parentNode) costsView.parentNode.insertBefore(view, costsView);
+    else document.body.appendChild(view);
+  }
+}
+
+function talentWithDefaults(t){
+  return {id:t.id || Date.now()+Math.random(), name:t.name||'', type:t.type||'Athlete', owner:t.owner||'Angela', followers:t.followers||'', niche:t.niche||'', commercials:num(t.commercials), deliverables:t.deliverables||'', contractStatus:t.contractStatus||'Not Started', paymentStatus:t.paymentStatus||'Pending', attendanceStatus:t.attendanceStatus||'Planned', deliverableStatus:t.deliverableStatus||'Not Started', notes:t.notes||''};
+}
+function manpowerWithDefaults(m){
+  return {id:m.id || Date.now()+Math.random(), role:m.role||'', assignedTo:m.assignedTo||'', owner:m.owner||'TBD', countRequired:num(m.countRequired), countConfirmed:num(m.countConfirmed), zone:m.zone||'', shift:m.shift||'', status:m.status||'Open', notes:m.notes||''};
+}
+function vendorWithDefaults(v){
+  return {id:v.id || Date.now()+Math.random(), name:v.name||'', category:v.category||'Misc', workstream:v.workstream||'', estimatedCost:num(v.estimatedCost), actualCost:num(v.actualCost), paidAmount:num(v.paidAmount), paymentStatus:v.paymentStatus||'Pending', paymentDueDate:v.paymentDueDate||'', notes:v.notes||''};
+}
+
+function getTalentData(){
+  const saved = localStorage.getItem(TALENT_STORAGE_KEY);
+  if(saved){
+    try{
+      const parsed = normalizeImportedPayload(JSON.parse(saved));
+      const list = (parsed.talent || []).map(talentWithDefaults);
+      if(list.length){ saveTalentData(list); return list; }
+    }catch(err){ console.error(err); }
+  }
+  const initial = RAW_TALENT.map(talentWithDefaults);
+  saveTalentData(initial);
+  return initial;
+}
+function saveTalentData(data){ localStorage.setItem(TALENT_STORAGE_KEY, JSON.stringify({version:MODULE_SCHEMA_VERSION, exportedAt:new Date().toISOString(), talent:data})); }
+
+function getManpowerData(){
+  const saved = localStorage.getItem(MANPOWER_STORAGE_KEY);
+  if(saved){
+    try{
+      const parsed = normalizeImportedPayload(JSON.parse(saved));
+      const list = (parsed.manpower || []).map(manpowerWithDefaults);
+      if(list.length){ saveManpowerData(list); return list; }
+    }catch(err){ console.error(err); }
+  }
+  const initial = RAW_MANPOWER.map(manpowerWithDefaults);
+  saveManpowerData(initial);
+  return initial;
+}
+function saveManpowerData(data){ localStorage.setItem(MANPOWER_STORAGE_KEY, JSON.stringify({version:MODULE_SCHEMA_VERSION, exportedAt:new Date().toISOString(), manpower:data})); }
+
+function getVendorsData(){
+  const saved = localStorage.getItem(VENDORS_STORAGE_KEY);
+  if(saved){
+    try{
+      const parsed = normalizeImportedPayload(JSON.parse(saved));
+      const list = (parsed.vendors || []).map(vendorWithDefaults);
+      saveVendorsData(list); return list;
+    }catch(err){ console.error(err); }
+  }
+  const initial = RAW_VENDORS.map(vendorWithDefaults);
+  saveVendorsData(initial);
+  return initial;
+}
+function saveVendorsData(data){ localStorage.setItem(VENDORS_STORAGE_KEY, JSON.stringify({version:MODULE_SCHEMA_VERSION, exportedAt:new Date().toISOString(), vendors:data})); }
+
+// Override payload normalization and import/export so old JSON keeps working.
+function normalizeImportedPayload(data){
+  if (Array.isArray(data)) {
+    return { version: 0, tasks: data, products: [], talent: [], manpower: [], vendors: [] };
+  }
+  if (!data || typeof data !== 'object') {
+    return { version: 0, tasks: [], products: [], talent: [], manpower: [], vendors: [] };
+  }
+  return {
+    version: Number.isFinite(Number(data.version)) ? Number(data.version) : 0,
+    tasks: Array.isArray(data.tasks) ? data.tasks : [],
+    products: Array.isArray(data.products) ? data.products : [],
+    talent: Array.isArray(data.talent) ? data.talent : [],
+    manpower: Array.isArray(data.manpower) ? data.manpower : [],
+    vendors: Array.isArray(data.vendors) ? data.vendors : []
+  };
+}
+
+function exportJson(){
+  try{
+    const payload = {
+      version: MODULE_SCHEMA_VERSION,
+      exportedAt: new Date().toISOString(),
+      event: 'Be. IHFF 2026 — War Room',
+      tasks,
+      products: getProductsData(),
+      talent: getTalentData(),
+      manpower: getManpowerData(),
+      vendors: getVendorsData()
+    };
+    const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0,19).replace(/[T:]/g,'-');
+    a.href=url; a.download=`ihff-war-room-${stamp}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    showToast('JSON exported');
+  }catch(err){ console.error(err); showToast('Export failed'); }
+}
+
+function importJsonFile(file){
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const payload = normalizeImportedPayload(JSON.parse(e.target.result));
+      if (!payload.tasks.length && !payload.products.length && !payload.talent.length && !payload.manpower.length && !payload.vendors.length) throw new Error('Invalid file');
+      tasks = (payload.tasks || []).map(taskWithDefaults);
+      saveData();
+      saveProductsData(migrateProductsData(payload.products, payload.version));
+      saveTalentData((payload.talent || RAW_TALENT).map(talentWithDefaults));
+      saveManpowerData((payload.manpower || RAW_MANPOWER).map(manpowerWithDefaults));
+      saveVendorsData((payload.vendors || RAW_VENDORS).map(vendorWithDefaults));
+      const input = document.getElementById('json-import-input'); if(input) input.value='';
+      populateFiltersFresh();
+      renderDashboard(); applyFilters(); renderCriticalPath(); renderBlockers(); renderProducts(); renderTalent(); renderManpower(); renderVendors(); renderCostView();
+      showToast(`JSON imported${payload.version < MODULE_SCHEMA_VERSION ? ' and upgraded' : ''}`);
+    }catch(err){ console.error(err); showToast('Invalid JSON file'); }
+  };
+  reader.readAsText(file);
+}
+
+function linkedTalentTasks(){
+  return tasks.filter(t => ['Athletes','Famous Friends','Mohan'].includes(t.workstream) || /(athlete|creator|mohan|famous friend)/i.test(`${t.title} ${t.notes||''}`));
+}
+function linkedManpowerTasks(){
+  return tasks.filter(t => ['Ops','Stand','Mohan'].includes(t.workstream) && /(team|trainer|sampling|booth|floor|rota|reception|bodyguard|uniform|role|manpower|staff|counter|sales|security|t-shirt|shirt)/i.test(`${t.title} ${t.notes||''}`));
+}
+function linkedVendorTasks(){
+  return tasks.filter(t => hasTaskCost(t) || ['Stand','Merch','Sampling','IHFF','Stage','B2B'].includes(t.workstream));
+}
+function renderLinkedTaskCards(targetId,list){
+  const el=document.getElementById(targetId); if(!el) return;
+  if(!list.length){ el.innerHTML='<div class="module-empty">No linked tasks found in the master task system.</div>'; return; }
+  el.innerHTML = `<div class="linked-task-list">${list.slice(0,18).map(t => `
+    <div class="linked-task-card">
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">
+        <div class="linked-task-title">${t.title}</div>
+        <span class="priority-badge p-${t.priority}">${t.priority}</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+        <span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span>
+        <span class="owner-badge">${t.owner}</span>
+      </div>
+      <div class="small-muted">Due ${t.endDate || '—'} · Status ${t.status}${hasTaskCost(t) ? ` · Pending ${formatCurrency(getTaskPending(t))}` : ''}</div>
+    </div>`).join('')}</div>`;
+}
+
+function renderTalent(){
+  const talent = getTalentData();
+  const signed = talent.filter(t => ['Signed','Closed'].includes(t.contractStatus)).length;
+  const confirmed = talent.filter(t => ['Confirmed','Attended'].includes(t.attendanceStatus)).length;
+  const pendingPay = talent.filter(t => !['Fully Paid','Not Applicable'].includes(t.paymentStatus)).reduce((a,t)=>a+num(t.commercials),0);
+  const avgCommercial = talent.length ? Math.round(talent.reduce((a,t)=>a+num(t.commercials),0)/talent.length) : 0;
+  const summary = document.getElementById('talent-summary');
+  if(summary){ summary.innerHTML = `
+    <div class="module-summary">
+      <div class="module-card"><div class="module-card-label">Tracked Talent</div><div class="module-card-val">${talent.length}</div></div>
+      <div class="module-card"><div class="module-card-label">Contracts Signed</div><div class="module-card-val">${signed}</div></div>
+      <div class="module-card"><div class="module-card-label">Attendance Confirmed</div><div class="module-card-val">${confirmed}</div></div>
+      <div class="module-card"><div class="module-card-label">Avg Commercial</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(avgCommercial)}</div></div>
+      <div class="module-card"><div class="module-card-label">Commercials Pending</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(pendingPay)}</div></div>
+    </div>
+    <div class="module-section-title">Talent Entities</div>`; }
+  const wrap=document.getElementById('talent-table-wrap');
+  if(wrap){
+    wrap.innerHTML = talent.length ? `<table class="module-table"><thead><tr><th>Name</th><th>Type</th><th>Followers</th><th>Niche</th><th>Commercials</th><th>Deliverables</th><th>Contract</th><th>Payment</th><th>Attendance</th><th>Owner</th><th>Actions</th></tr></thead><tbody>${talent.map(t => `
+      <tr>
+        <td><div style="font-size:12px;line-height:1.3;">${t.name}</div></td>
+        <td><span class="module-badge">${t.type}</span></td>
+        <td>${t.followers || '—'}</td>
+        <td style="max-width:180px;line-height:1.4;">${t.niche || '—'}</td>
+        <td>${formatCurrency(t.commercials)}</td>
+        <td style="max-width:180px;line-height:1.4;">${t.deliverables || '—'}</td>
+        <td><span class="module-badge">${t.contractStatus}</span></td>
+        <td><span class="cost-badge ${paymentClass(t.paymentStatus)}">${t.paymentStatus}</span></td>
+        <td><span class="module-badge">${t.attendanceStatus}</span></td>
+        <td><span class="owner-badge">${t.owner}</span></td>
+        <td><div class="module-actions"><button class="act-btn" onclick="editTalent(${t.id})">✏</button><button class="act-btn danger" onclick="deleteTalent(${t.id})">✕</button></div></td>
+      </tr>`).join('')}</tbody></table>` : '<div class="module-empty">No talent added yet.</div>';
+    wrap.innerHTML += '<div class="module-section-title">Linked Talent Tasks</div><div id="talent-linked-tasks"></div>';
+  }
+  renderLinkedTaskCards('talent-linked-tasks', linkedTalentTasks());
+}
+
+function renderManpower(){
+  const manpower = getManpowerData();
+  const totalRequired = manpower.reduce((a,m)=>a+num(m.countRequired),0);
+  const totalConfirmed = manpower.reduce((a,m)=>a+num(m.countConfirmed),0);
+  const gaps = manpower.reduce((a,m)=>a+Math.max(num(m.countRequired)-num(m.countConfirmed),0),0);
+  const confirmedRoles = manpower.filter(m => m.status === 'Confirmed').length;
+  const summary = document.getElementById('manpower-summary');
+  if(summary){ summary.innerHTML = `
+    <div class="module-summary">
+      <div class="module-card"><div class="module-card-label">Roles Tracked</div><div class="module-card-val">${manpower.length}</div></div>
+      <div class="module-card"><div class="module-card-label">Headcount Required</div><div class="module-card-val">${totalRequired}</div></div>
+      <div class="module-card"><div class="module-card-label">Headcount Confirmed</div><div class="module-card-val">${totalConfirmed}</div></div>
+      <div class="module-card"><div class="module-card-label">Coverage Gaps</div><div class="module-card-val">${gaps}</div></div>
+      <div class="module-card"><div class="module-card-label">Confirmed Roles</div><div class="module-card-val">${confirmedRoles}</div></div>
+    </div>
+    <div class="module-section-title">Manpower Entities</div>`; }
+  const wrap=document.getElementById('manpower-table-wrap');
+  if(wrap){
+    wrap.innerHTML = manpower.length ? `<table class="module-table"><thead><tr><th>Role</th><th>Assigned To</th><th>Owner</th><th>Required</th><th>Confirmed</th><th>Gap</th><th>Zone</th><th>Shift</th><th>Status</th><th>Actions</th></tr></thead><tbody>${manpower.map(m => `
+      <tr>
+        <td><div style="font-size:12px;line-height:1.3;">${m.role}</div><div class="small-muted">${m.notes || ''}</div></td>
+        <td style="max-width:180px;line-height:1.4;">${m.assignedTo || '—'}</td>
+        <td><span class="owner-badge">${m.owner}</span></td>
+        <td>${m.countRequired}</td>
+        <td>${m.countConfirmed}</td>
+        <td>${Math.max(num(m.countRequired)-num(m.countConfirmed),0)}</td>
+        <td>${m.zone || '—'}</td>
+        <td>${m.shift || '—'}</td>
+        <td><span class="module-badge">${m.status}</span></td>
+        <td><div class="module-actions"><button class="act-btn" onclick="editManpower(${m.id})">✏</button><button class="act-btn danger" onclick="deleteManpower(${m.id})">✕</button></div></td>
+      </tr>`).join('')}</tbody></table>` : '<div class="module-empty">No manpower roles added yet.</div>';
+    wrap.innerHTML += '<div class="module-section-title">Linked Manpower Tasks</div><div id="manpower-linked-tasks"></div>';
+  }
+  renderLinkedTaskCards('manpower-linked-tasks', linkedManpowerTasks());
+}
+
+function renderVendors(){
+  ensureVendorUi();
+  const vendors = getVendorsData();
+  const linked = linkedVendorTasks();
+  const overdueVendorPayments = vendors.filter(v => v.paymentDueDate && new Date(v.paymentDueDate) < new Date() && getVendorPending(v) > 0).length;
+  const totalEstimated = vendors.reduce((a,v)=>a+num(v.estimatedCost),0);
+  const totalActual = vendors.reduce((a,v)=>a+num(v.actualCost),0);
+  const totalPaid = vendors.reduce((a,v)=>a+num(v.paidAmount),0);
+  const totalPending = vendors.reduce((a,v)=>a+getVendorPending(v),0);
+  const summary=document.getElementById('vendor-summary');
+  if(summary){ summary.innerHTML=`
+    <div class="module-summary">
+      <div class="module-card"><div class="module-card-label">Vendors Tracked</div><div class="module-card-val">${vendors.length}</div></div>
+      <div class="module-card"><div class="module-card-label">Vendor Estimated</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(totalEstimated)}</div></div>
+      <div class="module-card"><div class="module-card-label">Vendor Actual</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(totalActual)}</div></div>
+      <div class="module-card"><div class="module-card-label">Vendor Pending</div><div class="module-card-val" style="font-size:18px;">${formatCurrency(totalPending)}</div></div>
+      <div class="module-card"><div class="module-card-label">Overdue Payments</div><div class="module-card-val">${overdueVendorPayments}</div></div>
+    </div>
+    <div class="module-section-title">Vendor Entities</div>`; }
+  const wrap=document.getElementById('vendor-table-wrap');
+  if(wrap){
+    wrap.innerHTML = vendors.length ? `<table class="module-table"><thead><tr><th>Name</th><th>Category</th><th>Workstream</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Due Date</th><th>Payment</th><th>Actions</th></tr></thead><tbody>${vendors.map(v => `
+      <tr>
+        <td><div style="font-size:12px;line-height:1.3;">${v.name}</div><div class="small-muted">${v.notes || ''}</div></td>
+        <td><span class="module-badge">${v.category}</span></td>
+        <td>${v.workstream ? `<span class="ws-badge ${wsClass(v.workstream)}">${v.workstream}</span>` : '—'}</td>
+        <td>${formatCurrency(v.estimatedCost)}</td>
+        <td>${formatCurrency(v.actualCost)}</td>
+        <td>${formatCurrency(v.paidAmount)}</td>
+        <td>${formatCurrency(getVendorPending(v))}</td>
+        <td>${v.paymentDueDate || '—'}</td>
+        <td><span class="cost-badge ${paymentClass(v.paymentStatus)}">${v.paymentStatus}</span></td>
+        <td><div class="module-actions"><button class="act-btn" onclick="editVendor(${v.id})">✏</button><button class="act-btn danger" onclick="deleteVendor(${v.id})">✕</button></div></td>
+      </tr>`).join('')}</tbody></table>` : '<div class="module-empty">No vendor entities added yet. Add actual vendors here; procurement tasks remain in the master task system below.</div>';
+  }
+  renderLinkedTaskCards('vendor-linked-tasks', linked);
+}
+
+function getVendorPending(v){ return Math.max(Math.max(num(v.actualCost), num(v.estimatedCost)) - num(v.paidAmount), 0); }
+
+function promptSelect(label, current, options){
+  const value = prompt(`${label}\nOptions: ${options.join(', ')}`, current || options[0] || '');
+  if (value === null) return null;
+  return value.trim() || current || options[0] || '';
+}
+
+function addTalent(){
+  const name = prompt('Talent name'); if(name===null || !name.trim()) return;
+  const data = getTalentData();
+  data.push(talentWithDefaults({id:Date.now(), name:name.trim(), type:promptSelect('Type','Athlete',['Athlete','Creator']) || 'Athlete'}));
+  saveTalentData(data); renderTalent(); renderDashboard(); showToast('Talent added');
+}
+function editTalent(id){
+  const data=getTalentData(); const item=data.find(x=>x.id===id); if(!item) return;
+  const name=prompt('Talent name', item.name); if(name===null) return; item.name=name.trim()||item.name;
+  const followers=prompt('Followers', item.followers||''); if(followers!==null) item.followers=followers;
+  const niche=prompt('Niche', item.niche||''); if(niche!==null) item.niche=niche;
+  const commercials=prompt('Commercials (₹)', item.commercials||''); if(commercials!==null) item.commercials=num(commercials);
+  const deliverables=prompt('Deliverables', item.deliverables||''); if(deliverables!==null) item.deliverables=deliverables;
+  const contractStatus=promptSelect('Contract status', item.contractStatus, CONTRACT_STATUSES); if(contractStatus===null) return; item.contractStatus=contractStatus;
+  const paymentStatus=promptSelect('Payment status', item.paymentStatus, PAYMENT_STATUSES); if(paymentStatus===null) return; item.paymentStatus=paymentStatus;
+  const attendanceStatus=promptSelect('Attendance status', item.attendanceStatus, ATTENDANCE_STATUSES); if(attendanceStatus===null) return; item.attendanceStatus=attendanceStatus;
+  const owner=prompt('Owner', item.owner||''); if(owner!==null) item.owner=owner || item.owner;
+  saveTalentData(data); renderTalent(); renderDashboard(); showToast('Talent updated');
+}
+function deleteTalent(id){ if(!confirm('Delete this talent entry?')) return; const data=getTalentData().filter(x=>x.id!==id); saveTalentData(data); renderTalent(); renderDashboard(); showToast('Talent deleted'); }
+
+function addManpower(){
+  const role = prompt('Role name'); if(role===null || !role.trim()) return;
+  const data=getManpowerData();
+  data.push(manpowerWithDefaults({id:Date.now(), role:role.trim()}));
+  saveManpowerData(data); renderManpower(); renderDashboard(); showToast('Role added');
+}
+function editManpower(id){
+  const data=getManpowerData(); const item=data.find(x=>x.id===id); if(!item) return;
+  const role=prompt('Role', item.role); if(role===null) return; item.role=role||item.role;
+  const assigned=prompt('Assigned to', item.assignedTo||''); if(assigned!==null) item.assignedTo=assigned;
+  const owner=prompt('Owner', item.owner||''); if(owner!==null) item.owner=owner;
+  const req=prompt('Count required', item.countRequired||0); if(req!==null) item.countRequired=num(req);
+  const conf=prompt('Count confirmed', item.countConfirmed||0); if(conf!==null) item.countConfirmed=num(conf);
+  const zone=prompt('Zone / Booth Area', item.zone||''); if(zone!==null) item.zone=zone;
+  const shift=prompt('Shift / Day', item.shift||''); if(shift!==null) item.shift=shift;
+  const status=promptSelect('Status', item.status, MANPOWER_STATUSES); if(status===null) return; item.status=status;
+  const notes=prompt('Notes', item.notes||''); if(notes!==null) item.notes=notes;
+  saveManpowerData(data); renderManpower(); renderDashboard(); showToast('Manpower updated');
+}
+function deleteManpower(id){ if(!confirm('Delete this manpower role?')) return; const data=getManpowerData().filter(x=>x.id!==id); saveManpowerData(data); renderManpower(); renderDashboard(); showToast('Role deleted'); }
+
+function addVendor(){
+  ensureVendorUi();
+  const name=prompt('Vendor name'); if(name===null || !name.trim()) return;
+  const data=getVendorsData();
+  data.push(vendorWithDefaults({id:Date.now(), name:name.trim(), category:'Misc', paymentStatus:'Pending'}));
+  saveVendorsData(data); renderVendors(); showToast('Vendor added');
+}
+function editVendor(id){
+  const data=getVendorsData(); const item=data.find(x=>x.id===id); if(!item) return;
+  const name=prompt('Vendor name', item.name); if(name===null) return; item.name=name||item.name;
+  const category=promptSelect('Vendor category', item.category, VENDOR_CATEGORIES); if(category===null) return; item.category=category;
+  const workstream=prompt('Workstream', item.workstream||''); if(workstream!==null) item.workstream=workstream;
+  const est=prompt('Estimated cost (₹)', item.estimatedCost||''); if(est!==null) item.estimatedCost=num(est);
+  const actual=prompt('Actual cost (₹)', item.actualCost||''); if(actual!==null) item.actualCost=num(actual);
+  const paid=prompt('Paid amount (₹)', item.paidAmount||''); if(paid!==null) item.paidAmount=num(paid);
+  const paymentStatus=promptSelect('Payment status', item.paymentStatus, PAYMENT_STATUSES); if(paymentStatus===null) return; item.paymentStatus=paymentStatus;
+  const due=prompt('Payment due date (YYYY-MM-DD)', item.paymentDueDate||''); if(due!==null) item.paymentDueDate=due;
+  const notes=prompt('Notes', item.notes||''); if(notes!==null) item.notes=notes;
+  saveVendorsData(data); renderVendors(); renderDashboard(); showToast('Vendor updated');
+}
+function deleteVendor(id){ if(!confirm('Delete this vendor?')) return; const data=getVendorsData().filter(x=>x.id!==id); saveVendorsData(data); renderVendors(); renderDashboard(); showToast('Vendor deleted'); }
+
+// Wrap dashboard to add vendor KPIs without disturbing the rest of the page.
+const __baseRenderDashboard = renderDashboard;
+renderDashboard = function(){
+  __baseRenderDashboard();
+  try{
+    const grid = document.getElementById('kpi-grid'); if(!grid) return;
+    const vendors = getVendorsData();
+    const totalVendorSpend = vendors.reduce((a,v)=>a+Math.max(num(v.actualCost), num(v.estimatedCost)),0);
+    const unpaidVendors = vendors.filter(v => getVendorPending(v) > 0).length;
+    const overdueVendorPayments = vendors.filter(v => v.paymentDueDate && new Date(v.paymentDueDate) < new Date() && getVendorPending(v) > 0).length;
+    Array.from(grid.querySelectorAll('.vendor-kpi')).forEach(el => el.remove());
+    grid.insertAdjacentHTML('beforeend', `
+      <div class="kpi purple vendor-kpi"><div class="kpi-label">Vendor Spend</div><div class="kpi-val" style="font-size:20px;">${formatCurrency(totalVendorSpend)}</div><div class="kpi-sub">${vendors.length} vendors tracked</div></div>
+      <div class="kpi yellow vendor-kpi"><div class="kpi-label">Unpaid Vendors</div><div class="kpi-val">${unpaidVendors}</div><div class="kpi-sub">${overdueVendorPayments} overdue payments</div></div>
+    `);
+  }catch(err){ console.error(err); }
+};
+
+// Override tab switcher so vendors render too.
+function switchTab(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const view = document.getElementById('view-'+id); if(view) view.classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => { if (t.getAttribute('onclick') === `switchTab('${id}')`) t.classList.add('active'); });
+  if (id === 'tasks') applyFilters();
+  if (id === 'critical') renderCriticalPath();
+  if (id === 'blockers') renderBlockers();
+  if (id === 'products') renderProducts();
+  if (id === 'talent') renderTalent();
+  if (id === 'manpower') renderManpower();
+  if (id === 'vendors') renderVendors();
+  if (id === 'costs') renderCostView();
+  if (id === 'dashboard') renderDashboard();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  injectModuleStyles();
+  ensureVendorUi();
+  getTalentData(); getManpowerData(); getVendorsData();
+  renderTalent(); renderManpower(); renderVendors(); renderDashboard();
+});
+</script>
+
+
+<script>
+// --- MODULE PATCH: stronger dependency logic ---
+(function(){
+  const DEPENDENCY_MAP = {
+    2:[1],
+    9:[3,72],
+    11:[2,66,67],
+    16:[17],
+    17:[9,73,85],
+    20:[14],
+    24:[12,17,19,87],
+    28:[14],
+    29:[11],
+    32:[24,29,31],
+    35:[20],
+    40:[33,38,77],
+    44:[33,40],
+    45:[44,90,100],
+    46:[29,32,93],
+    47:[35,46,48,50,82],
+    50:[20],
+    52:[45,47],
+    54:[38,40,45],
+    55:[18,45],
+    58:[54,57],
+    59:[58],
+    60:[53,56],
+    77:[74],
+    79:[29,31],
+    85:[83],
+    90:[85,102],
+    100:[84,96],
+    102:[85],
+    104:[46,100],
+    105:[45,104],
+    106:[90,102]
+  };
+
+  function injectDependencyStyles(){
+    if(document.getElementById('dependency-logic-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'dependency-logic-styles';
+    style.textContent = `
+      .dep-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:999px;font-size:9px;letter-spacing:.5px;text-transform:uppercase;border:1px solid rgba(167,139,250,.28);background:rgba(167,139,250,.12);color:#c4b5fd;white-space:nowrap;}
+      .dep-badge.blocked{border-color:rgba(255,59,59,.35);background:rgba(255,59,59,.12);color:#ff8a8a;}
+      .dep-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+      .dep-line{font-size:10px;line-height:1.4;color:var(--info);margin-top:3px;}
+      .dep-line.blocked{color:#ff9a9a;}
+      .dep-chip{display:inline-block;padding:1px 5px;border-radius:999px;border:1px solid var(--border2);background:var(--s3);color:var(--t2);font-size:9px;}
+      .status-sel.dependency-blocked{border-color:var(--crit);color:var(--crit);box-shadow:0 0 0 1px rgba(255,59,59,.12) inset;}
+      .blocked-by-list{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function asArray(v){ return Array.isArray(v) ? v : []; }
+
+  function applyDependencyDefaults(){
+    tasks.forEach(t => {
+      const existing = asArray(t.dependencyIds).map(Number).filter(Boolean);
+      const seeded = DEPENDENCY_MAP[t.id] || [];
+      t.dependencyIds = Array.from(new Set([...existing, ...seeded])).filter(id => id !== t.id && tasks.some(x => x.id === id));
+    });
+  }
+
+  function getTaskById(id){ return tasks.find(t => t.id === id); }
+  function getDependencies(task){ return asArray(task.dependencyIds).map(getTaskById).filter(Boolean); }
+  function getBlockedBy(task){ return getDependencies(task).filter(dep => dep.status !== 'Done'); }
+  function hasDependencyBlock(task){ return task.status !== 'Done' && getBlockedBy(task).length > 0; }
+  function effectiveStatus(task){ return hasDependencyBlock(task) ? 'Blocked' : task.status; }
+  function dependencyLabel(task){
+    const deps = getDependencies(task);
+    if(!deps.length) return '';
+    const blocked = getBlockedBy(task);
+    if(blocked.length){
+      return `Blocked by ${blocked.length} dependency${blocked.length > 1 ? 'ies' : ''}`;
+    }
+    return `${deps.length} dependenc${deps.length > 1 ? 'ies' : 'y'} cleared`;
+  }
+  function dependencyReason(task){
+    const blocked = getBlockedBy(task);
+    if(!blocked.length) return '';
+    return blocked.map(dep => `#${dep.id} ${dep.title}`).join(' • ');
+  }
+
+  const __baseTaskWithDefaults = taskWithDefaults;
+  taskWithDefaults = function(t){
+    const normalized = __baseTaskWithDefaults(t);
+    normalized.dependencyIds = asArray(t && t.dependencyIds).map(Number).filter(Boolean);
+    return normalized;
+  };
+
+  const __baseLoadData = loadData;
+  loadData = function(){
+    __baseLoadData();
+    applyDependencyDefaults();
+    saveData();
+  };
+
+  const __baseImportJsonFile = importJsonFile;
+  importJsonFile = function(file){
+    __baseImportJsonFile(file);
+    setTimeout(() => {
+      try {
+        applyDependencyDefaults();
+        saveData();
+        renderDashboard();
+        applyFilters();
+        renderCriticalPath();
+        renderBlockers();
+      } catch(err){ console.error(err); }
+    }, 0);
+  };
+
+  function matchesFilterStatus(task, status){
+    return effectiveStatus(task) === status;
+  }
+
+  updateStats = function(filtered) {
+    const counts = {todo:0,inprog:0,blocked:0,done:0,review:0};
+    filtered.forEach(t => {
+      const st = effectiveStatus(t);
+      if (st==='To Do') counts.todo++;
+      else if (st==='In Progress') counts.inprog++;
+      else if (st==='Blocked') counts.blocked++;
+      else if (st==='Done') counts.done++;
+      else if (st==='Review') counts.review++;
+    });
+    const costLinked = filtered.filter(hasTaskCost).length;
+    document.getElementById('stats-row').innerHTML = `
+      <span style="font-size:10px;color:var(--t2);margin-right:4px;">${filtered.length} tasks</span>
+      <span style="font-size:10px;color:var(--t2);margin-right:8px;">${costLinked} cost-linked</span>
+      <span class="stat-pill s-todo"><span class="stat-count">${counts.todo}</span> To Do</span>
+      <span class="stat-pill s-inprog"><span class="stat-count">${counts.inprog}</span> In Progress</span>
+      <span class="stat-pill s-blocked"><span class="stat-count">${counts.blocked}</span> Blocked</span>
+      <span class="stat-pill s-done"><span class="stat-count">${counts.done}</span> Done</span>
+      ${counts.review ? `<span class="stat-pill" style="background:rgba(255,170,0,.1);color:var(--warn);"><span class="stat-count">${counts.review}</span> Review</span>` : ''}
+    `;
+  };
+
+  applyFilters = function() {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    const ws = document.getElementById('f-ws').value;
+    const owner = document.getElementById('f-owner').value;
+    const pri = document.getElementById('f-priority').value;
+    const st = document.getElementById('f-status').value;
+    const ph = document.getElementById('f-phase').value;
+
+    let filtered = tasks.filter(t => {
+      const depText = dependencyReason(t).toLowerCase();
+      if (q && !t.title.toLowerCase().includes(q) && !t.owner.toLowerCase().includes(q) && !t.workstream.toLowerCase().includes(q) && !depText.includes(q)) return false;
+      if (ws && t.workstream !== ws) return false;
+      if (owner && t.owner !== owner) return false;
+      if (pri && t.priority !== pri) return false;
+      if (st && !matchesFilterStatus(t, st)) return false;
+      if (ph && t.phase !== ph) return false;
+      return true;
+    });
+
+    if (sortKey) {
+      filtered.sort((a,b) => {
+        let av = a[sortKey]||'', bv = b[sortKey]||'';
+        return av < bv ? -sortDir : av > bv ? sortDir : 0;
+      });
+    }
+
+    renderTaskTable(filtered);
+    updateStats(filtered);
+  };
+
+  renderTaskTable = function(list) {
+    const tbody = document.getElementById('task-tbody');
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="12"><div class="empty"><div class="empty-icon">🔍</div>No tasks match your filters</div></td></tr>';
+      return;
+    }
+    const phases = [];
+    const phaseMap = {};
+    list.forEach(t => {
+      if (!phaseMap[t.phase]) { phaseMap[t.phase] = []; phases.push(t.phase); }
+      phaseMap[t.phase].push(t);
+    });
+
+    let html = '';
+    phases.forEach(ph => {
+      html += `<tr class="phase-row"><td colspan="12">${ph}</td></tr>`;
+      phaseMap[ph].forEach(t => {
+        const overdue = isOverdue(t);
+        const eStatus = effectiveStatus(t);
+        const sc = statusClass(eStatus) + (hasDependencyBlock(t) ? ' dependency-blocked' : '');
+        const deps = getDependencies(t);
+        const blocked = getBlockedBy(t);
+        html += `<tr id="row-${t.id}">
+          <td class="task-id">${t.id}</td>
+          <td>
+            <div class="task-title-cell">
+              <span class="task-title" title="${(t.notes||'').replace(/"/g,'&quot;')}" onclick="openEditModal(${t.id})">${t.title}</span>
+            </div>
+            ${t.riskNote ? `<div style="font-size:10px;color:var(--warn);margin-top:2px;">⚠ ${t.riskNote}</div>` : ''}
+            ${deps.length ? `<div class="dep-meta"><span class="dep-badge ${blocked.length ? 'blocked' : ''}">⛓ ${dependencyLabel(t)}</span></div>` : ''}
+            ${blocked.length ? `<div class="dep-line blocked">Waiting on: ${blocked.map(dep => `#${dep.id} ${dep.title}`).join(' • ')}</div>` : deps.length ? `<div class="dep-line">Dependencies cleared: ${deps.map(dep => `#${dep.id}`).join(', ')}</div>` : ''}
+          </td>
+          <td><span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span></td>
+          <td><span class="owner-badge">${t.owner}</span></td>
+          <td class="date-cell ${overdue ? 'overdue' : ''}">${t.endDate||'—'}${overdue ? ' ⚠' : ''}</td>
+          <td><span class="priority-badge p-${t.priority}">${t.priority}</span></td>
+          <td>
+            <select class="status-sel ${sc}" onchange="updateStatus(${t.id}, this.value)">
+              <option ${eStatus==='To Do'?'selected':''}>To Do</option>
+              <option ${eStatus==='In Progress'?'selected':''}>In Progress</option>
+              <option ${eStatus==='Review'?'selected':''}>Review</option>
+              <option ${eStatus==='Blocked'?'selected':''}>Blocked</option>
+              <option ${eStatus==='Done'?'selected':''}>Done</option>
+            </select>
+          </td>
+          <td>
+            <div class="progress-cell">
+              <div class="prog-bar"><div class="prog-fill" style="width:${t.progress||0}%"></div></div>
+              <span class="prog-num">${t.progress||0}%</span>
+            </div>
+            <input type="range" min="0" max="100" value="${t.progress||0}" style="width:80px;accent-color:var(--accent);height:2px;display:block;margin-top:3px;" oninput="updateProgress(${t.id}, this.value)">
+          </td>
+          <td><span class="${t.criticalPath ? 'cp-yes' : 'cp-no'}">${t.criticalPath ? '🔴 YES' : '—'}</span></td>
+          <td>${blocked.length ? `<span class="risk-flag" title="${dependencyReason(t).replace(/"/g,'&quot;')}">⛓ Dependency</span>` : t.riskNote ? `<span class="risk-flag" title="${(t.riskNote||'').replace(/"/g,'&quot;')}">⚠ Risk</span>` : '—'}</td>
+          <td>
+            <div class="cost-stack">
+              <div class="cost-main">${formatCurrency(getTaskActual(t))}</div>
+              <div class="cost-sub">Est ${formatCurrency(getTaskEstimated(t))}</div>
+              ${hasTaskCost(t) ? `<span class="cost-badge ${paymentClass(t.paymentStatus)}">${t.paymentStatus || 'Not Applicable'}</span>` : '<span class="cost-sub">—</span>'}
+            </div>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="act-btn" onclick="openEditModal(${t.id})" title="Edit">✏</button>
+              <button class="act-btn danger" onclick="deleteTask(${t.id})" title="Delete">✕</button>
+            </div>
+          </td>
+        </tr>`;
+      });
+    });
+    tbody.innerHTML = html;
+  };
+
+  updateStatus = function(id, val) {
+    const t = tasks.find(x => x.id === id);
+    if (!t) return;
+    const blocked = getBlockedBy(t);
+    if (val === 'Done' && blocked.length) {
+      showToast(`Clear ${blocked.length} dependency${blocked.length > 1 ? 'ies' : ''} first`);
+      applyFilters();
+      return;
+    }
+    t.status = val;
+    if (val === 'Done') t.progress = 100;
+    if (val === 'To Do' && t.progress === 100) t.progress = 0;
+    saveData();
+    renderDashboard();
+    applyFilters();
+    renderCriticalPath();
+    renderBlockers();
+    showToast(`Task ${id} → ${val}`);
+  };
+
+  renderCriticalPath = function() {
+    const cp = tasks.filter(t => t.criticalPath);
+    const tbody = document.getElementById('cp-tbody');
+    if (!cp.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty">No critical path tasks</div></td></tr>'; return; }
+    tbody.innerHTML = cp.map(t => {
+      const overdue = isOverdue(t);
+      const blocked = getBlockedBy(t);
+      const eStatus = effectiveStatus(t);
+      const sc = statusClass(eStatus) + (blocked.length ? ' dependency-blocked' : '');
+      return `<tr>
+        <td class="task-id">${t.id}</td>
+        <td><div style="font-size:12px;max-width:340px;line-height:1.3;">${t.title}${blocked.length ? `<div class="dep-line blocked">Waiting on ${blocked.map(dep => `#${dep.id}`).join(', ')}</div>` : ''}</div></td>
+        <td><span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span></td>
+        <td><span class="owner-badge">${t.owner}</span></td>
+        <td class="date-cell ${overdue?'overdue':''}">${t.endDate||'—'}${overdue?' ⚠':''}</td>
+        <td><span class="priority-badge p-${t.priority}">${t.priority}</span></td>
+        <td><select class="status-sel ${sc}" onchange="updateStatus(${t.id}, this.value)">
+          <option ${eStatus==='To Do'?'selected':''}>To Do</option>
+          <option ${eStatus==='In Progress'?'selected':''}>In Progress</option>
+          <option ${eStatus==='Review'?'selected':''}>Review</option>
+          <option ${eStatus==='Blocked'?'selected':''}>Blocked</option>
+          <option ${eStatus==='Done'?'selected':''}>Done</option>
+        </select></td>
+        <td>${blocked.length ? `<span class="risk-flag">⛓ ${blocked.length} dependency pending</span>` : t.riskNote ? `<span class="risk-flag">⚠ ${t.riskNote.substring(0,60)}${t.riskNote.length>60?'…':''}</span>` : '—'}</td>
+        <td><div class="action-btns" style="opacity:1;"><button class="act-btn" onclick="openEditModal(${t.id})">✏</button></div></td>
+      </tr>`;
+    }).join('');
+  };
+
+  renderBlockers = function() {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const list = tasks.filter(t => hasDependencyBlock(t) || t.status === 'Blocked' || t.riskNote || (t.endDate && new Date(t.endDate) < today && t.status !== 'Done'));
+    const el = document.getElementById('blocker-full-list');
+    if (!list.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">✅</div>No blockers or at-risk tasks</div>'; return; }
+    el.innerHTML = `<table style="width:100%;border-collapse:collapse;min-width:800px;">
+      <thead><tr>
+        <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">#</th>
+        <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Task</th>
+        <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Workstream</th>
+        <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Owner</th>
+        <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Due</th>
+        <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Status</th>
+        <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Risk / Reason</th>
+      </tr></thead>
+      <tbody>${list.map(t => {
+        const overdue = isOverdue(t);
+        const blocked = getBlockedBy(t);
+        const eStatus = effectiveStatus(t);
+        const tag = blocked.length ? `<span style="background:rgba(255,59,59,.15);color:var(--crit);font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">DEPENDENCY</span>` :
+                    t.status === 'Blocked' ? `<span style="background:rgba(255,59,59,.15);color:var(--crit);font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">BLOCKED</span>` :
+                    overdue ? `<span style="background:rgba(255,170,0,.15);color:var(--warn);font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">OVERDUE</span>` :
+                    `<span style="background:rgba(255,170,0,.1);color:var(--warn);font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">AT RISK</span>`;
+        return `<tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:7px 10px;color:var(--t3);font-size:10px;">${t.id}</td>
+          <td style="padding:7px 10px;"><div style="font-size:11px;max-width:300px;line-height:1.3;">${tag}${t.title}</div></td>
+          <td style="padding:7px 10px;"><span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span></td>
+          <td style="padding:7px 10px;"><span class="owner-badge">${t.owner}</span></td>
+          <td style="padding:7px 10px;" class="date-cell ${overdue?'overdue':''}">${t.endDate||'—'}</td>
+          <td style="padding:7px 10px;"><select class="status-sel ${statusClass(eStatus)} ${blocked.length?'dependency-blocked':''}" onchange="updateStatus(${t.id}, this.value)">
+            <option ${eStatus==='To Do'?'selected':''}>To Do</option>
+            <option ${eStatus==='In Progress'?'selected':''}>In Progress</option>
+            <option ${eStatus==='Review'?'selected':''}>Review</option>
+            <option ${eStatus==='Blocked'?'selected':''}>Blocked</option>
+            <option ${eStatus==='Done'?'selected':''}>Done</option>
+          </select></td>
+          <td style="padding:7px 10px;font-size:10px;color:var(--warn);max-width:250px;line-height:1.4;">${blocked.length ? dependencyReason(t) : t.riskNote||'Past due date'}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+  };
+
+  const __baseRenderDashboard2 = renderDashboard;
+  renderDashboard = function(){
+    __baseRenderDashboard2();
+    try{
+      const grid = document.getElementById('kpi-grid');
+      if(grid){
+        const depBlocked = tasks.filter(t => hasDependencyBlock(t)).length;
+        Array.from(grid.querySelectorAll('.dependency-kpi')).forEach(el => el.remove());
+        grid.insertAdjacentHTML('beforeend', `<div class="kpi red dependency-kpi"><div class="kpi-label">Dependency Blocked</div><div class="kpi-val">${depBlocked}</div><div class="kpi-sub">Waiting on prerequisite tasks</div></div>`);
+      }
+      const list = document.getElementById('critical-list');
+      if(list){
+        const depBlockedTasks = tasks.filter(t => hasDependencyBlock(t)).slice(0,3);
+        depBlockedTasks.forEach(t => {
+          const marker = `dep-${t.id}`;
+          if(list.querySelector(`[data-dep-card="${marker}"]`)) return;
+          list.insertAdjacentHTML('beforeend', `<div data-dep-card="${marker}" style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.25);border-radius:8px;padding:12px 14px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <span style="background:var(--info);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:1px;">⛓ DEPENDENCY</span>
+              <span style="font-family:var(--fh);font-weight:700;font-size:12px;color:var(--info);">#${t.id} ${t.workstream}</span>
+            </div>
+            <div style="font-size:11px;color:#d7d0ff;line-height:1.5;">${t.title}</div>
+            <div class="blocked-by-list">${getBlockedBy(t).map(dep => `<span class="dep-chip">#${dep.id}</span>`).join('')}</div>
+            <div style="font-size:10px;color:var(--t2);margin-top:6px;">Owner: <span style="color:var(--text)">${t.owner}</span></div>
+          </div>`);
+        });
+      }
+    }catch(err){ console.error(err); }
+  };
+
+  const __basePopulateFilters = populateFilters;
+  populateFilters = function(){
+    __basePopulateFilters();
+    applyDependencyDefaults();
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    injectDependencyStyles();
+    applyDependencyDefaults();
+    saveData();
+    renderDashboard();
+    applyFilters();
+    renderCriticalPath();
+    renderBlockers();
+  });
+})();
+</script>
+
 </body>
 </html>
