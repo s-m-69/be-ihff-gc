@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Be. IHFF 2026 — War Room</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap');
+:root {
+  --bg:#09090f;--surface:#111118;--s2:#191924;--s3:#21212e;
+  --border:#252535;--border2:#353548;
+  --accent:#d4f53c;--accent2:#ff6230;--accent3:#38b6ff;
+  --crit:#ff3b3b;--warn:#ffaa00;--ok:#00e676;--info:#a78bfa;
+  --text:#eeeef8;--t2:#8888aa;--t3:#44445a;
+  --fh:'Syne',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--fm);font-size:12px;min-height:100vh;}
+a{color:inherit;text-decoration:none;}
+
+/* HEADER */
+.hdr{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;gap:12px;}
+.brand{font-family:var(--fh);font-weight:800;font-size:20px;color:var(--accent);letter-spacing:-1px;}
+.event-info{display:flex;flex-direction:column;gap:2px;}
+.event-name{font-family:var(--fh);font-weight:700;font-size:13px;color:var(--text);}
+.event-sub{font-size:10px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;}
+.countdown{display:flex;gap:8px;align-items:center;}
+.cd-block{background:var(--s3);border:1px solid var(--border2);border-radius:6px;padding:4px 10px;text-align:center;}
+.cd-num{font-family:var(--fh);font-size:18px;font-weight:800;color:var(--accent);line-height:1;}
+.cd-label{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:1px;}
+.hdr-tabs{display:flex;gap:0;border-top:1px solid var(--border);overflow-x:auto;}
+.tab{padding:8px 18px;cursor:pointer;color:var(--t2);border-bottom:2px solid transparent;font-size:11px;font-family:var(--fh);font-weight:600;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;transition:all .2s;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* DASHBOARD */
+.dash{padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.kpi.blue::before{background:var(--accent3);}
+.kpi.green::before{background:var(--ok);}
+.kpi.red::before{background:var(--crit);}
+.kpi.yellow::before{background:var(--warn);}
+.kpi.purple::before{background:var(--info);}
+.kpi.lime::before{background:var(--accent);}
+.kpi-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--t2);margin-bottom:6px;}
+.kpi-val{font-family:var(--fh);font-size:26px;font-weight:800;line-height:1;}
+.kpi-sub{font-size:10px;color:var(--t2);margin-top:4px;}
+.progress-bar{height:4px;background:var(--s3);border-radius:2px;margin-top:8px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:2px;background:var(--accent);transition:width .5s;}
+
+/* BLOCKER BANNER */
+.blocker-banner{margin:0 20px 12px;background:rgba(255,59,59,.08);border:1px solid rgba(255,59,59,.3);border-radius:8px;padding:10px 14px;}
+.blocker-title{color:var(--crit);font-family:var(--fh);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.blocker-item{display:flex;align-items:center;gap:8px;font-size:11px;color:#ff8888;padding:2px 0;}
+.blocker-dot{width:6px;height:6px;border-radius:50%;background:var(--crit);flex-shrink:0;}
+
+/* FILTERS */
+.filters{padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.filter-group{display:flex;align-items:center;gap:6px;}
+.filter-label{color:var(--t2);font-size:10px;text-transform:uppercase;letter-spacing:1px;}
+select,input[type=text]{background:var(--s2);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:5px;font-family:var(--fm);font-size:11px;outline:none;}
+select:focus,input:focus{border-color:var(--border2);}
+.search-input{width:180px;}
+.btn{padding:5px 12px;border-radius:5px;border:none;cursor:pointer;font-family:var(--fh);font-weight:600;font-size:11px;transition:all .15s;letter-spacing:.5px;}
+.btn-accent{background:var(--accent);color:#000;}
+.btn-accent:hover{background:#bfdd30;}
+.btn-ghost{background:transparent;color:var(--t2);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text);}
+.filter-sep{width:1px;height:20px;background:var(--border);margin:0 4px;}
+
+/* TASK TABLE */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;min-width:900px;}
+thead th{background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;}
+thead th:hover{color:var(--text);}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+tbody tr:hover{background:var(--s2);}
+tbody tr.subtask-row{background:rgba(0,0,0,.2);}
+tbody tr.subtask-row:hover{background:var(--s2);}
+td{padding:7px 10px;vertical-align:middle;}
+.task-id{color:var(--t3);font-size:10px;width:32px;}
+.task-title-cell{display:flex;align-items:center;gap:6px;min-width:220px;max-width:320px;}
+.expand-btn{width:16px;height:16px;border:1px solid var(--border2);border-radius:3px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--t2);font-size:10px;background:var(--s3);}
+.expand-btn:hover{border-color:var(--accent);color:var(--accent);}
+.subtask-indent{width:20px;flex-shrink:0;}
+.task-title{font-size:12px;line-height:1.3;cursor:pointer;}
+.task-title:hover{color:var(--accent);}
+.task-title.subtask{font-size:11px;color:var(--t2);}
+.ws-badge{display:inline-block;padding:2px 6px;border-radius:3px;font-size:9px;text-transform:uppercase;letter-spacing:.8px;font-weight:500;white-space:nowrap;}
+.owner-badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;background:var(--s3);border:1px solid var(--border2);color:var(--t2);white-space:nowrap;}
+.date-cell{white-space:nowrap;color:var(--t2);font-size:11px;}
+.date-cell.overdue{color:var(--crit);}
+.priority-badge{display:inline-block;padding:2px 6px;border-radius:3px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.p-CRITICAL{background:rgba(255,59,59,.15);color:#ff7070;border:1px solid rgba(255,59,59,.3);}
+.p-HIGH{background:rgba(255,170,0,.12);color:#ffcc44;border:1px solid rgba(255,170,0,.3);}
+.p-MEDIUM{background:rgba(56,182,255,.1);color:#70c8ff;border:1px solid rgba(56,182,255,.25);}
+.p-LOW{background:rgba(0,230,118,.08);color:#44d890;border:1px solid rgba(0,230,118,.2);}
+.status-sel{background:var(--s3);border:1px solid var(--border);color:var(--text);padding:3px 6px;border-radius:4px;font-size:10px;font-family:var(--fm);cursor:pointer;outline:none;}
+.status-sel.s-todo{border-color:#444;color:var(--t2);}
+.status-sel.s-inprog{border-color:var(--accent3);color:var(--accent3);}
+.status-sel.s-blocked{border-color:var(--crit);color:var(--crit);}
+.status-sel.s-done{border-color:var(--ok);color:var(--ok);}
+.status-sel.s-review{border-color:var(--warn);color:var(--warn);}
+.progress-cell{display:flex;align-items:center;gap:6px;min-width:90px;}
+.prog-bar{flex:1;height:4px;background:var(--s3);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s;}
+.prog-num{font-size:10px;color:var(--t2);width:26px;text-align:right;}
+.risk-flag{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--warn);cursor:help;}
+.action-btns{display:flex;gap:4px;opacity:0;transition:opacity .2s;}
+tbody tr:hover .action-btns{opacity:1;}
+.act-btn{width:22px;height:22px;border:1px solid var(--border2);border-radius:4px;background:var(--s3);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.act-btn:hover{border-color:var(--accent);color:var(--accent);}
+.act-btn.danger:hover{border-color:var(--crit);color:var(--crit);}
+.critical-path-dot{width:8px;height:8px;border-radius:50%;background:var(--crit);display:inline-block;margin-right:4px;}
+.cp-yes{color:var(--crit);font-size:10px;font-weight:600;}
+.cp-no{color:var(--t3);font-size:10px;}
+
+/* WORKSTREAM COLORS */
+.ws-Stand{background:rgba(167,139,250,.12);color:#c4b5fd;border:1px solid rgba(167,139,250,.25);}
+.ws-Athletes{background:rgba(56,182,255,.1);color:#60c8ff;border:1px solid rgba(56,182,255,.25);}
+.ws-B2B{background:rgba(255,170,0,.1);color:#ffc060;border:1px solid rgba(255,170,0,.25);}
+.ws-Social{background:rgba(255,98,48,.1);color:#ff9070;border:1px solid rgba(255,98,48,.25);}
+.ws-Merch{background:rgba(0,230,118,.08);color:#40e088;border:1px solid rgba(0,230,118,.2);}
+.ws-Video{background:rgba(212,245,60,.1);color:#c8e840;border:1px solid rgba(212,245,60,.25);}
+.ws-PR{background:rgba(236,72,153,.1);color:#f472b6;border:1px solid rgba(236,72,153,.25);}
+.ws-Ops{background:rgba(100,116,139,.15);color:#94a3b8;border:1px solid rgba(100,116,139,.3);}
+.ws-IHFF{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.25);}
+.ws-Mohan{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.25);}
+.ws-Mumbai{background:rgba(20,184,166,.1);color:#2dd4bf;border:1px solid rgba(20,184,166,.25);}
+.ws-Stage{background:rgba(99,102,241,.12);color:#a5b4fc;border:1px solid rgba(99,102,241,.25);}
+.ws-Exp{background:rgba(245,158,11,.1);color:#fcd34d;border:1px solid rgba(245,158,11,.25);}
+.ws-Leads{background:rgba(16,185,129,.1);color:#34d399;border:1px solid rgba(16,185,129,.25);}
+.ws-Product{background:rgba(217,70,239,.12);color:#e879f9;border:1px solid rgba(217,70,239,.25);}
+.ws-Sampling{background:rgba(236,254,255,.05);color:#67e8f9;border:1px solid rgba(103,232,249,.2);}
+.ws-Photo{background:rgba(244,114,182,.08);color:#f9a8d4;border:1px solid rgba(244,114,182,.2);}
+
+/* SECTION HEADER ROWS */
+.phase-row td{background:var(--s2);color:var(--t2);font-size:10px;text-transform:uppercase;letter-spacing:2px;padding:5px 10px;border-bottom:1px solid var(--border);}
+.phase-row td:first-child{color:var(--accent);font-weight:600;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;width:620px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+.modal-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.modal-title{font-family:var(--fh);font-weight:700;font-size:15px;}
+.modal-close{background:none;border:none;color:var(--t2);cursor:pointer;font-size:18px;padding:2px 6px;}
+.modal-close:hover{color:var(--text);}
+.modal-body{padding:20px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group.full{grid-column:1/-1;}
+.form-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);}
+.form-input{background:var(--s2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:5px;font-family:var(--fm);font-size:12px;outline:none;width:100%;}
+.form-input:focus{border-color:var(--accent);}
+textarea.form-input{resize:vertical;min-height:60px;}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--s3);border:1px solid var(--border2);border-radius:8px;padding:10px 16px;font-size:12px;z-index:999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+
+/* PAGE VIEWS */
+.view{display:none;}
+.view.active{display:block;}
+
+/* EMPTY STATE */
+.empty{padding:60px;text-align:center;color:var(--t3);}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+
+/* STATS ROW */
+.stats-row{display:flex;gap:8px;padding:10px 20px;background:var(--s2);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.stat-pill{display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;}
+.stat-pill.s-todo{background:rgba(100,100,150,.15);color:var(--t2);}
+.stat-pill.s-inprog{background:rgba(56,182,255,.1);color:var(--accent3);}
+.stat-pill.s-blocked{background:rgba(255,59,59,.12);color:var(--crit);}
+.stat-pill.s-done{background:rgba(0,230,118,.08);color:var(--ok);}
+.stat-count{font-weight:600;font-size:11px;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="brand-lockup" style="display:flex;align-items:center;gap:14px;">
+      <div class="brand">Be.</div>
+      <div class="event-info">
+        <div class="event-name">IHFF 2026 — War Room</div>
+        <div class="event-sub">Pragati Maidan, New Delhi · Jun 12–14, 2026</div>
+      </div>
+    </div>
+    <div class="countdown" id="countdown"></div>
+  </div>
+  <div class="hdr-tabs">
+    <div class="tab active" onclick="switchTab('dashboard')">Dashboard</div>
+    <div class="tab" onclick="switchTab('tasks')">All Tasks</div>
+    <div class="tab" onclick="switchTab('critical')">Critical Path</div>
+    <div class="tab" onclick="switchTab('blockers')">Blockers</div>
+    <div class="tab" onclick="switchTab('products')">Product Launches</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="view active" id="view-dashboard">
+  <div class="dash" id="kpi-grid"></div>
+  <div id="blocker-banner"></div>
+  <div style="padding:0 20px 20px;">
+    <div style="font-family:var(--fh);font-weight:700;font-size:13px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">⚡ Critical Blockers</div>
+    <div id="critical-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;"></div>
+    <div style="font-family:var(--fh);font-weight:700;font-size:13px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;margin:20px 0 10px;">📋 Overdue Tasks</div>
+    <div id="overdue-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;"></div>
+  </div>
+</div>
+
+<!-- ALL TASKS -->
+<div class="view" id="view-tasks">
+  <div class="filters">
+    <input class="search-input form-input" type="text" placeholder="Search tasks…" id="search-input" oninput="applyFilters()">
+    <div class="filter-sep"></div>
+    <div class="filter-group">
+      <span class="filter-label">Workstream</span>
+      <select id="f-ws" onchange="applyFilters()"><option value="">All</option></select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Owner</span>
+      <select id="f-owner" onchange="applyFilters()"><option value="">All</option></select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Priority</span>
+      <select id="f-priority" onchange="applyFilters()">
+        <option value="">All</option>
+        <option>CRITICAL</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Status</span>
+      <select id="f-status" onchange="applyFilters()">
+        <option value="">All</option>
+        <option value="To Do">To Do</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Blocked">Blocked</option>
+        <option value="Done">Done</option>
+        <option value="Review">Review</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Phase</span>
+      <select id="f-phase" onchange="applyFilters()"><option value="">All</option></select>
+    </div>
+    <div class="filter-sep"></div>
+    <button class="btn btn-ghost" onclick="resetFilters()">Reset</button>
+    <button class="btn btn-accent" onclick="openAddModal()">+ Add Task</button>
+  </div>
+  <div class="stats-row" id="stats-row"></div>
+  <div class="table-wrap">
+    <table id="task-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th onclick="sortBy('title')">Task ↕</th>
+          <th onclick="sortBy('workstream')">Workstream ↕</th>
+          <th onclick="sortBy('owner')">Owner ↕</th>
+          <th onclick="sortBy('endDate')">Due ↕</th>
+          <th onclick="sortBy('priority')">Priority ↕</th>
+          <th>Status</th>
+          <th>Progress</th>
+          <th>CP</th>
+          <th>Risk</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="task-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CRITICAL PATH -->
+<div class="view" id="view-critical">
+  <div style="padding:16px 20px;">
+    <div style="font-family:var(--fh);font-weight:700;font-size:18px;margin-bottom:4px;">Critical Path Tasks</div>
+    <div style="color:var(--t2);font-size:11px;margin-bottom:16px;">Tasks that directly block event readiness. A delay in any of these delays the show.</div>
+    <div id="cp-table-wrap" class="table-wrap">
+      <table id="cp-table">
+        <thead><tr>
+          <th>#</th><th>Task</th><th>Workstream</th><th>Owner</th><th>Due</th><th>Priority</th><th>Status</th><th>Risk</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="cp-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- BLOCKERS -->
+<div class="view" id="view-blockers">
+  <div style="padding:16px 20px;">
+    <div style="font-family:var(--fh);font-weight:700;font-size:18px;margin-bottom:4px;">Blocked & At-Risk Tasks</div>
+    <div style="color:var(--t2);font-size:11px;margin-bottom:16px;">All tasks marked Blocked, or flagged with a risk note, or overdue.</div>
+    <div id="blocker-full-list" class="table-wrap"></div>
+  </div>
+</div>
+
+<!-- PRODUCT LAUNCHES -->
+<div class="view" id="view-products">
+  <div style="padding:16px 20px;">
+    <div style="font-family:var(--fh);font-weight:700;font-size:18px;margin-bottom:4px;">Product Launch Workflows</div>
+    <div style="color:var(--t2);font-size:11px;margin-bottom:16px;">3-product critical path. Each product tracks compliance → packaging → production → readiness.</div>
+    <div id="products-list"></div>
+  </div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="task-modal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title" id="modal-title">Add Task</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label class="form-label">Task Title *</label>
+          <input class="form-input" id="f-title" type="text" placeholder="Task description…">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phase</label>
+          <input class="form-input" id="f-phase-in" type="text" placeholder="e.g. April 2026 — Wk 1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Workstream</label>
+          <input class="form-input" id="f-ws-in" type="text" placeholder="e.g. Stand, Athletes…">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Owner</label>
+          <select class="form-input" id="f-owner-in">
+            <option>Atul</option><option>Angela</option><option>Deeksha</option><option>Tejal</option><option>TBD</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <select class="form-input" id="f-priority-in">
+            <option>CRITICAL</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Start Date</label>
+          <input class="form-input" id="f-start" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Due Date</label>
+          <input class="form-input" id="f-end" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-input" id="f-status-in">
+            <option>To Do</option><option>In Progress</option><option>Review</option><option>Blocked</option><option>Done</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Progress %</label>
+          <input class="form-input" id="f-progress" type="number" min="0" max="100" value="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Critical Path?</label>
+          <select class="form-input" id="f-cp">
+            <option value="false">No</option><option value="true">Yes</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Risk Note</label>
+          <textarea class="form-input" id="f-risk" placeholder="Any risk or blocker note…"></textarea>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Notes</label>
+          <textarea class="form-input" id="f-notes" placeholder="Additional context…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-accent" onclick="saveTask()">Save Task</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+
+const EVENT_DATE = new Date('2026-06-12');
+
+const RAW_TASKS = [
+ {id:1,phase:"March 2026",workstream:"Stand",title:"Confirm IHFF stand space booking and request corner/end-of-aisle position",owner:"Atul",priority:"CRITICAL",endDate:"2026-03-31",status:"To Do",budgetImpact:"High",notes:"Confirm with IHFF organisers",riskNote:"Locked-in stand position critical for all downstream design work",criticalPath:true},
+ {id:2,phase:"March 2026",workstream:"Stand",title:"Issue design brief to 3 stand designers; request concepts and quotes",owner:"Angela",priority:"CRITICAL",endDate:"2026-04-07",status:"To Do",budgetImpact:"High",notes:"Allow 1 week for responses",riskNote:"",criticalPath:true},
+ {id:3,phase:"March 2026",workstream:"Athletes",title:"Build longlist of 15–20 athletes with initial audience audit",owner:"Angela",priority:"HIGH",endDate:"2026-04-01",status:"To Do",budgetImpact:"High",notes:"Check engagement rate, audience demo, prior brand work",riskNote:"",criticalPath:false},
+ {id:4,phase:"March 2026",workstream:"B2B",title:"Finalise trade pricing and margin structure across all SKUs",owner:"Atul",priority:"CRITICAL",endDate:"2026-04-15",status:"To Do",budgetImpact:"None",notes:"Needed for B2B rate card",riskNote:"",criticalPath:true},
+ {id:5,phase:"March 2026",workstream:"Social",title:"Post IHFF 2026 announcement across all channels",owner:"Angela",priority:"HIGH",endDate:"2026-03-17",status:"To Do",budgetImpact:"Low",notes:"Pillar 2 — IHFF Build-Up begins",riskNote:"OVERDUE — should have been posted",criticalPath:false},
+ {id:6,phase:"March 2026",workstream:"Famous Friends",title:"Map 30 target 'Famous Friends' with agent / direct contacts",owner:"Angela",priority:"HIGH",endDate:"2026-04-01",status:"To Do",budgetImpact:"None",notes:"Bollywood, nutritionists, creators",riskNote:"",criticalPath:false},
+ {id:7,phase:"March 2026",workstream:"Mumbai",title:"Map top 30 Mumbai B2B targets (gyms, retailers, distributors)",owner:"Deeksha",priority:"HIGH",endDate:"2026-04-01",status:"To Do",budgetImpact:"None",notes:"Foundation for Mumbai trips in April/May",riskNote:"",criticalPath:false},
+ {id:8,phase:"March 2026",workstream:"Photo",title:"Appoint photographer and art director; confirm brief",owner:"Angela",priority:"HIGH",endDate:"2026-04-01",status:"To Do",budgetImpact:"High",notes:"Brief should cover all 6 SKUs + athlete shoots",riskNote:"",criticalPath:true},
+ {id:9,phase:"April 2026 — Wk 1",workstream:"Athletes",title:"Begin athlete outreach and contract negotiation",owner:"Angela",priority:"CRITICAL",endDate:"2026-04-07",status:"To Do",budgetImpact:"High",notes:"Aim for Hero + 4 Category athletes minimum",riskNote:"5 athletes total: 3 male long-term + 2 female IHFF-only",criticalPath:true},
+ {id:10,phase:"April 2026 — Wk 1",workstream:"Famous Friends",title:"Begin Famous Friends outreach; target 5 confirmed appearances",owner:"Angela",priority:"HIGH",endDate:"2026-04-30",status:"To Do",budgetImpact:"Low",notes:"Also brief on pre-show co-created content",riskNote:"",criticalPath:false},
+ {id:11,phase:"April 2026 — Wk 1",workstream:"Stand",title:"Select stand designer and approve initial concept",owner:"Atul",priority:"CRITICAL",endDate:"2026-04-20",status:"To Do",budgetImpact:"High",notes:"Push for custom build, not shell scheme",riskNote:"First design already rejected — redesign ongoing — HIGH RISK",criticalPath:true},
+ {id:12,phase:"April 2026 — Wk 1",workstream:"Photo",title:"Book shoot dates and locations (studio + outdoor; aim 2-day shoot)",owner:"Angela",priority:"HIGH",endDate:"2026-04-10",status:"To Do",budgetImpact:"High",notes:"Combine with video production days where possible",riskNote:"",criticalPath:true},
+ {id:13,phase:"April 2026 — Wk 1",workstream:"Mumbai",title:"Schedule and book Mumbai sales trips for April and May",owner:"Deeksha",priority:"HIGH",endDate:"2026-04-07",status:"To Do",budgetImpact:"Medium",notes:"Two separate trips recommended",riskNote:"",criticalPath:false},
+ {id:14,phase:"April 2026 — Wk 2",workstream:"Merch",title:"Finalise all merchandise designs (aligned with photoshoot visuals)",owner:"Angela",priority:"HIGH",endDate:"2026-04-15",status:"To Do",budgetImpact:"High",notes:"Shaker, tote, sample pack, tee, VIP kit",riskNote:"T-shirts (700) and Ganjis (300) design still pending",criticalPath:true},
+ {id:15,phase:"April 2026 — Wk 2",workstream:"B2B",title:"Design and commission B2B rate card and product dossier",owner:"Deeksha",priority:"HIGH",endDate:"2026-04-15",status:"To Do",budgetImpact:"Low",notes:"Rate card: MRP, dist price, margin per SKU",riskNote:"",criticalPath:false},
+ {id:16,phase:"April 2026 — Wk 2",workstream:"Social",title:"Athlete #1 (Hero Ambassador) reveal post",owner:"Angela",priority:"HIGH",endDate:"2026-04-21",status:"To Do",budgetImpact:"None",notes:"Pillar 3 — Athletes & People",riskNote:"Depends on athlete contracts being signed",criticalPath:false},
+ {id:17,phase:"April 2026 — Wk 3",workstream:"Athletes",title:"All athlete contracts signed",owner:"Angela",priority:"CRITICAL",endDate:"2026-04-30",status:"To Do",budgetImpact:"High",notes:"Include image rights, IHFF appearance obligations",riskNote:"5 athletes: 3 long-term males, 2 IHFF-only females — all must be locked",criticalPath:true},
+ {id:18,phase:"April 2026 — Wk 3",workstream:"Famous Friends",title:"Minimum 5 Famous Friends confirmed for show appearances",owner:"Angela",priority:"HIGH",endDate:"2026-04-30",status:"To Do",budgetImpact:"Low",notes:"Agree content plan and IHFF slot timing",riskNote:"",criticalPath:false},
+ {id:19,phase:"April 2026 — Wk 3",workstream:"Photo",title:"Confirm all athletes and models; issue shoot brief to each",owner:"Angela",priority:"HIGH",endDate:"2026-04-20",status:"To Do",budgetImpact:"None",notes:"Send brand deck and styling guide",riskNote:"",criticalPath:false},
+ {id:20,phase:"April 2026 — Wk 3",workstream:"Merch",title:"Place ALL merchandise orders (shakers, totes, tees, VIP kits, sample packs)",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-04-20",status:"To Do",budgetImpact:"High",notes:"⚠️ Allow 6–8 weeks production. MUST order by Apr 20.",riskNote:"Shakers (500) samples still pending — blocks order placement",criticalPath:true},
+ {id:21,phase:"April 2026 — Wk 4",workstream:"Video",title:"Script and storyboard hero brand film approved",owner:"Angela",priority:"HIGH",endDate:"2026-04-15",status:"To Do",budgetImpact:"High",notes:"60–90 sec. Brand story, science, emotion.",riskNote:"",criticalPath:false},
+ {id:22,phase:"April 2026 — Wk 4",workstream:"Mumbai",title:"Mumbai Sales Trip 1 — visit key gym chains, distributors, retailers",owner:"Deeksha",priority:"HIGH",endDate:"2026-04-30",status:"To Do",budgetImpact:"Medium",notes:"Warm up Mumbai pipeline before IHFF",riskNote:"",criticalPath:false},
+ {id:23,phase:"May 2026 — Wk 1",workstream:"Ops",title:"Brief and hire brand ambassadors via agency",owner:"Deeksha",priority:"HIGH",endDate:"2026-05-01",status:"To Do",budgetImpact:"Medium",notes:"Specify: fitness background, Hindi/English fluent, male/female mix",riskNote:"Manpower roles: trainers, B2B sales, sampling, receptionist, bodyguard",criticalPath:false},
+ {id:24,phase:"May 2026 — Wk 1",workstream:"Photo",title:"Execute photoshoot (all 6 products + athletes)",owner:"Angela",priority:"CRITICAL",endDate:"2026-05-07",status:"To Do",budgetImpact:"High",notes:"2-day consolidated shoot. Art director on set.",riskNote:"Blocks all stand graphics, product imagery, and social content",criticalPath:true},
+ {id:25,phase:"May 2026 — Wk 1",workstream:"Athletes",title:"Brief all athletes on Be. brand story, product range, and IHFF goals",owner:"Angela",priority:"HIGH",endDate:"2026-05-15",status:"To Do",budgetImpact:"None",notes:"Include: key messages, FAQs, social posting guidelines",riskNote:"",criticalPath:false},
+ {id:26,phase:"May 2026 — Wk 1",workstream:"Exp",title:"Hire and brief nutritionist / health consultant for the show",owner:"Deeksha",priority:"HIGH",endDate:"2026-05-15",status:"To Do",budgetImpact:"Medium",notes:"Registered dietitian preferred; brief on all 6 SKUs",riskNote:"",criticalPath:false},
+ {id:27,phase:"May 2026 — Wk 1",workstream:"Ops",title:"Design and produce team uniforms (tee, cap, badge)",owner:"Deeksha",priority:"MEDIUM",endDate:"2026-05-15",status:"To Do",budgetImpact:"Medium",notes:"Allow 3 weeks production after design approval",riskNote:"",criticalPath:false},
+ {id:28,phase:"May 2026 — Wk 1",workstream:"Social",title:"Merchandise preview post — 'Come claim yours at Be. Stand [X]'",owner:"Angela",priority:"HIGH",endDate:"2026-05-07",status:"To Do",budgetImpact:"None",notes:"Pillar 4 — Show Teasers",riskNote:"Depends on merch design being finalised",criticalPath:false},
+ {id:29,phase:"May 2026 — Wk 2",workstream:"Stand",title:"Review and approve final 3D stand renders",owner:"Atul",priority:"CRITICAL",endDate:"2026-05-10",status:"To Do",budgetImpact:"None",notes:"Check: sampling bar, LED screens, photo wall, B2B area, signage",riskNote:"Stand design already rejected once — high risk of further delay",criticalPath:true},
+ {id:30,phase:"May 2026 — Wk 2",workstream:"Mumbai",title:"Mumbai Sales Trip 2 — follow-ups and invite key accounts to IHFF",owner:"Deeksha",priority:"HIGH",endDate:"2026-05-15",status:"To Do",budgetImpact:"Medium",notes:"Provide complimentary IHFF passes where appropriate",riskNote:"",criticalPath:false},
+ {id:31,phase:"May 2026 — Wk 3",workstream:"Photo",title:"Final image editing completed; all images delivered",owner:"Angela",priority:"CRITICAL",endDate:"2026-05-22",status:"To Do",budgetImpact:"None",notes:"2 weeks after shoot. Prioritise stand graphic files.",riskNote:"Blocks stand graphic sign-off",criticalPath:true},
+ {id:32,phase:"May 2026 — Wk 3",workstream:"Stand",title:"Approve all stand graphic print files and submit to printer",owner:"Angela",priority:"CRITICAL",endDate:"2026-05-20",status:"To Do",budgetImpact:"High",notes:"High-res files for all banners, panels, photo wall, floor wrap",riskNote:"Hard deadline from printer — no flexibility",criticalPath:true},
+ {id:33,phase:"May 2026 — Wk 3",workstream:"B2B",title:"Finalise and print B2B rate card and product dossier",owner:"Deeksha",priority:"HIGH",endDate:"2026-05-20",status:"To Do",budgetImpact:"Low",notes:"Print 100 copies of each for the show",riskNote:"",criticalPath:false},
+ {id:34,phase:"May 2026 — Wk 3",workstream:"Video",title:"All pre-show videos approved (hero film, 6 x product, athlete testimonials)",owner:"Angela",priority:"CRITICAL",endDate:"2026-05-25",status:"To Do",budgetImpact:"High",notes:"Load onto stand screens and social scheduling tool",riskNote:"",criticalPath:true},
+ {id:35,phase:"May 2026 — Wk 4",workstream:"Merch",title:"Receive and quality-check ALL merchandise",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-05-31",status:"To Do",budgetImpact:"None",notes:"Check quantities, quality, branding accuracy for all items",riskNote:"T-shirts 700, Shakers 500, Ganjis 300 — all need QC",criticalPath:true},
+ {id:36,phase:"May 2026 — Wk 4",workstream:"Famous Friends",title:"Dispatch VIP press / influencer gift hampers",owner:"Angela",priority:"HIGH",endDate:"2026-05-28",status:"To Do",budgetImpact:"Medium",notes:"Personal note from Atul. Ask for unboxing post.",riskNote:"",criticalPath:false},
+ {id:37,phase:"May 2026 — Wk 4",workstream:"Exp",title:"Design and print product information cards with QR codes",owner:"Angela",priority:"HIGH",endDate:"2026-05-28",status:"To Do",budgetImpact:"Low",notes:"QR links to science pages + discount code BEIHFF26",riskNote:"",criticalPath:false},
+ {id:38,phase:"May 2026 — Wk 4",workstream:"B2B",title:"Build digital B2B lead capture form (tablet-ready CRM)",owner:"Deeksha",priority:"HIGH",endDate:"2026-05-25",status:"To Do",budgetImpact:"None",notes:"Fields: name, company, geo, product interest, commitment, follow-up date",riskNote:"",criticalPath:false},
+ {id:39,phase:"May 2026 — Wk 4",workstream:"Social",title:"BTS stand construction teaser post",owner:"Angela",priority:"HIGH",endDate:"2026-05-25",status:"To Do",budgetImpact:"None",notes:"Show design renders or early build shots — builds anticipation",riskNote:"",criticalPath:false},
+ {id:40,phase:"June 2026 — Pre-Show",workstream:"B2B",title:"Pre-book 10–15 priority B2B meetings for show days",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-01",status:"To Do",budgetImpact:"None",notes:"Use IHFF attendee list, LinkedIn, and Mumbai warm contacts",riskNote:"",criticalPath:true},
+ {id:41,phase:"June 2026 — Pre-Show",workstream:"Merch",title:"Pack and dispatch VIP press / influencer kits",owner:"Deeksha",priority:"HIGH",endDate:"2026-06-01",status:"To Do",budgetImpact:"None",notes:"50 kits. Confirm delivery before June 10.",riskNote:"",criticalPath:false},
+ {id:42,phase:"June 2026 — Pre-Show",workstream:"PR",title:"Distribute press release: 'Be. makes IHFF 2026 debut'",owner:"Angela",priority:"HIGH",endDate:"2026-06-01",status:"To Do",budgetImpact:"Low",notes:"Target: ET Healthworld, YourStory, GQ India, Prevention, Inc42",riskNote:"",criticalPath:false},
+ {id:43,phase:"June 2026 — Pre-Show",workstream:"Social",title:"Famous Friend / celebrity IHFF reveal co-post",owner:"Angela",priority:"HIGH",endDate:"2026-06-03",status:"To Do",budgetImpact:"None",notes:"Timed for maximum engagement — Mon or Tue morning",riskNote:"",criticalPath:false},
+ {id:44,phase:"June 2026 — Pre-Show",workstream:"Ops",title:"Full product knowledge and B2B pitch training for all team",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-09",status:"To Do",budgetImpact:"None",notes:"Cover: brand story, product FAQs, pricing, objection handling",riskNote:"",criticalPath:true},
+ {id:45,phase:"June 2026 — Pre-Show",workstream:"Ops",title:"Issue daily run-of-show schedule to every team member",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-10",status:"To Do",budgetImpact:"None",notes:"Include: athlete slot times, B2B meetings, social moments, breaks",riskNote:"",criticalPath:true},
+ {id:46,phase:"June 2026 — Pre-Show",workstream:"Stand",title:"Stand construction at Pragati Maidan",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-11",status:"To Do",budgetImpact:"High",notes:"Build days: June 10–11. Stand manager on-site.",riskNote:"Stand design delay could push construction — watch closely",criticalPath:true},
+ {id:47,phase:"June 2026 — Pre-Show",workstream:"Stand",title:"Dress the stand: merchandise, samples, screens live, props",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-11",status:"To Do",budgetImpact:"None",notes:"Evening of June 11. Walk-through and sign-off.",riskNote:"",criticalPath:true},
+ {id:48,phase:"June 2026 — Pre-Show",workstream:"Video",title:"Upload all videos to stand screens; test playback",owner:"Deeksha",priority:"HIGH",endDate:"2026-06-10",status:"To Do",budgetImpact:"None",notes:"Loop: hero film + product videos. No dead screens.",riskNote:"",criticalPath:false},
+ {id:49,phase:"June 2026 — Pre-Show",workstream:"PR",title:"Invite 5–8 key journalists to private stand preview (June 12 AM)",owner:"Angela",priority:"HIGH",endDate:"2026-06-10",status:"To Do",budgetImpact:"None",notes:"Before public doors open. Offer exclusive product access.",riskNote:"",criticalPath:false},
+ {id:50,phase:"June 2026 — Pre-Show",workstream:"Sampling",title:"Prepare all sampling stock and station setup (cups, blenders, sachet packs)",owner:"Deeksha",priority:"HIGH",endDate:"2026-06-11",status:"To Do",budgetImpact:"High",notes:"Stock for 3,000 samples across 3 days minimum",riskNote:"2,500 × 7 SKUs needed — pill packaging NOT resolved = CRITICAL BLOCKER",criticalPath:true},
+ {id:51,phase:"June 2026 — Pre-Show",workstream:"Social",title:"Final pre-show push: 'IHFF is 7 days away — visit Be. Stand [X]'",owner:"Angela",priority:"HIGH",endDate:"2026-06-05",status:"To Do",budgetImpact:"None",notes:"Include show-exclusive offer teaser. Paid boost recommended.",riskNote:"",criticalPath:false},
+ {id:52,phase:"SHOW — Jun 12",workstream:"Ops",title:"Day 1: Stand opens. Execute all activations. Sampling + athlete appearance.",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-12",status:"To Do",budgetImpact:"None",notes:"Target: 1,000+ samples. Debrief at close of day.",riskNote:"",criticalPath:true},
+ {id:53,phase:"SHOW — Jun 12",workstream:"Social",title:"Day 1: 3–4 posts (story, reel, static). Tag @ihff_expo. Live session if possible.",owner:"Angela",priority:"CRITICAL",endDate:"2026-06-12",status:"To Do",budgetImpact:"None",notes:"Post same-day reel by 8pm",riskNote:"",criticalPath:false},
+ {id:54,phase:"SHOW — Jun 12",workstream:"B2B",title:"Day 1: Run all pre-booked B2B meetings. Log all leads immediately.",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-12",status:"To Do",budgetImpact:"None",notes:"Categorise: Hot / Warm / Cold in real time",riskNote:"",criticalPath:false},
+ {id:55,phase:"SHOW — Jun 13",workstream:"Ops",title:"Day 2: Famous Friend drop-in activation. Photo wall content push.",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-13",status:"To Do",budgetImpact:"None",notes:"Coordinate celebrity arrival time with security and social team",riskNote:"",criticalPath:false},
+ {id:56,phase:"SHOW — Jun 13",workstream:"Social",title:"Day 2: Famous Friend content goes live. Maximum engagement day.",owner:"Angela",priority:"CRITICAL",endDate:"2026-06-13",status:"To Do",budgetImpact:"None",notes:"Brief celebrity on hashtags and tagging before they arrive",riskNote:"",criticalPath:false},
+ {id:57,phase:"SHOW — Jun 14",workstream:"Ops",title:"Day 3: Final push. Close as many B2B conversations as possible.",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-14",status:"To Do",budgetImpact:"None",notes:"Offer: 'Last chance for show-exclusive B2B terms'",riskNote:"",criticalPath:false},
+ {id:58,phase:"SHOW — Jun 14",workstream:"Leads",title:"End of show: compile full lead list; categorise all contacts",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-14",status:"To Do",budgetImpact:"None",notes:"Enter all data into CRM by midnight June 14",riskNote:"",criticalPath:false},
+ {id:59,phase:"Post-Show",workstream:"Leads",title:"Send personalised thank-you emails to all Hot + Warm B2B leads",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-16",status:"To Do",budgetImpact:"None",notes:"Reference specific conversation. Include next step.",riskNote:"",criticalPath:false},
+ {id:60,phase:"Post-Show",workstream:"Social",title:"Post show highlights reel (90–120 sec) across all channels",owner:"Angela",priority:"CRITICAL",endDate:"2026-06-16",status:"To Do",budgetImpact:"None",notes:"Within 48 hours of show close. Include results data.",riskNote:"",criticalPath:false},
+ {id:61,phase:"Post-Show",workstream:"PR",title:"Post-show press follow-up with results, quotes, and photography",owner:"Angela",priority:"HIGH",endDate:"2026-06-17",status:"To Do",budgetImpact:"None",notes:"Results hook: X,000 samples, X B2B agreements, X new partners",riskNote:"",criticalPath:false},
+ {id:62,phase:"Post-Show",workstream:"B2B",title:"Process all B2B orders and agreements initiated at the show",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-28",status:"To Do",budgetImpact:"None",notes:"Begin onboarding all new distribution partners",riskNote:"",criticalPath:false},
+ {id:63,phase:"Post-Show",workstream:"Mumbai",title:"Plan and confirm 'Be. Comes to Bombay' post-show event",owner:"Angela",priority:"HIGH",endDate:"2026-06-30",status:"To Do",budgetImpact:"Medium",notes:"Target July. Invite press, retailers, wellness community.",riskNote:"",criticalPath:false},
+ {id:64,phase:"Post-Show",workstream:"Ops",title:"Internal debrief: ROI analysis, lessons learned, next year planning",owner:"Atul",priority:"HIGH",endDate:"2026-06-28",status:"To Do",budgetImpact:"None",notes:"Compare actuals vs KPI targets. Document what worked.",riskNote:"",criticalPath:false},
+ {id:65,phase:"Post-Show",workstream:"Social",title:"Launch post-show retargeting: website visitors during show period",owner:"Angela",priority:"HIGH",endDate:"2026-06-17",status:"To Do",budgetImpact:"Medium",notes:"'Missed us? Shop Be. online with exclusive code BEIHFF26'",riskNote:"",criticalPath:false},
+ {id:66,phase:"March 2026",workstream:"IHFF",title:"Confirm payment terms & schedule first payment to IHFF; request GST docs",owner:"Atul",priority:"CRITICAL",endDate:"2026-03-31",status:"To Do",budgetImpact:"High",notes:"Lock commercial arrangement before any execution begins",riskNote:"Blocks all stand and partnership execution",criticalPath:true},
+ {id:67,phase:"March 2026",workstream:"IHFF",title:"Confirm entrance 10×10 stall — exact placement, branding rights & setup logistics",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-03-31",status:"To Do",budgetImpact:"High",notes:"Manish confirmed included in package. Get in writing.",riskNote:"",criticalPath:true},
+ {id:68,phase:"March 2026",workstream:"IHFF",title:"Confirm IHFF stand design & implementation assistance — scope, contacts, guidelines",owner:"Deeksha",priority:"HIGH",endDate:"2026-03-31",status:"To Do",budgetImpact:"Medium",notes:"IHFF offered assistance. Clarify what is included.",riskNote:"",criticalPath:false},
+ {id:69,phase:"March 2026",workstream:"Stage",title:"Confirm Atul on inaugural Day 1 opening panel — get confirmed slot time & topic",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-03-31",status:"To Do",budgetImpact:"None",notes:"Not an afternoon side session. Opening panel only.",riskNote:"",criticalPath:true},
+ {id:70,phase:"March 2026",workstream:"Stage",title:"Organise fireside chat — confirm format, date, moderator & topic with IHFF",owner:"Atul",priority:"HIGH",endDate:"2026-04-07",status:"To Do",budgetImpact:"None",notes:"Agreed in meeting. Format + host TBC.",riskNote:"",criticalPath:false},
+ {id:71,phase:"March 2026",workstream:"Social",title:"Build social media content plan for pre-event period — start immediately",owner:"Angela",priority:"CRITICAL",endDate:"2026-03-31",status:"To Do",budgetImpact:"None",notes:"Agreed to start counting now. 3 pre-event posts minimum per week.",riskNote:"",criticalPath:false},
+ {id:72,phase:"March 2026",workstream:"Athletes",title:"Request and receive athlete list from IHFF (international + local)",owner:"Deeksha",priority:"HIGH",endDate:"2026-04-07",status:"To Do",budgetImpact:"None",notes:"Manish agreed to share. We assess and revert with interest.",riskNote:"",criticalPath:false},
+ {id:73,phase:"April 2026 — Wk 1",workstream:"Athletes",title:"Review IHFF athlete list; assess sponsorship fit and revert to IHFF",owner:"Angela",priority:"HIGH",endDate:"2026-04-14",status:"To Do",budgetImpact:"High",notes:"Assess: audience fit, values alignment, category relevance",riskNote:"",criticalPath:false},
+ {id:74,phase:"April 2026 — Wk 1",workstream:"IHFF",title:"Confirm B2B liaison name with IHFF; arrange kickoff intro call",owner:"Deeksha",priority:"HIGH",endDate:"2026-04-07",status:"To Do",budgetImpact:"None",notes:"Manish to assign. Dedicated person who knows buyers personally.",riskNote:"",criticalPath:false},
+ {id:75,phase:"April 2026 — Wk 1",workstream:"Stage",title:"Coordinate IHFF promo/trailer video shoot featuring Be. — book within 2-3 wks",owner:"Angela",priority:"HIGH",endDate:"2026-04-14",status:"To Do",budgetImpact:"None",notes:"Agreed in meeting. Urgent — film before end of April.",riskNote:"",criticalPath:false},
+ {id:76,phase:"April 2026 — Wk 1",workstream:"IHFF",title:"Confirm 'Official Nutraceutical & Wellness Partner' title — wording + placements",owner:"Atul",priority:"HIGH",endDate:"2026-04-07",status:"To Do",budgetImpact:"None",notes:"All event materials, IHFF website, Manish LinkedIn",riskNote:"",criticalPath:false},
+ {id:77,phase:"May 2026 — Wk 2",workstream:"B2B",title:"Request pre-registered buyer/trade list from IHFF (needed 2 wks before show)",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-05-29",status:"To Do",budgetImpact:"None",notes:"For targeted pre-show outreach. Must have by May 29.",riskNote:"",criticalPath:true},
+ {id:78,phase:"May 2026 — Wk 3",workstream:"Stage",title:"Confirm Be. branding on event lanyards — submit logo files to IHFF",owner:"Angela",priority:"HIGH",endDate:"2026-05-20",status:"To Do",budgetImpact:"Medium",notes:"Every attendee wears a lanyard. 100% impression.",riskNote:"",criticalPath:false},
+ {id:79,phase:"May 2026 — Wk 3",workstream:"Stage",title:"Submit Be. assets for arch/gate banner printing (main entry, 1.3L visitors)",owner:"Angela",priority:"CRITICAL",endDate:"2026-05-20",status:"To Do",budgetImpact:"High",notes:"High-res logo + artwork files. Deadline from IHFF printer.",riskNote:"Hard deadline — missing it = no gate branding",criticalPath:true},
+ {id:80,phase:"May 2026 — Wk 3",workstream:"Stage",title:"Confirm Be. feature in IHFF official printed programme & visitor guide",owner:"Deeksha",priority:"HIGH",endDate:"2026-05-20",status:"To Do",budgetImpact:"Medium",notes:"Ad or brand feature. Distributed at entry to all visitors.",riskNote:"",criticalPath:false},
+ {id:81,phase:"June 2026 — Pre-Show",workstream:"Stage",title:"Brief stage MC on Be. intro for each day",owner:"Deeksha",priority:"HIGH",endDate:"2026-06-10",status:"To Do",budgetImpact:"None",notes:"Opening and closing each day. Script agreed with MC.",riskNote:"",criticalPath:false},
+ {id:82,phase:"June 2026 — Pre-Show",workstream:"Stand",title:"Dress and brand entrance 10×10 stall — set up day before show opens",owner:"Deeksha",priority:"CRITICAL",endDate:"2026-06-11",status:"To Do",budgetImpact:"High",notes:"Separate from main stand. First impression for all visitors.",riskNote:"",criticalPath:true},
+ {id:83,phase:"March 2026",workstream:"Mohan",title:"Brief Mohan on Be. sponsorship deal, pro card journey narrative, IHFF stage role & brand obligations",owner:"Atul",priority:"CRITICAL",endDate:"2026-03-31",status:"To Do",budgetImpact:"None",notes:"Mohan is ACTIVELY SPONSORED by Be. Frame IHFF as his biggest moment.",riskNote:"",criticalPath:true},
+ {id:84,phase:"March 2026",workstream:"Mohan",title:"Define MBF gym team scope for show — roles on floor: demo, sampling, crowd engagement, B2B introductions",owner:"Tejal",priority:"HIGH",endDate:"2026-04-07",status:"To Do",budgetImpact:"Medium",notes:"MBF Gurgaon team = trained, fit, on-brand crew.",riskNote:"",criticalPath:false},
+ {id:85,phase:"April 2026 — Wk 1",workstream:"Mohan",title:"Draft and sign Mohan active sponsorship agreement — pro card support, stage appearances, image rights, social obligations",owner:"Atul",priority:"CRITICAL",endDate:"2026-04-14",status:"To Do",budgetImpact:"High",notes:"Mohan going for pro card at IHFF — Be. is his headline sponsor.",riskNote:"",criticalPath:true},
+ {id:86,phase:"April 2026 — Wk 2",workstream:"Mohan",title:"Liaise with IHFF to confirm Mohan stage slot — work around his competition schedule",owner:"Tejal",priority:"HIGH",endDate:"2026-04-20",status:"To Do",budgetImpact:"None",notes:"Confirm whether he competes Day 1 or 2 first.",riskNote:"",criticalPath:false},
+ {id:87,phase:"April 2026 — Wk 3",workstream:"Mohan",title:"Include Mohan in photoshoot brief — product hero shots + lifestyle content",owner:"Angela",priority:"HIGH",endDate:"2026-04-20",status:"To Do",budgetImpact:"High",notes:"Mohan to be featured prominently across Be. IHFF creative.",riskNote:"",criticalPath:false},
+ {id:88,phase:"May 2026 — Wk 1",workstream:"Mohan",title:"Brief and allocate MBF gym team to stand roles — demo, sampling, floor engagement",owner:"Tejal",priority:"HIGH",endDate:"2026-05-07",status:"To Do",budgetImpact:"None",notes:"Tejal allocates and briefs. Deeksha/Angela to provide Be. product training.",riskNote:"",criticalPath:false},
+ {id:89,phase:"May 2026 — Wk 2",workstream:"Mohan",title:"Coordinate Mohan social content plan for IHFF — pro card journey posts + Be. content",owner:"Tejal",priority:"HIGH",endDate:"2026-05-12",status:"To Do",budgetImpact:"None",notes:"Content angle: 'Road to Pro, powered by Be.'",riskNote:"",criticalPath:false},
+ {id:90,phase:"June 2026 — Pre-Show",workstream:"Mohan",title:"Final show briefing with Mohan & MBF team — run-of-show, competition schedule vs stand time",owner:"Atul",priority:"CRITICAL",endDate:"2026-06-09",status:"To Do",budgetImpact:"None",notes:"Mohan may be competing at IHFF — schedule his stand time around competition.",riskNote:"",criticalPath:true},
+ {id:91,phase:"March 2026",workstream:"IHFF",title:"Schedule fortnightly check-in call with Manish to track delivery on all agreed items",owner:"Atul",priority:"HIGH",endDate:"2026-03-31",status:"To Do",budgetImpact:"None",notes:"Relationship management. Manish is generous — stay close.",riskNote:"",criticalPath:false},
+ {id:92,phase:"April 2026 — Wk 2",workstream:"IHFF",title:"Review all IHFF agreed deliverables vs actual — flag any gaps to Manish proactively",owner:"Atul",priority:"HIGH",endDate:"2026-04-15",status:"To Do",budgetImpact:"None",notes:"Check: stage slots, B2B liaison, entrance stall, partner title all confirmed",riskNote:"",criticalPath:false},
+ {id:93,phase:"May 2026 — Wk 4",workstream:"IHFF",title:"Pre-show Manish meeting — confirm ALL outstanding items are locked and on track",owner:"Atul",priority:"CRITICAL",endDate:"2026-05-31",status:"To Do",budgetImpact:"None",notes:"Walk through full agreed list. Nothing left open going into show week.",riskNote:"",criticalPath:true},
+ {id:94,phase:"Post-Show",workstream:"IHFF",title:"Post-show debrief with Manish — share results, begin IHFF 2027 conversation",owner:"Atul",priority:"HIGH",endDate:"2026-06-18",status:"To Do",budgetImpact:"None",notes:"Bring data: samples, leads, social reach. Plant seed for IHFF 2027.",riskNote:"",criticalPath:false},
+ {id:95,phase:"March 2026",workstream:"Mohan",title:"Tejal — build longlist of additional athletes from MBF network & Gurgaon fitness community",owner:"Tejal",priority:"HIGH",endDate:"2026-04-07",status:"To Do",budgetImpact:"None",notes:"MBF Gurgaon is well-connected. Identify 10-15 athletes.",riskNote:"",criticalPath:false},
+ {id:96,phase:"March 2026",workstream:"Mohan",title:"Tejal — confirm number of MBF gym team available for IHFF stand duties across 3 days",owner:"Tejal",priority:"HIGH",endDate:"2026-03-31",status:"To Do",budgetImpact:"None",notes:"Need headcount: who, how many, which days.",riskNote:"",criticalPath:false},
+ {id:97,phase:"April 2026 — Wk 1",workstream:"Merch",title:"Tejal — review and give input on merchandise brief (from gym-goer perspective)",owner:"Tejal",priority:"MEDIUM",endDate:"2026-04-10",status:"To Do",budgetImpact:"None",notes:"Tejal has direct insight into what gym audiences value.",riskNote:"",criticalPath:false},
+ {id:98,phase:"April 2026 — Wk 1",workstream:"Mohan",title:"Tejal — share athlete longlist with Angela; agree on 3-5 priority sponsorship targets",owner:"Tejal",priority:"HIGH",endDate:"2026-04-14",status:"To Do",budgetImpact:"None",notes:"Tejal identifies, Angela evaluates for digital/brand fit.",riskNote:"",criticalPath:false},
+ {id:99,phase:"April 2026 — Wk 2",workstream:"Stand",title:"Tejal — input on stand layout and visitor experience (practical gym-goer lens)",owner:"Tejal",priority:"MEDIUM",endDate:"2026-04-20",status:"To Do",budgetImpact:"None",notes:"Tejal + Deeksha to review stand renders together.",riskNote:"",criticalPath:false},
+ {id:100,phase:"May 2026 — Wk 1",workstream:"Mohan",title:"Tejal — create MBF team rota for IHFF (who covers which day, which time slots)",owner:"Tejal",priority:"CRITICAL",endDate:"2026-05-10",status:"To Do",budgetImpact:"None",notes:"All MBF team on the stand must be briefed, rotered, and assigned specific roles.",riskNote:"",criticalPath:true},
+ {id:101,phase:"May 2026 — Wk 2",workstream:"Stand",title:"Tejal — attend stand design review; confirm MBF team can operate the layout comfortably",owner:"Tejal",priority:"HIGH",endDate:"2026-05-12",status:"To Do",budgetImpact:"None",notes:"Practical ops check: where do demo blenders go, sampling queue, B2B room.",riskNote:"",criticalPath:false},
+ {id:102,phase:"May 2026 — Wk 3",workstream:"Mohan",title:"Tejal — coordinate Mohan's IHFF competition registration + Be. logo on competition kit",owner:"Tejal",priority:"CRITICAL",endDate:"2026-05-20",status:"To Do",budgetImpact:"Medium",notes:"Be. must be visible on Mohan's competition kit when he goes for pro card.",riskNote:"Competition kit deadline from IHFF — hard cutoff",criticalPath:true},
+ {id:103,phase:"May 2026 — Wk 4",workstream:"Merch",title:"Tejal — QC all merchandise with Deeksha; flag any quality or quantity issues immediately",owner:"Tejal",priority:"HIGH",endDate:"2026-05-31",status:"To Do",budgetImpact:"None",notes:"Joint QC with Deeksha. Tejal checks gym-use items (shakers, bags).",riskNote:"",criticalPath:false},
+ {id:104,phase:"June 2026 — Pre-Show",workstream:"Stand",title:"Tejal — organise and manage MBF team for stand setup and dressing (June 10-11)",owner:"Tejal",priority:"CRITICAL",endDate:"2026-06-10",status:"To Do",budgetImpact:"None",notes:"MBF team can be hands-on muscle for stand build & dress.",riskNote:"",criticalPath:true},
+ {id:105,phase:"SHOW — Jun 12",workstream:"Ops",title:"Tejal — manage MBF team on the stand floor across all 3 show days",owner:"Tejal",priority:"CRITICAL",endDate:"2026-06-12",status:"To Do",budgetImpact:"None",notes:"Tejal = show floor manager. Keeps MBF team on brief, on time, on-brand.",riskNote:"",criticalPath:true},
+ {id:106,phase:"SHOW — Jun 12",workstream:"Mohan",title:"Tejal — coordinate Mohan schedule: competition vs stand appearance vs stage slot",owner:"Tejal",priority:"CRITICAL",endDate:"2026-06-12",status:"To Do",budgetImpact:"None",notes:"Critical on Day 1. Mohan may be competing.",riskNote:"",criticalPath:true},
+ {id:107,phase:"March 2026",workstream:"Mohan",title:"Create 'Road to Pro, powered by Be.' content series brief — Mohan's pro card journey",owner:"Angela",priority:"CRITICAL",endDate:"2026-03-31",status:"To Do",budgetImpact:"None",notes:"HERO content series. Start filming NOW. Mohan's journey to pro = Be. brand story.",riskNote:"",criticalPath:true},
+ {id:108,phase:"April 2026 — Wk 1",workstream:"Mohan",title:"Begin filming Mohan pro card training content — training sessions at MBF Gurgaon",owner:"Angela",priority:"HIGH",endDate:"2026-04-10",status:"To Do",budgetImpact:"None",notes:"Raw, authentic BTS content. Film at MBF gym. Be. products in shot.",riskNote:"",criticalPath:false},
+ {id:109,phase:"May 2026 — Wk 3",workstream:"Mohan",title:"Produce 'Mohan x Be.' mini-documentary or highlight reel for IHFF launch — 90-120 sec",owner:"Angela",priority:"HIGH",endDate:"2026-05-22",status:"To Do",budgetImpact:"High",notes:"Play on stand screens on loop. Release on social the day Mohan walks on stage.",riskNote:"",criticalPath:false},
+ {id:110,phase:"SHOW — Jun 12",workstream:"Mohan",title:"LIVE: Capture Mohan's pro card attempt at IHFF — real-time social coverage",owner:"Angela",priority:"CRITICAL",endDate:"2026-06-12",status:"To Do",budgetImpact:"None",notes:"This is the centrepiece moment. All cameras on. Be. branding in every shot.",riskNote:"",criticalPath:true},
+];
+
+// Product launch data
+const PRODUCTS = [
+  {name:"Whey Protein — Be. Performance",sku:"PRO-WHY-01",steps:[
+    {step:"Compliance Check (FSSAI)",status:"To Do",due:"2026-03-31",owner:"Atul",risk:"Mandatory before any packaging or claims work"},
+    {step:"Endorsement (Sapiens)",status:"To Do",due:"2026-04-10",owner:"Angela",risk:""},
+    {step:"Endorsement (Be.)",status:"To Do",due:"2026-04-15",owner:"Atul",risk:""},
+    {step:"Packaging Design (Initial)",status:"To Do",due:"2026-04-20",owner:"Angela",risk:""},
+    {step:"Claims Compliance Check",status:"To Do",due:"2026-04-25",owner:"Atul",risk:"Must complete before final packaging"},
+    {step:"Packaging Material Finalisation",status:"To Do",due:"2026-04-30",owner:"Deeksha",risk:""},
+    {step:"Packaging Final Revision",status:"To Do",due:"2026-05-05",owner:"Angela",risk:""},
+    {step:"Packaging Print — Sampling",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:"2,500 units needed"},
+    {step:"Packaging Print — Commercial",status:"To Do",due:"2026-05-15",owner:"Deeksha",risk:""},
+    {step:"Lab Testing & COA",status:"To Do",due:"2026-05-15",owner:"Atul",risk:"Required for commercial release"},
+    {step:"Barcode & SKU Setup",status:"To Do",due:"2026-05-20",owner:"Deeksha",risk:""},
+    {step:"Commercial Production",status:"To Do",due:"2026-05-25",owner:"Deeksha",risk:""},
+    {step:"Marketplace Setup",status:"To Do",due:"2026-06-01",owner:"Deeksha",risk:""},
+  ]},
+  {name:"Pre-Workout — Be. Energy",sku:"PRE-ENR-02",steps:[
+    {step:"Compliance Check (FSSAI)",status:"To Do",due:"2026-03-31",owner:"Atul",risk:""},
+    {step:"Endorsement (Sapiens)",status:"To Do",due:"2026-04-10",owner:"Angela",risk:""},
+    {step:"Endorsement (Be.)",status:"To Do",due:"2026-04-15",owner:"Atul",risk:""},
+    {step:"Packaging Design (Initial)",status:"To Do",due:"2026-04-20",owner:"Angela",risk:""},
+    {step:"Claims Compliance Check",status:"To Do",due:"2026-04-25",owner:"Atul",risk:""},
+    {step:"Packaging Material Finalisation",status:"To Do",due:"2026-04-30",owner:"Deeksha",risk:""},
+    {step:"Packaging Final Revision",status:"To Do",due:"2026-05-05",owner:"Angela",risk:""},
+    {step:"Packaging Print — Sampling",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:"2,500 units needed — PILL FORMAT UNRESOLVED = BLOCKER"},
+    {step:"Packaging Print — Commercial",status:"To Do",due:"2026-05-15",owner:"Deeksha",risk:"Blocked by pill packaging decision"},
+    {step:"Lab Testing & COA",status:"To Do",due:"2026-05-15",owner:"Atul",risk:""},
+    {step:"Barcode & SKU Setup",status:"To Do",due:"2026-05-20",owner:"Deeksha",risk:""},
+    {step:"Commercial Production",status:"To Do",due:"2026-05-25",owner:"Deeksha",risk:""},
+    {step:"Marketplace Setup",status:"To Do",due:"2026-06-01",owner:"Deeksha",risk:""},
+  ]},
+  {name:"Wellness Blend — Be. Daily",sku:"WEL-DLY-03",steps:[
+    {step:"Compliance Check (FSSAI)",status:"To Do",due:"2026-03-31",owner:"Atul",risk:""},
+    {step:"Endorsement (Sapiens)",status:"To Do",due:"2026-04-10",owner:"Angela",risk:""},
+    {step:"Endorsement (Be.)",status:"To Do",due:"2026-04-15",owner:"Atul",risk:""},
+    {step:"Packaging Design (Initial)",status:"To Do",due:"2026-04-20",owner:"Angela",risk:""},
+    {step:"Claims Compliance Check",status:"To Do",due:"2026-04-25",owner:"Atul",risk:""},
+    {step:"Packaging Material Finalisation",status:"To Do",due:"2026-04-30",owner:"Deeksha",risk:""},
+    {step:"Packaging Final Revision",status:"To Do",due:"2026-05-05",owner:"Angela",risk:""},
+    {step:"Packaging Print — Sampling",status:"To Do",due:"2026-05-10",owner:"Deeksha",risk:"2,500 units needed"},
+    {step:"Packaging Print — Commercial",status:"To Do",due:"2026-05-15",owner:"Deeksha",risk:""},
+    {step:"Lab Testing & COA",status:"To Do",due:"2026-05-15",owner:"Atul",risk:""},
+    {step:"Barcode & SKU Setup",status:"To Do",due:"2026-05-20",owner:"Deeksha",risk:""},
+    {step:"Commercial Production",status:"To Do",due:"2026-05-25",owner:"Deeksha",risk:""},
+    {step:"Marketplace Setup",status:"To Do",due:"2026-06-01",owner:"Deeksha",risk:""},
+  ]}
+];
+
+// ─── STATE ─────────────────────────────────────────────────────────────────
+let tasks = [];
+let editingId = null;
+let sortKey = null;
+let sortDir = 1;
+
+function loadData() {
+  const saved = localStorage.getItem('ihff2026_tasks');
+  if (saved) {
+    tasks = JSON.parse(saved);
+  } else {
+    tasks = RAW_TASKS.map(t => ({...t, startDate: t.startDate || '', progress: t.progress || 0}));
+    saveData();
+  }
+}
+
+function saveData() {
+  localStorage.setItem('ihff2026_tasks', JSON.stringify(tasks));
+}
+
+// ─── COUNTDOWN ──────────────────────────────────────────────────────────────
+function updateCountdown() {
+  const now = new Date();
+  const diff = EVENT_DATE - now;
+  const days = Math.ceil(diff / 86400000);
+  const el = document.getElementById('countdown');
+  if (days < 0) {
+    el.innerHTML = `<div class="cd-block"><div class="cd-num" style="color:var(--ok)">DONE</div><div class="cd-label">Show Over</div></div>`;
+  } else {
+    const weeks = Math.floor(days / 7);
+    const rem = days % 7;
+    el.innerHTML = `
+      <div class="cd-block"><div class="cd-num">${days}</div><div class="cd-label">Days</div></div>
+      <div class="cd-block"><div class="cd-num">${weeks}</div><div class="cd-label">Weeks</div></div>
+      <div class="cd-block"><div class="cd-num">${rem}</div><div class="cd-label">+Days</div></div>
+      <div style="font-size:9px;color:var(--t2);text-align:right;line-height:1.4;">to<br><span style="color:var(--accent);font-weight:700;">Jun 12</span></div>
+    `;
+  }
+}
+
+// ─── DASHBOARD ──────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const total = tasks.length;
+  const done = tasks.filter(t => t.status === 'Done').length;
+  const blocked = tasks.filter(t => t.status === 'Blocked').length;
+  const inprog = tasks.filter(t => t.status === 'In Progress').length;
+  const overdue = tasks.filter(t => {
+    if (!t.endDate || t.status === 'Done') return false;
+    return new Date(t.endDate) < today;
+  }).length;
+  const critical = tasks.filter(t => t.priority === 'CRITICAL' && t.status !== 'Done').length;
+  const overall = total ? Math.round(tasks.reduce((a,t) => a + (t.progress||0), 0) / total) : 0;
+
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="kpi lime">
+      <div class="kpi-label">Overall Progress</div>
+      <div class="kpi-val">${overall}%</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${overall}%"></div></div>
+      <div class="kpi-sub">${done} of ${total} tasks done</div>
+    </div>
+    <div class="kpi blue">
+      <div class="kpi-label">Total Tasks</div>
+      <div class="kpi-val">${total}</div>
+      <div class="kpi-sub">${inprog} in progress</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">Completed</div>
+      <div class="kpi-val">${done}</div>
+      <div class="kpi-sub">${Math.round(done/total*100)||0}% completion rate</div>
+    </div>
+    <div class="kpi red">
+      <div class="kpi-label">Blocked</div>
+      <div class="kpi-val">${blocked}</div>
+      <div class="kpi-sub">Needs immediate action</div>
+    </div>
+    <div class="kpi yellow">
+      <div class="kpi-label">Overdue</div>
+      <div class="kpi-val">${overdue}</div>
+      <div class="kpi-sub">Past due date</div>
+    </div>
+    <div class="kpi purple">
+      <div class="kpi-label">Critical Open</div>
+      <div class="kpi-val">${critical}</div>
+      <div class="kpi-sub">CRITICAL priority pending</div>
+    </div>
+  `;
+
+  // Critical blockers
+  const blockers = [
+    {label:"PILL PACKAGING", desc:"Sampling packaging for pill-format SKU is UNRESOLVED. Blocks 2,500 × 7 SKU sampling plan for all 3 show days.", owner:"Deeksha"},
+    {label:"STAND REDESIGN", desc:"First stand design was rejected. Redesign ongoing. High risk of missing print deadline (May 20).", owner:"Atul"},
+    {label:"MERCH ORDERS", desc:"Shaker samples pending. T-shirt & Ganji designs pending. ORDER DEADLINE APR 20 — 6–8 week lead time.", owner:"Deeksha"},
+  ];
+  document.getElementById('critical-list').innerHTML = blockers.map(b => `
+    <div style="background:rgba(255,59,59,.06);border:1px solid rgba(255,59,59,.25);border-radius:8px;padding:12px 14px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span style="background:var(--crit);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:1px;">🔴 BLOCKER</span>
+        <span style="font-family:var(--fh);font-weight:700;font-size:12px;color:var(--crit);">${b.label}</span>
+      </div>
+      <div style="font-size:11px;color:#ff9999;line-height:1.5;">${b.desc}</div>
+      <div style="font-size:10px;color:var(--t2);margin-top:6px;">Owner: <span style="color:var(--text)">${b.owner}</span></div>
+    </div>
+  `).join('');
+
+  // Overdue
+  const today2 = new Date(); today2.setHours(0,0,0,0);
+  const overdueList = tasks.filter(t => t.endDate && t.status !== 'Done' && new Date(t.endDate) < today2);
+  document.getElementById('overdue-list').innerHTML = overdueList.length ? overdueList.map(t => `
+    <div style="background:rgba(255,170,0,.05);border:1px solid rgba(255,170,0,.2);border-radius:8px;padding:10px 14px;cursor:pointer;" onclick="switchTab('tasks')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+        <div style="font-size:11px;line-height:1.4;flex:1;">${t.title}</div>
+        <span class="priority-badge p-${t.priority}">${t.priority}</span>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:6px;">
+        <span style="font-size:10px;color:var(--crit);">Due: ${t.endDate}</span>
+        <span style="font-size:10px;color:var(--t2);">Owner: ${t.owner}</span>
+      </div>
+    </div>
+  `).join('') : '<div style="color:var(--t2);font-size:12px;padding:20px;">✅ No overdue tasks</div>';
+}
+
+// ─── FILTER SELECTS ─────────────────────────────────────────────────────────
+function populateFilters() {
+  const ws = [...new Set(tasks.map(t => t.workstream))].sort();
+  const owners = [...new Set(tasks.map(t => t.owner))].sort();
+  const phases = [...new Set(tasks.map(t => t.phase))];
+
+  const wsEl = document.getElementById('f-ws');
+  ws.forEach(w => { const o = document.createElement('option'); o.value = w; o.textContent = w; wsEl.appendChild(o); });
+
+  const ownerEl = document.getElementById('f-owner');
+  owners.forEach(w => { const o = document.createElement('option'); o.value = w; o.textContent = w; ownerEl.appendChild(o); });
+
+  const phaseEl = document.getElementById('f-phase');
+  phases.forEach(w => { const o = document.createElement('option'); o.value = w; o.textContent = w; phaseEl.appendChild(o); });
+}
+
+// ─── TASK TABLE ──────────────────────────────────────────────────────────────
+function wsClass(ws) {
+  const map = {
+    'Stand':'Stand','Athletes':'Athletes','B2B':'B2B','Social':'Social',
+    'Famous Friends':'Athletes','Merch':'Merch','Video':'Video','PR':'PR',
+    'Ops':'Ops','IHFF':'IHFF','Mohan':'Mohan','Mumbai':'Mumbai',
+    'Stage':'Stage','Exp':'Exp','Leads':'Leads','Photo':'Photo',
+    'Sampling':'Sampling'
+  };
+  return 'ws-'+(map[ws]||'Ops');
+}
+
+function statusClass(s) {
+  const m = {'To Do':'s-todo','In Progress':'s-inprog','Blocked':'s-blocked','Done':'s-done','Review':'s-review'};
+  return m[s]||'s-todo';
+}
+
+function isOverdue(t) {
+  if (!t.endDate || t.status === 'Done') return false;
+  const today = new Date(); today.setHours(0,0,0,0);
+  return new Date(t.endDate) < today;
+}
+
+function applyFilters() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const ws = document.getElementById('f-ws').value;
+  const owner = document.getElementById('f-owner').value;
+  const pri = document.getElementById('f-priority').value;
+  const st = document.getElementById('f-status').value;
+  const ph = document.getElementById('f-phase').value;
+
+  let filtered = tasks.filter(t => {
+    if (q && !t.title.toLowerCase().includes(q) && !t.owner.toLowerCase().includes(q) && !t.workstream.toLowerCase().includes(q)) return false;
+    if (ws && t.workstream !== ws) return false;
+    if (owner && t.owner !== owner) return false;
+    if (pri && t.priority !== pri) return false;
+    if (st && t.status !== st) return false;
+    if (ph && t.phase !== ph) return false;
+    return true;
+  });
+
+  if (sortKey) {
+    filtered.sort((a,b) => {
+      let av = a[sortKey]||'', bv = b[sortKey]||'';
+      return av < bv ? -sortDir : av > bv ? sortDir : 0;
+    });
+  }
+
+  renderTaskTable(filtered);
+  updateStats(filtered);
+}
+
+function updateStats(filtered) {
+  const counts = {todo:0,inprog:0,blocked:0,done:0,review:0};
+  filtered.forEach(t => {
+    if (t.status==='To Do') counts.todo++;
+    else if (t.status==='In Progress') counts.inprog++;
+    else if (t.status==='Blocked') counts.blocked++;
+    else if (t.status==='Done') counts.done++;
+    else if (t.status==='Review') counts.review++;
+  });
+  document.getElementById('stats-row').innerHTML = `
+    <span style="font-size:10px;color:var(--t2);margin-right:4px;">${filtered.length} tasks</span>
+    <span class="stat-pill s-todo"><span class="stat-count">${counts.todo}</span> To Do</span>
+    <span class="stat-pill s-inprog"><span class="stat-count">${counts.inprog}</span> In Progress</span>
+    <span class="stat-pill s-blocked"><span class="stat-count">${counts.blocked}</span> Blocked</span>
+    <span class="stat-pill s-done"><span class="stat-count">${counts.done}</span> Done</span>
+    ${counts.review ? `<span class="stat-pill" style="background:rgba(255,170,0,.1);color:var(--warn);"><span class="stat-count">${counts.review}</span> Review</span>` : ''}
+  `;
+}
+
+function renderTaskTable(list) {
+  const tbody = document.getElementById('task-tbody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="11"><div class="empty"><div class="empty-icon">🔍</div>No tasks match your filters</div></td></tr>';
+    return;
+  }
+
+  // Group by phase
+  const phases = [];
+  const phaseMap = {};
+  list.forEach(t => {
+    if (!phaseMap[t.phase]) { phaseMap[t.phase] = []; phases.push(t.phase); }
+    phaseMap[t.phase].push(t);
+  });
+
+  let html = '';
+  phases.forEach(ph => {
+    html += `<tr class="phase-row"><td colspan="11">${ph}</td></tr>`;
+    phaseMap[ph].forEach(t => {
+      const overdue = isOverdue(t);
+      const sc = statusClass(t.status);
+      html += `<tr id="row-${t.id}">
+        <td class="task-id">${t.id}</td>
+        <td>
+          <div class="task-title-cell">
+            <span class="task-title" title="${(t.notes||'').replace(/"/g,'&quot;')}" onclick="openEditModal(${t.id})">${t.title}</span>
+          </div>
+          ${t.riskNote ? `<div style="font-size:10px;color:var(--warn);margin-top:2px;">⚠ ${t.riskNote}</div>` : ''}
+        </td>
+        <td><span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span></td>
+        <td><span class="owner-badge">${t.owner}</span></td>
+        <td class="date-cell ${overdue ? 'overdue' : ''}">${t.endDate||'—'}${overdue ? ' ⚠' : ''}</td>
+        <td><span class="priority-badge p-${t.priority}">${t.priority}</span></td>
+        <td>
+          <select class="status-sel ${sc}" onchange="updateStatus(${t.id}, this.value)">
+            <option ${t.status==='To Do'?'selected':''}>To Do</option>
+            <option ${t.status==='In Progress'?'selected':''}>In Progress</option>
+            <option ${t.status==='Review'?'selected':''}>Review</option>
+            <option ${t.status==='Blocked'?'selected':''}>Blocked</option>
+            <option ${t.status==='Done'?'selected':''}>Done</option>
+          </select>
+        </td>
+        <td>
+          <div class="progress-cell">
+            <div class="prog-bar"><div class="prog-fill" style="width:${t.progress||0}%"></div></div>
+            <span class="prog-num">${t.progress||0}%</span>
+          </div>
+          <input type="range" min="0" max="100" value="${t.progress||0}" style="width:80px;accent-color:var(--accent);height:2px;display:block;margin-top:3px;" oninput="updateProgress(${t.id}, this.value)">
+        </td>
+        <td><span class="${t.criticalPath ? 'cp-yes' : 'cp-no'}">${t.criticalPath ? '🔴 YES' : '—'}</span></td>
+        <td>${t.riskNote ? `<span class="risk-flag" title="${t.riskNote}">⚠ Risk</span>` : '—'}</td>
+        <td>
+          <div class="action-btns">
+            <button class="act-btn" onclick="openEditModal(${t.id})" title="Edit">✏</button>
+            <button class="act-btn danger" onclick="deleteTask(${t.id})" title="Delete">✕</button>
+          </div>
+        </td>
+      </tr>`;
+    });
+  });
+  tbody.innerHTML = html;
+}
+
+function sortBy(key) {
+  if (sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = 1; }
+  applyFilters();
+}
+
+function updateStatus(id, val) {
+  const t = tasks.find(x => x.id === id);
+  if (t) {
+    t.status = val;
+    if (val === 'Done') t.progress = 100;
+    if (val === 'To Do') t.progress = t.progress === 100 ? 0 : t.progress;
+    saveData();
+    renderDashboard();
+    const sel = document.querySelector(`#row-${id} .status-sel`);
+    if (sel) sel.className = `status-sel ${statusClass(val)}`;
+    showToast(`Task ${id} → ${val}`);
+  }
+}
+
+function updateProgress(id, val) {
+  const t = tasks.find(x => x.id === id);
+  if (t) {
+    t.progress = parseInt(val);
+    if (t.progress === 100) t.status = 'Done';
+    saveData();
+    renderDashboard();
+    const row = document.getElementById(`row-${id}`);
+    if (row) {
+      const fill = row.querySelector('.prog-fill');
+      const num = row.querySelector('.prog-num');
+      if (fill) fill.style.width = val + '%';
+      if (num) num.textContent = val + '%';
+    }
+  }
+}
+
+// ─── CRITICAL PATH VIEW ─────────────────────────────────────────────────────
+function renderCriticalPath() {
+  const cp = tasks.filter(t => t.criticalPath);
+  const tbody = document.getElementById('cp-tbody');
+  if (!cp.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty">No critical path tasks</div></td></tr>'; return; }
+  tbody.innerHTML = cp.map(t => {
+    const overdue = isOverdue(t);
+    const sc = statusClass(t.status);
+    return `<tr>
+      <td class="task-id">${t.id}</td>
+      <td><div style="font-size:12px;max-width:340px;line-height:1.3;">${t.title}</div></td>
+      <td><span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span></td>
+      <td><span class="owner-badge">${t.owner}</span></td>
+      <td class="date-cell ${overdue?'overdue':''}">${t.endDate||'—'}${overdue?' ⚠':''}</td>
+      <td><span class="priority-badge p-${t.priority}">${t.priority}</span></td>
+      <td><select class="status-sel ${sc}" onchange="updateStatus(${t.id}, this.value)">
+        <option ${t.status==='To Do'?'selected':''}>To Do</option>
+        <option ${t.status==='In Progress'?'selected':''}>In Progress</option>
+        <option ${t.status==='Review'?'selected':''}>Review</option>
+        <option ${t.status==='Blocked'?'selected':''}>Blocked</option>
+        <option ${t.status==='Done'?'selected':''}>Done</option>
+      </select></td>
+      <td>${t.riskNote ? `<span class="risk-flag">⚠ ${t.riskNote.substring(0,60)}${t.riskNote.length>60?'…':''}</span>` : '—'}</td>
+      <td><div class="action-btns" style="opacity:1;"><button class="act-btn" onclick="openEditModal(${t.id})">✏</button></div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── BLOCKERS VIEW ──────────────────────────────────────────────────────────
+function renderBlockers() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const list = tasks.filter(t => t.status === 'Blocked' || t.riskNote || (t.endDate && new Date(t.endDate) < today && t.status !== 'Done'));
+  const el = document.getElementById('blocker-full-list');
+  if (!list.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">✅</div>No blockers or at-risk tasks</div>'; return; }
+  el.innerHTML = `<table style="width:100%;border-collapse:collapse;min-width:800px;">
+    <thead><tr>
+      <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">#</th>
+      <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Task</th>
+      <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Workstream</th>
+      <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Owner</th>
+      <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Due</th>
+      <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Status</th>
+      <th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Risk / Reason</th>
+    </tr></thead>
+    <tbody>${list.map(t => {
+      const overdue = isOverdue(t);
+      const tag = t.status === 'Blocked' ? `<span style="background:rgba(255,59,59,.15);color:var(--crit);font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">BLOCKED</span>` :
+                  overdue ? `<span style="background:rgba(255,170,0,.15);color:var(--warn);font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">OVERDUE</span>` :
+                  `<span style="background:rgba(255,170,0,.1);color:var(--warn);font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">AT RISK</span>`;
+      return `<tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:7px 10px;color:var(--t3);font-size:10px;">${t.id}</td>
+        <td style="padding:7px 10px;"><div style="font-size:11px;max-width:300px;line-height:1.3;">${tag}${t.title}</div></td>
+        <td style="padding:7px 10px;"><span class="ws-badge ${wsClass(t.workstream)}">${t.workstream}</span></td>
+        <td style="padding:7px 10px;"><span class="owner-badge">${t.owner}</span></td>
+        <td style="padding:7px 10px;" class="date-cell ${overdue?'overdue':''}">${t.endDate||'—'}</td>
+        <td style="padding:7px 10px;"><select class="status-sel ${statusClass(t.status)}" onchange="updateStatus(${t.id}, this.value)">
+          <option ${t.status==='To Do'?'selected':''}>To Do</option>
+          <option ${t.status==='In Progress'?'selected':''}>In Progress</option>
+          <option ${t.status==='Review'?'selected':''}>Review</option>
+          <option ${t.status==='Blocked'?'selected':''}>Blocked</option>
+          <option ${t.status==='Done'?'selected':''}>Done</option>
+        </select></td>
+        <td style="padding:7px 10px;font-size:10px;color:var(--warn);max-width:250px;line-height:1.4;">${t.riskNote||'Past due date'}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+// ─── PRODUCTS VIEW ──────────────────────────────────────────────────────────
+function renderProducts() {
+  const el = document.getElementById('products-list');
+  const STEP_STATUSES = ['To Do','In Progress','Review','Blocked','Done'];
+
+  // Load product data from localStorage
+  let prodData = JSON.parse(localStorage.getItem('ihff2026_products') || 'null');
+  if (!prodData) {
+    prodData = PRODUCTS.map(p => ({...p, steps: p.steps.map(s => ({...s}))}));
+    localStorage.setItem('ihff2026_products', JSON.stringify(prodData));
+  }
+
+  el.innerHTML = prodData.map((prod, pi) => {
+    const done = prod.steps.filter(s => s.status === 'Done').length;
+    const pct = Math.round(done / prod.steps.length * 100);
+    const hasBlocker = prod.steps.some(s => s.status === 'Blocked' || s.risk.includes('BLOCKER'));
+    return `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden;">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div>
+          <div style="font-family:var(--fh);font-weight:700;font-size:14px;">${prod.name}</div>
+          <div style="font-size:10px;color:var(--t2);margin-top:2px;">SKU: ${prod.sku} · ${done}/${prod.steps.length} steps complete</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          ${hasBlocker ? '<span style="background:rgba(255,59,59,.15);color:var(--crit);font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;border:1px solid rgba(255,59,59,.3);">🔴 BLOCKER</span>' : ''}
+          <div style="text-align:right;">
+            <div style="font-family:var(--fh);font-weight:800;font-size:20px;color:var(--accent);">${pct}%</div>
+            <div style="font-size:9px;color:var(--t2);">complete</div>
+          </div>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;min-width:700px;">
+          <thead><tr style="background:var(--s2);">
+            <th style="padding:6px 12px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Step</th>
+            <th style="padding:6px 12px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Owner</th>
+            <th style="padding:6px 12px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Due</th>
+            <th style="padding:6px 12px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Status</th>
+            <th style="padding:6px 12px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">Risk</th>
+          </tr></thead>
+          <tbody>${prod.steps.map((s, si) => {
+            const sc = statusClass(s.status);
+            const isBlocker = s.risk && s.risk.includes('BLOCKER');
+            return `<tr style="border-bottom:1px solid var(--border);${isBlocker?'background:rgba(255,59,59,.04);':''}">
+              <td style="padding:8px 12px;font-size:11px;max-width:220px;">${si+1}. ${s.step}</td>
+              <td style="padding:8px 12px;"><span class="owner-badge">${s.owner}</span></td>
+              <td style="padding:8px 12px;font-size:11px;color:var(--t2);">${s.due}</td>
+              <td style="padding:8px 12px;">
+                <select class="status-sel ${sc}" onchange="updateProductStep(${pi}, ${si}, this.value)">
+                  ${STEP_STATUSES.map(st => `<option ${s.status===st?'selected':''}>${st}</option>`).join('')}
+                </select>
+              </td>
+              <td style="padding:8px 12px;font-size:10px;color:${isBlocker?'var(--crit)':'var(--warn)'};">${s.risk || '—'}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateProductStep(pi, si, val) {
+  let prodData = JSON.parse(localStorage.getItem('ihff2026_products'));
+  prodData[pi].steps[si].status = val;
+  localStorage.setItem('ihff2026_products', JSON.stringify(prodData));
+  renderProducts();
+  showToast('Product step updated');
+}
+
+// ─── MODAL ──────────────────────────────────────────────────────────────────
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'Add Task';
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-phase-in').value = '';
+  document.getElementById('f-ws-in').value = '';
+  document.getElementById('f-owner-in').value = 'Atul';
+  document.getElementById('f-priority-in').value = 'HIGH';
+  document.getElementById('f-start').value = '';
+  document.getElementById('f-end').value = '';
+  document.getElementById('f-status-in').value = 'To Do';
+  document.getElementById('f-progress').value = 0;
+  document.getElementById('f-cp').value = 'false';
+  document.getElementById('f-risk').value = '';
+  document.getElementById('f-notes').value = '';
+  document.getElementById('task-modal').classList.add('show');
+}
+
+function openEditModal(id) {
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  editingId = id;
+  document.getElementById('modal-title').textContent = 'Edit Task #' + id;
+  document.getElementById('f-title').value = t.title;
+  document.getElementById('f-phase-in').value = t.phase || '';
+  document.getElementById('f-ws-in').value = t.workstream || '';
+  document.getElementById('f-owner-in').value = t.owner || 'Atul';
+  document.getElementById('f-priority-in').value = t.priority || 'HIGH';
+  document.getElementById('f-start').value = t.startDate || '';
+  document.getElementById('f-end').value = t.endDate || '';
+  document.getElementById('f-status-in').value = t.status || 'To Do';
+  document.getElementById('f-progress').value = t.progress || 0;
+  document.getElementById('f-cp').value = t.criticalPath ? 'true' : 'false';
+  document.getElementById('f-risk').value = t.riskNote || '';
+  document.getElementById('f-notes').value = t.notes || '';
+  document.getElementById('task-modal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('task-modal').classList.remove('show');
+  editingId = null;
+}
+
+function saveTask() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { showToast('Title is required'); return; }
+  if (editingId) {
+    const t = tasks.find(x => x.id === editingId);
+    if (t) {
+      t.title = title;
+      t.phase = document.getElementById('f-phase-in').value;
+      t.workstream = document.getElementById('f-ws-in').value;
+      t.owner = document.getElementById('f-owner-in').value;
+      t.priority = document.getElementById('f-priority-in').value;
+      t.startDate = document.getElementById('f-start').value;
+      t.endDate = document.getElementById('f-end').value;
+      t.status = document.getElementById('f-status-in').value;
+      t.progress = parseInt(document.getElementById('f-progress').value)||0;
+      t.criticalPath = document.getElementById('f-cp').value === 'true';
+      t.riskNote = document.getElementById('f-risk').value;
+      t.notes = document.getElementById('f-notes').value;
+      showToast('Task updated');
+    }
+  } else {
+    const newId = Math.max(...tasks.map(t => t.id), 0) + 1;
+    tasks.push({
+      id: newId,
+      title,
+      phase: document.getElementById('f-phase-in').value,
+      workstream: document.getElementById('f-ws-in').value,
+      owner: document.getElementById('f-owner-in').value,
+      priority: document.getElementById('f-priority-in').value,
+      startDate: document.getElementById('f-start').value,
+      endDate: document.getElementById('f-end').value,
+      status: document.getElementById('f-status-in').value,
+      progress: parseInt(document.getElementById('f-progress').value)||0,
+      criticalPath: document.getElementById('f-cp').value === 'true',
+      riskNote: document.getElementById('f-risk').value,
+      notes: document.getElementById('f-notes').value,
+    });
+    showToast('Task added');
+  }
+  saveData();
+  closeModal();
+  applyFilters();
+  renderDashboard();
+}
+
+function deleteTask(id) {
+  if (!confirm('Delete this task?')) return;
+  tasks = tasks.filter(t => t.id !== id);
+  saveData();
+  applyFilters();
+  renderDashboard();
+  showToast('Task deleted');
+}
+
+function resetFilters() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('f-ws').value = '';
+  document.getElementById('f-owner').value = '';
+  document.getElementById('f-priority').value = '';
+  document.getElementById('f-status').value = '';
+  document.getElementById('f-phase').value = '';
+  sortKey = null; sortDir = 1;
+  applyFilters();
+}
+
+// ─── TABS ────────────────────────────────────────────────────────────────────
+function switchTab(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  event.currentTarget && event.currentTarget.classList.add('active');
+  // find tab by text
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.getAttribute('onclick') === `switchTab('${id}')`) t.classList.add('active');
+  });
+  if (id === 'tasks') applyFilters();
+  if (id === 'critical') renderCriticalPath();
+  if (id === 'blockers') renderBlockers();
+  if (id === 'products') renderProducts();
+  if (id === 'dashboard') renderDashboard();
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadData();
+  updateCountdown();
+  setInterval(updateCountdown, 60000);
+  populateFilters();
+  renderDashboard();
+  applyFilters();
+});
+
+// Close modal on overlay click
+document.getElementById('task-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
