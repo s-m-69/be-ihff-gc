@@ -291,6 +291,18 @@ textarea.form-input{resize:vertical;min-height:60px;}
 .dep-jump:hover{color:var(--accent);}
 .row-jump-highlight td{background:rgba(212,245,60,.08)!important;box-shadow:inset 0 0 0 1px rgba(212,245,60,.35);}
 
+
+.entity-modal-shell{max-width:760px;}
+.entity-form-grid .inline-hint{font-size:10px;color:var(--t2);margin-top:2px;}
+.entity-form-grid .money-prefix{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--t2);font-size:12px;pointer-events:none;}
+.entity-form-grid .with-prefix{padding-left:22px;}
+.entity-modal-shell .form-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+.entity-modal-shell .form-group.full{grid-column:1/-1;}
+@media (max-width: 720px){
+  .entity-modal-shell{width:min(96vw,760px);}
+  .entity-modal-shell .form-grid{grid-template-columns:1fr;}
+}
+
 </style>
 </head>
 <body>
@@ -568,6 +580,23 @@ textarea.form-input{resize:vertical;min-height:60px;}
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
       <button class="btn btn-accent" onclick="saveTask()">Save Task</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-overlay" id="entity-modal">
+  <div class="modal entity-modal-shell">
+    <div class="modal-hdr">
+      <div class="modal-title" id="entity-modal-title">Edit Item</div>
+      <button class="modal-close" onclick="closeEntityModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid" id="entity-form-grid"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeEntityModal()">Cancel</button>
+      <button class="btn btn-accent" onclick="saveEntityModal()">Save</button>
     </div>
   </div>
 </div>
@@ -2187,73 +2216,194 @@ function renderVendors(){
 
 function getVendorPending(v){ return Math.max(Math.max(num(v.actualCost), num(v.estimatedCost)) - num(v.paidAmount), 0); }
 
-function promptSelect(label, current, options){
-  const value = prompt(`${label}\nOptions: ${options.join(', ')}`, current || options[0] || '');
-  if (value === null) return null;
-  return value.trim() || current || options[0] || '';
+
+const ENTITY_MODAL_STATE = { type:null, fields:[], values:{}, onSave:null };
+
+function escapeAttr(value){
+  return String(value == null ? '' : value)
+    .replace(/&/g,'&amp;')
+    .replace(/"/g,'&quot;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
 }
+function closeEntityModal(){
+  const modal = document.getElementById('entity-modal');
+  if(modal) modal.classList.remove('show');
+  ENTITY_MODAL_STATE.type = null;
+  ENTITY_MODAL_STATE.fields = [];
+  ENTITY_MODAL_STATE.values = {};
+  ENTITY_MODAL_STATE.onSave = null;
+}
+function normalizeEntityValue(field, raw){
+  if(field.type === 'number' || field.type === 'currency') return num(raw);
+  return raw;
+}
+function openEntityModal(config){
+  ENTITY_MODAL_STATE.type = config.type || 'entity';
+  ENTITY_MODAL_STATE.fields = config.fields || [];
+  ENTITY_MODAL_STATE.values = {...(config.values || {})};
+  ENTITY_MODAL_STATE.onSave = config.onSave;
+  document.getElementById('entity-modal-title').textContent = config.title || 'Edit Item';
+  const grid = document.getElementById('entity-form-grid');
+  grid.innerHTML = ENTITY_MODAL_STATE.fields.map(field => {
+    const value = ENTITY_MODAL_STATE.values[field.key] ?? '';
+    const full = field.full ? ' full' : '';
+    if(field.type === 'textarea'){
+      return `<div class="form-group${full}"><label class="form-label">${field.label}</label><textarea class="form-input" data-entity-key="${field.key}" placeholder="${escapeAttr(field.placeholder || '')}">${escapeAttr(value)}</textarea>${field.hint ? `<div class="inline-hint">${field.hint}</div>` : ''}</div>`;
+    }
+    if(field.type === 'select'){
+      return `<div class="form-group${full}"><label class="form-label">${field.label}</label><select class="form-input" data-entity-key="${field.key}">${(field.options || []).map(opt => `<option value="${escapeAttr(opt)}" ${String(opt)===String(value) ? 'selected' : ''}>${opt}</option>`).join('')}</select>${field.hint ? `<div class="inline-hint">${field.hint}</div>` : ''}</div>`;
+    }
+    const type = field.type === 'currency' ? 'number' : (field.type || 'text');
+    const attrs = type === 'number' ? 'step="any"' : '';
+    const prefix = field.type === 'currency' ? '<span class="money-prefix">₹</span>' : '';
+    const withPrefix = field.type === 'currency' ? ' with-prefix' : '';
+    return `<div class="form-group${full}"><label class="form-label">${field.label}</label><div style="position:relative;">${prefix}<input class="form-input${withPrefix}" data-entity-key="${field.key}" type="${type}" ${attrs} value="${escapeAttr(value)}" placeholder="${escapeAttr(field.placeholder || '')}"></div>${field.hint ? `<div class="inline-hint">${field.hint}</div>` : ''}</div>`;
+  }).join('');
+  document.getElementById('entity-modal').classList.add('show');
+}
+function saveEntityModal(){
+  if(typeof ENTITY_MODAL_STATE.onSave !== 'function') return;
+  const out = {};
+  ENTITY_MODAL_STATE.fields.forEach(field => {
+    const el = document.querySelector(`[data-entity-key="${field.key}"]`);
+    if(!el) return;
+    const raw = el.value;
+    if(field.required && !String(raw).trim()){
+      el.focus();
+      showToast(`${field.label} is required`);
+      return;
+    }
+    out[field.key] = normalizeEntityValue(field, raw);
+  });
+  ENTITY_MODAL_STATE.onSave(out);
+  closeEntityModal();
+}
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape'){
+    const modal = document.getElementById('entity-modal');
+    if(modal && modal.classList.contains('show')) closeEntityModal();
+  }
+});
+
+const TALENT_FIELDS = [
+  {key:'name', label:'Name', type:'text', required:true, full:true},
+  {key:'type', label:'Type', type:'select', options:['Athlete','Creator']},
+  {key:'followers', label:'Followers', type:'text', placeholder:'e.g. 25,300'},
+  {key:'niche', label:'Niche', type:'text', placeholder:'e.g. IFBB Pro Bodybuilding'},
+  {key:'commercials', label:'Commercials', type:'currency'},
+  {key:'owner', label:'Owner', type:'text'},
+  {key:'contractStatus', label:'Contract Status', type:'select', options:CONTRACT_STATUSES},
+  {key:'paymentStatus', label:'Payment Status', type:'select', options:PAYMENT_STATUSES},
+  {key:'attendanceStatus', label:'Attendance Status', type:'select', options:ATTENDANCE_STATUSES},
+  {key:'deliverables', label:'Deliverables', type:'textarea', full:true},
+  {key:'notes', label:'Notes', type:'textarea', full:true},
+];
+const MANPOWER_FIELDS = [
+  {key:'role', label:'Role', type:'text', required:true, full:true},
+  {key:'assignedTo', label:'Assigned To', type:'text'},
+  {key:'owner', label:'Owner', type:'text'},
+  {key:'countRequired', label:'Count Required', type:'number'},
+  {key:'countConfirmed', label:'Count Confirmed', type:'number'},
+  {key:'zone', label:'Zone / Booth Area', type:'text'},
+  {key:'shift', label:'Shift / Day', type:'text'},
+  {key:'status', label:'Status', type:'select', options:MANPOWER_STATUSES},
+  {key:'notes', label:'Notes', type:'textarea', full:true},
+];
+const VENDOR_FIELDS = [
+  {key:'name', label:'Vendor Name', type:'text', required:true, full:true},
+  {key:'category', label:'Category', type:'select', options:VENDOR_CATEGORIES},
+  {key:'workstream', label:'Workstream', type:'text'},
+  {key:'estimatedCost', label:'Estimated Cost', type:'currency'},
+  {key:'actualCost', label:'Actual Cost', type:'currency'},
+  {key:'paidAmount', label:'Paid Amount', type:'currency'},
+  {key:'paymentStatus', label:'Payment Status', type:'select', options:PAYMENT_STATUSES},
+  {key:'paymentDueDate', label:'Payment Due Date', type:'date'},
+  {key:'notes', label:'Notes', type:'textarea', full:true},
+];
 
 function addTalent(){
-  const name = prompt('Talent name'); if(name===null || !name.trim()) return;
-  const data = getTalentData();
-  data.push(talentWithDefaults({id:Date.now(), name:name.trim(), type:promptSelect('Type','Athlete',['Athlete','Creator']) || 'Athlete'}));
-  saveTalentData(data); renderTalent(); renderDashboard(); showToast('Talent added');
+  openEntityModal({
+    type:'talent',
+    title:'Add Talent',
+    fields:TALENT_FIELDS,
+    values:{type:'Athlete', contractStatus:'Not Started', paymentStatus:'Pending', attendanceStatus:'Not Confirmed'},
+    onSave:(vals)=>{
+      const data = getTalentData();
+      data.push(talentWithDefaults({id:Date.now(), ...vals}));
+      saveTalentData(data); renderTalent(); renderDashboard(); showToast('Talent added');
+    }
+  });
 }
 function editTalent(id){
   const data=getTalentData(); const item=data.find(x=>x.id===id); if(!item) return;
-  const name=prompt('Talent name', item.name); if(name===null) return; item.name=name.trim()||item.name;
-  const followers=prompt('Followers', item.followers||''); if(followers!==null) item.followers=followers;
-  const niche=prompt('Niche', item.niche||''); if(niche!==null) item.niche=niche;
-  const commercials=prompt('Commercials (₹)', item.commercials||''); if(commercials!==null) item.commercials=num(commercials);
-  const deliverables=prompt('Deliverables', item.deliverables||''); if(deliverables!==null) item.deliverables=deliverables;
-  const contractStatus=promptSelect('Contract status', item.contractStatus, CONTRACT_STATUSES); if(contractStatus===null) return; item.contractStatus=contractStatus;
-  const paymentStatus=promptSelect('Payment status', item.paymentStatus, PAYMENT_STATUSES); if(paymentStatus===null) return; item.paymentStatus=paymentStatus;
-  const attendanceStatus=promptSelect('Attendance status', item.attendanceStatus, ATTENDANCE_STATUSES); if(attendanceStatus===null) return; item.attendanceStatus=attendanceStatus;
-  const owner=prompt('Owner', item.owner||''); if(owner!==null) item.owner=owner || item.owner;
-  saveTalentData(data); renderTalent(); renderDashboard(); showToast('Talent updated');
+  openEntityModal({
+    type:'talent',
+    title:'Edit Talent',
+    fields:TALENT_FIELDS,
+    values:item,
+    onSave:(vals)=>{
+      Object.assign(item, vals, {commercials:num(vals.commercials)});
+      saveTalentData(data); renderTalent(); renderDashboard(); showToast('Talent updated');
+    }
+  });
 }
 function deleteTalent(id){ if(!confirm('Delete this talent entry?')) return; const data=getTalentData().filter(x=>x.id!==id); saveTalentData(data); renderTalent(); renderDashboard(); showToast('Talent deleted'); }
 
 function addManpower(){
-  const role = prompt('Role name'); if(role===null || !role.trim()) return;
-  const data=getManpowerData();
-  data.push(manpowerWithDefaults({id:Date.now(), role:role.trim()}));
-  saveManpowerData(data); renderManpower(); renderDashboard(); showToast('Role added');
+  openEntityModal({
+    type:'manpower',
+    title:'Add Manpower Role',
+    fields:MANPOWER_FIELDS,
+    values:{status:'Not Started', countRequired:0, countConfirmed:0},
+    onSave:(vals)=>{
+      const data=getManpowerData();
+      data.push(manpowerWithDefaults({id:Date.now(), ...vals}));
+      saveManpowerData(data); renderManpower(); renderDashboard(); showToast('Role added');
+    }
+  });
 }
 function editManpower(id){
   const data=getManpowerData(); const item=data.find(x=>x.id===id); if(!item) return;
-  const role=prompt('Role', item.role); if(role===null) return; item.role=role||item.role;
-  const assigned=prompt('Assigned to', item.assignedTo||''); if(assigned!==null) item.assignedTo=assigned;
-  const owner=prompt('Owner', item.owner||''); if(owner!==null) item.owner=owner;
-  const req=prompt('Count required', item.countRequired||0); if(req!==null) item.countRequired=num(req);
-  const conf=prompt('Count confirmed', item.countConfirmed||0); if(conf!==null) item.countConfirmed=num(conf);
-  const zone=prompt('Zone / Booth Area', item.zone||''); if(zone!==null) item.zone=zone;
-  const shift=prompt('Shift / Day', item.shift||''); if(shift!==null) item.shift=shift;
-  const status=promptSelect('Status', item.status, MANPOWER_STATUSES); if(status===null) return; item.status=status;
-  const notes=prompt('Notes', item.notes||''); if(notes!==null) item.notes=notes;
-  saveManpowerData(data); renderManpower(); renderDashboard(); showToast('Manpower updated');
+  openEntityModal({
+    type:'manpower',
+    title:'Edit Manpower Role',
+    fields:MANPOWER_FIELDS,
+    values:item,
+    onSave:(vals)=>{
+      Object.assign(item, vals, {countRequired:num(vals.countRequired), countConfirmed:num(vals.countConfirmed)});
+      saveManpowerData(data); renderManpower(); renderDashboard(); showToast('Manpower updated');
+    }
+  });
 }
 function deleteManpower(id){ if(!confirm('Delete this manpower role?')) return; const data=getManpowerData().filter(x=>x.id!==id); saveManpowerData(data); renderManpower(); renderDashboard(); showToast('Role deleted'); }
 
 function addVendor(){
   ensureVendorUi();
-  const name=prompt('Vendor name'); if(name===null || !name.trim()) return;
-  const data=getVendorsData();
-  data.push(vendorWithDefaults({id:Date.now(), name:name.trim(), category:'Misc', paymentStatus:'Pending'}));
-  saveVendorsData(data); renderVendors(); showToast('Vendor added');
+  openEntityModal({
+    type:'vendor',
+    title:'Add Vendor',
+    fields:VENDOR_FIELDS,
+    values:{category:'Misc', paymentStatus:'Pending'},
+    onSave:(vals)=>{
+      const data=getVendorsData();
+      data.push(vendorWithDefaults({id:Date.now(), ...vals}));
+      saveVendorsData(data); renderVendors(); renderDashboard(); showToast('Vendor added');
+    }
+  });
 }
 function editVendor(id){
   const data=getVendorsData(); const item=data.find(x=>x.id===id); if(!item) return;
-  const name=prompt('Vendor name', item.name); if(name===null) return; item.name=name||item.name;
-  const category=promptSelect('Vendor category', item.category, VENDOR_CATEGORIES); if(category===null) return; item.category=category;
-  const workstream=prompt('Workstream', item.workstream||''); if(workstream!==null) item.workstream=workstream;
-  const est=prompt('Estimated cost (₹)', item.estimatedCost||''); if(est!==null) item.estimatedCost=num(est);
-  const actual=prompt('Actual cost (₹)', item.actualCost||''); if(actual!==null) item.actualCost=num(actual);
-  const paid=prompt('Paid amount (₹)', item.paidAmount||''); if(paid!==null) item.paidAmount=num(paid);
-  const paymentStatus=promptSelect('Payment status', item.paymentStatus, PAYMENT_STATUSES); if(paymentStatus===null) return; item.paymentStatus=paymentStatus;
-  const due=prompt('Payment due date (YYYY-MM-DD)', item.paymentDueDate||''); if(due!==null) item.paymentDueDate=due;
-  const notes=prompt('Notes', item.notes||''); if(notes!==null) item.notes=notes;
-  saveVendorsData(data); renderVendors(); renderDashboard(); showToast('Vendor updated');
+  openEntityModal({
+    type:'vendor',
+    title:'Edit Vendor',
+    fields:VENDOR_FIELDS,
+    values:item,
+    onSave:(vals)=>{
+      Object.assign(item, vals, {estimatedCost:num(vals.estimatedCost), actualCost:num(vals.actualCost), paidAmount:num(vals.paidAmount)});
+      saveVendorsData(data); renderVendors(); renderDashboard(); showToast('Vendor updated');
+    }
+  });
 }
 function deleteVendor(id){ if(!confirm('Delete this vendor?')) return; const data=getVendorsData().filter(x=>x.id!==id); saveVendorsData(data); renderVendors(); renderDashboard(); showToast('Vendor deleted'); }
 
@@ -3607,45 +3757,87 @@ document.addEventListener('DOMContentLoaded', () => {
   window.updateMerchStage = function(id, field, value){ const data=getMerchData(); const item=data.find(x=>x.id===id); if(!item) return; item[field]=value; saveMerchData(data); renderMerchandiseModule(); renderDashboard(); renderCostView(); };
   window.updateSampleStage = function(id, field, value){ const data=getSamplesData(); const item=data.find(x=>x.id===id); if(!item) return; item[field]=value; saveSamplesData(data); renderSamplesModule(); renderDashboard(); renderCostView(); };
 
+
+  const MODULE_STAGE_OPTIONS = ['Not Started','In Progress','Blocked','Ready','Done'];
+  const MODULE_PAYMENT_OPTIONS = PAYMENT_STATUSES;
+  const ENTITY_ITEM_FIELDS = (labelName) => [
+    {key:'itemName', label:labelName, type:'text', required:true, full:true},
+    {key:'quantity', label:'Quantity', type:'number'},
+    {key:'vendorName', label:'Vendor Name', type:'text'},
+    {key:'estimatedCost', label:'Estimated Cost', type:'currency'},
+    {key:'actualCost', label:'Actual Cost', type:'currency'},
+    {key:'paidAmount', label:'Paid Amount', type:'currency'},
+    {key:'designStatus', label:'Design Status', type:'select', options:MODULE_STAGE_OPTIONS},
+    {key:'sampleStatus', label:'Sample Status', type:'select', options:MODULE_STAGE_OPTIONS},
+    {key:'productionStatus', label:'Production Status', type:'select', options:MODULE_STAGE_OPTIONS},
+    {key:'qcStatus', label:'QC Status', type:'select', options:MODULE_STAGE_OPTIONS},
+    {key:'paymentStatus', label:'Payment Status', type:'select', options:MODULE_PAYMENT_OPTIONS},
+    {key:'notes', label:'Notes', type:'textarea', full:true},
+  ];
+
   window.addMerchItem = function(){
-    const name = prompt('Merchandise item name'); if(!name) return;
-    const qty = prompt('Quantity', '0');
-    const data = getMerchData();
-    data.push(merchWithDefaults({itemName:name, quantity:numSafe(qty)}));
-    saveMerchData(data); renderMerchandiseModule(); renderDashboard(); renderCostView(); showToast('Merchandise item added');
+    openEntityModal({
+      type:'merch',
+      title:'Add Merchandise Item',
+      fields:ENTITY_ITEM_FIELDS('Item Name'),
+      values:{quantity:0, paymentStatus:'Pending', designStatus:'Not Started', sampleStatus:'Not Started', productionStatus:'Not Started', qcStatus:'Not Started'},
+      onSave:(vals)=>{
+        const data = getMerchData();
+        data.push(merchWithDefaults({...vals}));
+        saveMerchData(data); renderMerchandiseModule(); renderDashboard(); renderCostView(); showToast('Merchandise item added');
+      }
+    });
   };
   window.editMerchItem = function(id){
     const data=getMerchData(); const item=data.find(x=>x.id===id); if(!item) return;
-    const itemName = prompt('Item name', item.itemName); if(itemName===null) return; item.itemName=itemName;
-    const quantity = prompt('Quantity', item.quantity||0); if(quantity!==null) item.quantity=numSafe(quantity);
-    const vendor = prompt('Vendor name', item.vendorName||''); if(vendor!==null) item.vendorName=vendor;
-    const est = prompt('Estimated cost (₹)', item.estimatedCost||0); if(est!==null) item.estimatedCost=numSafe(est);
-    const actual = prompt('Actual cost (₹)', item.actualCost||0); if(actual!==null) item.actualCost=numSafe(actual);
-    const paid = prompt('Paid amount (₹)', item.paidAmount||0); if(paid!==null) item.paidAmount=numSafe(paid);
-    const payment = prompt('Payment status', item.paymentStatus||'Pending'); if(payment!==null) item.paymentStatus=payment || 'Pending';
-    const notes = prompt('Notes', item.notes||''); if(notes!==null) item.notes=notes;
-    saveMerchData(data); renderMerchandiseModule(); renderDashboard(); renderCostView(); showToast('Merchandise item updated');
+    openEntityModal({
+      type:'merch',
+      title:'Edit Merchandise Item',
+      fields:ENTITY_ITEM_FIELDS('Item Name'),
+      values:item,
+      onSave:(vals)=>{
+        Object.assign(item, vals, {
+          quantity:numSafe(vals.quantity),
+          estimatedCost:numSafe(vals.estimatedCost),
+          actualCost:numSafe(vals.actualCost),
+          paidAmount:numSafe(vals.paidAmount)
+        });
+        saveMerchData(data); renderMerchandiseModule(); renderDashboard(); renderCostView(); showToast('Merchandise item updated');
+      }
+    });
   };
   window.deleteMerchItem = function(id){ if(!confirm('Delete this merchandise item?')) return; const data=getMerchData().filter(x=>x.id!==id); saveMerchData(data); renderMerchandiseModule(); renderDashboard(); renderCostView(); showToast('Merchandise item deleted'); };
 
   window.addSampleItem = function(){
-    const name = prompt('Sample item name'); if(!name) return;
-    const qty = prompt('Quantity', '0');
-    const data = getSamplesData();
-    data.push(sampleWithDefaults({itemName:name, quantity:numSafe(qty)}));
-    saveSamplesData(data); renderSamplesModule(); renderDashboard(); renderCostView(); showToast('Sample item added');
+    openEntityModal({
+      type:'sample',
+      title:'Add Sample Item',
+      fields:ENTITY_ITEM_FIELDS('SKU / Item Name'),
+      values:{quantity:0, paymentStatus:'Pending', designStatus:'Not Started', sampleStatus:'Not Started', productionStatus:'Not Started', qcStatus:'Not Started'},
+      onSave:(vals)=>{
+        const data = getSamplesData();
+        data.push(sampleWithDefaults({...vals}));
+        saveSamplesData(data); renderSamplesModule(); renderDashboard(); renderCostView(); showToast('Sample item added');
+      }
+    });
   };
   window.editSampleItem = function(id){
     const data=getSamplesData(); const item=data.find(x=>x.id===id); if(!item) return;
-    const itemName = prompt('Item name', item.itemName); if(itemName===null) return; item.itemName=itemName;
-    const quantity = prompt('Quantity', item.quantity||0); if(quantity!==null) item.quantity=numSafe(quantity);
-    const vendor = prompt('Vendor name', item.vendorName||''); if(vendor!==null) item.vendorName=vendor;
-    const est = prompt('Estimated cost (₹)', item.estimatedCost||0); if(est!==null) item.estimatedCost=numSafe(est);
-    const actual = prompt('Actual cost (₹)', item.actualCost||0); if(actual!==null) item.actualCost=numSafe(actual);
-    const paid = prompt('Paid amount (₹)', item.paidAmount||0); if(paid!==null) item.paidAmount=numSafe(paid);
-    const payment = prompt('Payment status', item.paymentStatus||'Pending'); if(payment!==null) item.paymentStatus=payment || 'Pending';
-    const notes = prompt('Notes', item.notes||''); if(notes!==null) item.notes=notes;
-    saveSamplesData(data); renderSamplesModule(); renderDashboard(); renderCostView(); showToast('Sample item updated');
+    openEntityModal({
+      type:'sample',
+      title:'Edit Sample Item',
+      fields:ENTITY_ITEM_FIELDS('SKU / Item Name'),
+      values:item,
+      onSave:(vals)=>{
+        Object.assign(item, vals, {
+          quantity:numSafe(vals.quantity),
+          estimatedCost:numSafe(vals.estimatedCost),
+          actualCost:numSafe(vals.actualCost),
+          paidAmount:numSafe(vals.paidAmount)
+        });
+        saveSamplesData(data); renderSamplesModule(); renderDashboard(); renderCostView(); showToast('Sample item updated');
+      }
+    });
   };
   window.deleteSampleItem = function(id){ if(!confirm('Delete this sample item?')) return; const data=getSamplesData().filter(x=>x.id!==id); saveSamplesData(data); renderSamplesModule(); renderDashboard(); renderCostView(); showToast('Sample item deleted'); };
 
