@@ -2585,5 +2585,669 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 </script>
 
+
+<script>
+// --- MODULE PATCH: reusable child-item structure, seeded merch/samples line items, recursive task editing ---
+(function(){
+  const CHILD_ITEM_SCHEMA_VERSION = 7;
+  let editingParentId = null;
+
+  function injectChildItemStyles(){
+    if(document.getElementById('child-item-style-patch')) return;
+    const style = document.createElement('style');
+    style.id = 'child-item-style-patch';
+    style.textContent = `
+      .subtask-row td{border-top:1px dashed rgba(255,255,255,.04);}
+      .subtask-row .task-title-cell{min-width:220px;max-width:420px;}
+      .task-title.subtask{display:flex;align-items:center;gap:6px;}
+      .lineitem-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:999px;font-size:9px;letter-spacing:.6px;text-transform:uppercase;background:rgba(212,245,60,.08);border:1px solid rgba(212,245,60,.18);color:var(--accent);}
+      .cost-main.small{font-size:11px;}
+      .child-add-hint{font-size:10px;color:var(--t2);margin-top:4px;}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function asArray(v){ return Array.isArray(v) ? v : []; }
+
+  const MERCH_LINE_ITEMS = [
+    {title:'T-shirts', owner:'Angela', priority:'HIGH', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'700 units'},
+    {title:'Shakers', owner:'Deeksha', priority:'CRITICAL', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'500 units'},
+    {title:'Ganjis', owner:'Angela', priority:'HIGH', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'300 units'},
+    {title:'Shopping Bags', owner:'Angela', priority:'HIGH', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'Design + sampling'},
+    {title:'Stickers', owner:'Angela', priority:'MEDIUM', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'Sample stickers'}
+  ];
+
+  const SAMPLE_LINE_ITEMS = [
+    {title:'Alpha', owner:'Deeksha', priority:'HIGH', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'2,500 sample units'},
+    {title:'Sexy JMC', owner:'Deeksha', priority:'HIGH', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'2,500 sample units'},
+    {title:'Sexy Vegan', owner:'Deeksha', priority:'HIGH', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'2,500 sample units'},
+    {title:'Creatine', owner:'Deeksha', priority:'CRITICAL', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'2,500 sample units'},
+    {title:'Protein', owner:'Deeksha', priority:'CRITICAL', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'2,500 sample units'},
+    {title:'Triple Magnesium', owner:'Deeksha', priority:'CRITICAL', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'2,500 sample units'},
+    {title:'DND', owner:'Deeksha', priority:'HIGH', status:'To Do', estimatedCost:0, actualCost:0, paidAmount:0, paymentStatus:'Pending', vendorName:'', notes:'2,500 sample units'}
+  ];
+
+  function flattenTasksDeep(list, depth=0, parent=null, acc=[]){
+    asArray(list).forEach(item => {
+      acc.push({item, depth, parent});
+      if (asArray(item.subtasks).length) flattenTasksDeep(item.subtasks, depth+1, item, acc);
+    });
+    return acc;
+  }
+
+  function getAllTaskRecords(){
+    return flattenTasksDeep(tasks);
+  }
+
+  function getMaxTaskIdDeep(){
+    return getAllTaskRecords().reduce((max, rec) => Math.max(max, Number(rec.item.id)||0), 0);
+  }
+
+  function nextIdFactory(){
+    let next = getMaxTaskIdDeep() + 1;
+    return () => next++;
+  }
+
+  function findTaskRecord(id, list=tasks, parent=null){
+    id = Number(id);
+    for(const item of asArray(list)){
+      if (Number(item.id) === id) return {item, parent, list};
+      const nested = findTaskRecord(id, item.subtasks, item);
+      if (nested) return nested;
+    }
+    return null;
+  }
+
+  function withDefaults(item, parent){
+    return taskWithDefaults({
+      ...item,
+      phase: item.phase || parent.phase || '',
+      workstream: item.workstream || parent.workstream || '',
+      owner: item.owner || parent.owner || 'TBD',
+      priority: item.priority || parent.priority || 'MEDIUM',
+      startDate: item.startDate || parent.startDate || '',
+      endDate: item.endDate || parent.endDate || '',
+      riskNote: item.riskNote || '',
+      notes: item.notes || '',
+      criticalPath: !!item.criticalPath,
+      dependencyIds: asArray(item.dependencyIds || []),
+      paymentDueDate: item.paymentDueDate || ''
+    });
+  }
+
+  function seedChildItems(parent, items){
+    if (asArray(parent.subtasks).length) return false;
+    const nextId = nextIdFactory();
+    parent.subtasks = items.map(raw => withDefaults({...raw, id: nextId()}, parent));
+    return true;
+  }
+
+  function ensureStructuredParents(){
+    let changed = false;
+    tasks.forEach(task => {
+      if (task.workstream === 'Merch' && /place all merchandise orders/i.test(task.title || '')) {
+        changed = seedChildItems(task, MERCH_LINE_ITEMS) || changed;
+      }
+      if (task.workstream === 'Sampling' && /prepare all sampling stock/i.test(task.title || '')) {
+        changed = seedChildItems(task, SAMPLE_LINE_ITEMS) || changed;
+      }
+    });
+    return changed;
+  }
+
+  function taskLabelMatches(task, q){
+    const hay = `${task.title||''} ${task.owner||''} ${task.workstream||''} ${task.notes||''} ${task.riskNote||''} ${task.vendorName||''}`.toLowerCase();
+    return !q || hay.includes(q);
+  }
+
+  function taskMatchesFilter(task, filters){
+    if (!taskLabelMatches(task, filters.q)) return false;
+    if (filters.ws && task.workstream !== filters.ws) return false;
+    if (filters.owner && task.owner !== filters.owner) return false;
+    if (filters.pri && task.priority !== filters.pri) return false;
+    const currentStatus = (typeof effectiveStatus === 'function') ? effectiveStatus(task) : task.status;
+    if (filters.st && currentStatus !== filters.st) return false;
+    if (filters.ph && task.phase !== filters.ph) return false;
+    return true;
+  }
+
+  function buildVisibleTree(task, filters){
+    const childMatches = asArray(task.subtasks).map(st => buildVisibleTree(st, filters)).filter(Boolean);
+    const selfMatches = taskMatchesFilter(task, filters);
+    if (!selfMatches && !childMatches.length) return null;
+    return {...task, __visibleSubtasks: childMatches};
+  }
+
+  function renderTaskRow(task, depth){
+    const overdue = typeof isOverdue === 'function' ? isOverdue(task) : false;
+    const eStatus = (typeof effectiveStatus === 'function') ? effectiveStatus(task) : task.status;
+    const blocked = (typeof getBlockedBy === 'function') ? getBlockedBy(task) : [];
+    const sc = (typeof statusClass === 'function' ? statusClass(eStatus) : '') + (blocked.length ? ' dependency-blocked' : '');
+    const isChild = depth > 0;
+    const childHint = !isChild && asArray(task.subtasks).length ? `<div class="child-add-hint">${task.subtasks.length} line item${task.subtasks.length>1?'s':''} linked</div>` : '';
+    const cpLabel = task.criticalPath ? '🔴 YES' : '—';
+    const depLine = blocked.length ? `<div class="dep-line blocked">Waiting on ${blocked.map(dep => `#${dep.id}`).join(', ')}</div>` : '';
+    const riskLine = task.riskNote ? `<div style="font-size:10px;color:var(--warn);margin-top:2px;">⚠ ${task.riskNote}</div>` : '';
+    const lineItemTag = isChild ? `<span class="lineitem-tag">Line Item</span>` : '';
+    const indent = `<span class="subtask-indent" style="width:${depth*18}px;"></span>`;
+    return `
+      <tr id="row-${task.id}" class="${isChild ? 'subtask-row' : ''}">
+        <td class="task-id">${task.id}</td>
+        <td>
+          <div class="task-title-cell">
+            ${indent}
+            <span class="task-title ${isChild ? 'subtask' : ''}" title="${(task.notes||'').replace(/"/g,'&quot;')}" onclick="openEditModal(${task.id})">${lineItemTag}${task.title}</span>
+          </div>
+          ${depLine}
+          ${riskLine}
+          ${childHint}
+        </td>
+        <td><span class="ws-badge ${wsClass(task.workstream)}">${task.workstream}</span></td>
+        <td><span class="owner-badge">${task.owner}</span></td>
+        <td class="date-cell ${overdue ? 'overdue' : ''}">${task.endDate||'—'}${overdue ? ' ⚠' : ''}</td>
+        <td><span class="priority-badge p-${task.priority}">${task.priority}</span></td>
+        <td>
+          <select class="status-sel ${sc}" onchange="updateStatus(${task.id}, this.value)">
+            <option ${eStatus==='To Do'?'selected':''}>To Do</option>
+            <option ${eStatus==='In Progress'?'selected':''}>In Progress</option>
+            <option ${eStatus==='Review'?'selected':''}>Review</option>
+            <option ${eStatus==='Blocked'?'selected':''}>Blocked</option>
+            <option ${eStatus==='Done'?'selected':''}>Done</option>
+          </select>
+        </td>
+        <td>
+          <div class="progress-cell">
+            <div class="prog-bar"><div class="prog-fill" style="width:${task.progress||0}%"></div></div>
+            <span class="prog-num">${task.progress||0}%</span>
+          </div>
+          <input type="range" min="0" max="100" value="${task.progress||0}" style="width:80px;accent-color:var(--accent);height:2px;display:block;margin-top:3px;" oninput="updateProgress(${task.id}, this.value)">
+        </td>
+        <td><span class="${task.criticalPath ? 'cp-yes' : 'cp-no'}">${cpLabel}</span></td>
+        <td>${task.riskNote ? `<span class="risk-flag" title="${task.riskNote}">⚠ Risk</span>` : (blocked.length ? `<span class="risk-flag" title="${blocked.map(dep => dep.title).join(' • ')}">⛓ Blocked</span>` : '—')}</td>
+        <td>
+          <div class="cost-stack">
+            <div class="cost-main ${isChild ? 'small' : ''}">${formatCurrency(getTaskActual(task))}</div>
+            <div class="cost-sub">Est ${formatCurrency(getTaskEstimated(task))}</div>
+            ${hasTaskCost(task) ? `<span class="cost-badge ${paymentClass(task.paymentStatus)}">${task.paymentStatus || 'Not Applicable'}</span>` : '<span class="cost-sub">—</span>'}
+          </div>
+        </td>
+        <td>
+          <div class="action-btns" style="${isChild ? 'opacity:1;' : ''}">
+            <button class="act-btn" onclick="openEditModal(${task.id})" title="Edit">✏</button>
+            <button class="act-btn" onclick="openAddChildModal(${task.id})" title="Add line item">⊕</button>
+            <button class="act-btn danger" onclick="deleteTask(${task.id})" title="Delete">✕</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function renderTaskTree(task, depth=0){
+    let html = renderTaskRow(task, depth);
+    asArray(task.__visibleSubtasks || task.subtasks).forEach(st => {
+      html += renderTaskTree(st, depth+1);
+    });
+    return html;
+  }
+
+  const __baseLoadDataChild = loadData;
+  loadData = function(){
+    __baseLoadDataChild();
+    const changed = ensureStructuredParents();
+    if (changed) saveData();
+  };
+
+  importJsonFile = function(file){
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e){
+      try{
+        const payload = normalizeImportedPayload(JSON.parse(e.target.result));
+        if (!payload.tasks.length && !payload.products.length && !payload.talent.length && !payload.manpower.length && !payload.vendors.length) throw new Error('Invalid file');
+        tasks = (payload.tasks || []).map(taskWithDefaults);
+        ensureStructuredParents();
+        saveData();
+        saveProductsData(migrateProductsData(payload.products, payload.version));
+        if (typeof saveTalentData === 'function') saveTalentData((payload.talent || RAW_TALENT).map(talentWithDefaults));
+        if (typeof saveManpowerData === 'function') saveManpowerData((payload.manpower || RAW_MANPOWER).map(manpowerWithDefaults));
+        if (typeof saveVendorsData === 'function') saveVendorsData((payload.vendors || RAW_VENDORS).map(vendorWithDefaults));
+        const input = document.getElementById('json-import-input'); if(input) input.value='';
+        if (typeof applyDependencyDefaults === 'function') applyDependencyDefaults();
+        populateFiltersFresh();
+        renderDashboard(); applyFilters(); renderCriticalPath(); renderBlockers(); renderProducts(); if(typeof renderTalent==='function') renderTalent(); if(typeof renderManpower==='function') renderManpower(); if(typeof renderVendors==='function') renderVendors(); renderCostView();
+        showToast(`JSON imported${(payload.version||0) < CHILD_ITEM_SCHEMA_VERSION ? ' and upgraded' : ''}`);
+      }catch(err){ console.error(err); showToast('Invalid JSON file'); }
+    };
+    reader.readAsText(file);
+  };
+
+  saveData = function(){
+    const payload = {
+      version: CHILD_ITEM_SCHEMA_VERSION,
+      exportedAt: new Date().toISOString(),
+      tasks
+    };
+    localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(payload));
+  };
+
+  exportJson = function(){
+    try{
+      const payload = {
+        version: CHILD_ITEM_SCHEMA_VERSION,
+        exportedAt: new Date().toISOString(),
+        event: 'Be. IHFF 2026 — War Room',
+        tasks,
+        products: getProductsData(),
+        talent: typeof getTalentData === 'function' ? getTalentData() : [],
+        manpower: typeof getManpowerData === 'function' ? getManpowerData() : [],
+        vendors: typeof getVendorsData === 'function' ? getVendorsData() : []
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const stamp = new Date().toISOString().slice(0,19).replace(/[T:]/g,'-');
+      a.href = url; a.download = `ihff-war-room-${stamp}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      showToast('JSON exported');
+    }catch(err){ console.error(err); showToast('Export failed'); }
+  };
+
+  populateFiltersFresh = function(){
+    const wsSel = document.getElementById('f-ws');
+    const ownerSel = document.getElementById('f-owner');
+    const phaseSel = document.getElementById('f-phase');
+    const flat = getAllTaskRecords().map(r => r.item);
+    const workstreams = Array.from(new Set(flat.map(t => t.workstream).filter(Boolean))).sort();
+    const owners = Array.from(new Set(flat.map(t => t.owner).filter(Boolean))).sort();
+    const phases = Array.from(new Set(flat.map(t => t.phase).filter(Boolean))).sort();
+    if (wsSel) wsSel.innerHTML = '<option value="">All</option>' + workstreams.map(v => `<option value="${v}">${v}</option>`).join('');
+    if (ownerSel) ownerSel.innerHTML = '<option value="">All</option>' + owners.map(v => `<option value="${v}">${v}</option>`).join('');
+    if (phaseSel) phaseSel.innerHTML = '<option value="">All</option>' + phases.map(v => `<option value="${v}">${v}</option>`).join('');
+  };
+
+  applyFilters = function(){
+    const filters = {
+      q: (document.getElementById('search-input').value || '').toLowerCase(),
+      ws: document.getElementById('f-ws').value,
+      owner: document.getElementById('f-owner').value,
+      pri: document.getElementById('f-priority').value,
+      st: document.getElementById('f-status').value,
+      ph: document.getElementById('f-phase').value
+    };
+
+    let visibleRoots = tasks.map(t => buildVisibleTree(t, filters)).filter(Boolean);
+
+    if (sortKey) {
+      visibleRoots.sort((a,b) => {
+        let av = a[sortKey]||'', bv = b[sortKey]||'';
+        return av < bv ? -sortDir : av > bv ? sortDir : 0;
+      });
+    }
+
+    renderTaskTable(visibleRoots);
+    updateStats(visibleRoots);
+  };
+
+  updateStats = function(visibleRoots){
+    const visibleClone = visibleRoots.map(t => ({...t, subtasks:t.__visibleSubtasks||[]}));
+    const visibleItems = flattenTasksDeep(visibleClone).map(r => r.item);
+    const counts = {todo:0,inprog:0,blocked:0,done:0,review:0};
+    visibleItems.forEach(t => {
+      const st = (typeof effectiveStatus === 'function') ? effectiveStatus(t) : t.status;
+      if (st==='To Do') counts.todo++;
+      else if (st==='In Progress') counts.inprog++;
+      else if (st==='Blocked') counts.blocked++;
+      else if (st==='Done') counts.done++;
+      else if (st==='Review') counts.review++;
+    });
+    const costLinked = visibleItems.filter(hasTaskCost).length;
+    document.getElementById('stats-row').innerHTML = `
+      <span style="font-size:10px;color:var(--t2);margin-right:4px;">${visibleItems.length} visible items</span>
+      <span style="font-size:10px;color:var(--t2);margin-right:8px;">${costLinked} cost-linked</span>
+      <span class="stat-pill s-todo"><span class="stat-count">${counts.todo}</span> To Do</span>
+      <span class="stat-pill s-inprog"><span class="stat-count">${counts.inprog}</span> In Progress</span>
+      <span class="stat-pill s-blocked"><span class="stat-count">${counts.blocked}</span> Blocked</span>
+      <span class="stat-pill s-done"><span class="stat-count">${counts.done}</span> Done</span>
+      ${counts.review ? `<span class="stat-pill" style="background:rgba(255,170,0,.1);color:var(--warn);"><span class="stat-count">${counts.review}</span> Review</span>` : ''}
+    `;
+  };
+
+  renderTaskTable = function(visibleRoots){
+    const tbody = document.getElementById('task-tbody');
+    if (!visibleRoots.length) {
+      tbody.innerHTML = '<tr><td colspan="12"><div class="empty"><div class="empty-icon">🔍</div>No tasks match your filters</div></td></tr>';
+      return;
+    }
+    const phases = [];
+    const phaseMap = {};
+    visibleRoots.forEach(t => {
+      if (!phaseMap[t.phase]) { phaseMap[t.phase] = []; phases.push(t.phase); }
+      phaseMap[t.phase].push(t);
+    });
+
+    let html = '';
+    phases.forEach(ph => {
+      html += `<tr class="phase-row"><td colspan="12">${ph}</td></tr>`;
+      phaseMap[ph].forEach(t => { html += renderTaskTree(t, 0); });
+    });
+    tbody.innerHTML = html;
+  };
+
+  renderCostView = function() {
+    const rootCostTasks = tasks.filter(hasTaskCost);
+    const flatCostItems = getAllTaskRecords().filter(rec => hasTaskCost(rec.item));
+    const totalEstimated = rootCostTasks.reduce((a,t) => a + getTaskEstimated(t), 0);
+    const totalActual = rootCostTasks.reduce((a,t) => a + getTaskActual(t), 0);
+    const totalPaid = rootCostTasks.reduce((a,t) => a + getTaskPaid(t), 0);
+    const totalPending = rootCostTasks.reduce((a,t) => a + getTaskPending(t), 0);
+
+    const workstreamTotals = {};
+    rootCostTasks.forEach(t => {
+      const key = t.workstream || 'Unassigned';
+      if (!workstreamTotals[key]) workstreamTotals[key] = { estimated:0, actual:0, paid:0, pending:0, count:0 };
+      workstreamTotals[key].estimated += getTaskEstimated(t);
+      workstreamTotals[key].actual += getTaskActual(t);
+      workstreamTotals[key].paid += getTaskPaid(t);
+      workstreamTotals[key].pending += getTaskPending(t);
+      workstreamTotals[key].count += 1;
+    });
+
+    document.getElementById('cost-summary').innerHTML = `
+      <div class="cost-grid">
+        <div class="cost-card">
+          <div class="cost-card-label">Total Estimated</div>
+          <div class="cost-card-value">${formatCurrency(totalEstimated)}</div>
+          <div class="cost-card-sub">${rootCostTasks.length} parent tasks</div>
+        </div>
+        <div class="cost-card">
+          <div class="cost-card-label">Total Actual</div>
+          <div class="cost-card-value">${formatCurrency(totalActual)}</div>
+          <div class="cost-card-sub">Rolled up from line items</div>
+        </div>
+        <div class="cost-card">
+          <div class="cost-card-label">Total Paid</div>
+          <div class="cost-card-value">${formatCurrency(totalPaid)}</div>
+          <div class="cost-card-sub">Parent-level event spend</div>
+        </div>
+        <div class="cost-card">
+          <div class="cost-card-label">Total Pending</div>
+          <div class="cost-card-value">${formatCurrency(totalPending)}</div>
+          <div class="cost-card-sub">${flatCostItems.length} cost-linked rows</div>
+        </div>
+      </div>
+    `;
+
+    const rows = flatCostItems.map(({item, depth, parent}) => `
+      <tr class="${depth>0 ? 'subtask-row' : ''}">
+        <td>${item.id}</td>
+        <td style="min-width:320px;">
+          <div style="font-size:12px;line-height:1.4;padding-left:${depth*18}px;">
+            ${depth>0 ? `<span class="lineitem-tag" style="margin-right:6px;">Line Item</span>` : ''}
+            ${item.title}
+            ${parent ? `<div style="font-size:10px;color:var(--t2);margin-top:4px;">Parent: #${parent.id} ${parent.title}</div>` : ''}
+          </div>
+        </td>
+        <td><span class="ws-badge ${wsClass(item.workstream)}">${item.workstream}</span></td>
+        <td><span class="owner-badge">${item.owner}</span></td>
+        <td>${formatCurrency(getTaskEstimated(item))}</td>
+        <td>${formatCurrency(getTaskActual(item))}</td>
+        <td>${formatCurrency(getTaskPaid(item))}</td>
+        <td>${formatCurrency(getTaskPending(item))}</td>
+        <td>${item.vendorName ? `<span class="owner-badge">${item.vendorName}</span>` : '—'}</td>
+        <td><span class="cost-badge ${paymentClass(item.paymentStatus)}">${item.paymentStatus || 'Not Applicable'}</span></td>
+      </tr>
+    `).join('');
+
+    const workstreamRows = Object.entries(workstreamTotals).sort((a,b) => b[1].estimated - a[1].estimated).map(([ws, v]) => `
+      <tr>
+        <td colspan="2"><span class="ws-badge ${wsClass(ws)}">${ws}</span></td>
+        <td>${v.count}</td>
+        <td>${formatCurrency(v.estimated)}</td>
+        <td>${formatCurrency(v.actual)}</td>
+        <td>${formatCurrency(v.paid)}</td>
+        <td>${formatCurrency(v.pending)}</td>
+      </tr>
+    `).join('');
+
+    document.getElementById('cost-table-view').innerHTML = `
+      ${flatCostItems.length ? `
+        <div style="padding:14px 14px 8px;font-family:var(--fh);font-weight:700;font-size:13px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;">Cost Rows & Line Items</div>
+        <table class="cost-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Task / Line Item</th><th>Workstream</th><th>Owner</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th><th>Vendor</th><th>Payment</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div style="padding:20px 14px 8px;font-family:var(--fh);font-weight:700;font-size:13px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;">Workstream Summary (Root Totals)</div>
+        <table class="cost-table">
+          <thead>
+            <tr>
+              <th colspan="2">Workstream</th><th>Root Tasks</th><th>Estimated</th><th>Actual</th><th>Paid</th><th>Pending</th>
+            </tr>
+          </thead>
+          <tbody>${workstreamRows}</tbody>
+        </table>
+      ` : `<div class="cost-empty">No costs added yet. Edit any task or line item to add estimated cost, actual cost, vendor, and payment status.</div>`}
+    `;
+  };
+
+  function setModalValues(t, id, modeLabel){
+    editingId = id;
+    document.getElementById('modal-title').textContent = modeLabel;
+    document.getElementById('f-title').value = t.title || '';
+    document.getElementById('f-phase-in').value = t.phase || '';
+    document.getElementById('f-ws-in').value = t.workstream || '';
+    document.getElementById('f-owner-in').value = t.owner || 'Atul';
+    document.getElementById('f-priority-in').value = t.priority || 'HIGH';
+    document.getElementById('f-start').value = t.startDate || '';
+    document.getElementById('f-end').value = t.endDate || '';
+    document.getElementById('f-status-in').value = t.status || 'To Do';
+    document.getElementById('f-progress').value = t.progress || 0;
+    document.getElementById('f-cp').value = t.criticalPath ? 'true' : 'false';
+    document.getElementById('f-risk').value = t.riskNote || '';
+    document.getElementById('f-estimated').value = t.estimatedCost || '';
+    document.getElementById('f-actual').value = t.actualCost || '';
+    document.getElementById('f-paid').value = t.paidAmount || '';
+    document.getElementById('f-payment-status').value = t.paymentStatus || 'Not Applicable';
+    document.getElementById('f-vendor').value = t.vendorName || '';
+    document.getElementById('f-notes').value = t.notes || '';
+    document.getElementById('task-modal').classList.add('show');
+  }
+
+  openAddModal = function() {
+    editingParentId = null;
+    editingId = null;
+    document.getElementById('modal-title').textContent = 'Add Task';
+    document.getElementById('f-title').value = '';
+    document.getElementById('f-phase-in').value = '';
+    document.getElementById('f-ws-in').value = '';
+    document.getElementById('f-owner-in').value = 'Atul';
+    document.getElementById('f-priority-in').value = 'HIGH';
+    document.getElementById('f-start').value = '';
+    document.getElementById('f-end').value = '';
+    document.getElementById('f-status-in').value = 'To Do';
+    document.getElementById('f-progress').value = 0;
+    document.getElementById('f-cp').value = 'false';
+    document.getElementById('f-risk').value = '';
+    document.getElementById('f-estimated').value = '';
+    document.getElementById('f-actual').value = '';
+    document.getElementById('f-paid').value = '';
+    document.getElementById('f-payment-status').value = 'Not Applicable';
+    document.getElementById('f-vendor').value = '';
+    document.getElementById('f-notes').value = '';
+    document.getElementById('task-modal').classList.add('show');
+  };
+
+  openAddChildModal = function(parentId){
+    const rec = findTaskRecord(parentId);
+    if (!rec) return;
+    editingParentId = Number(parentId);
+    editingId = null;
+    const parent = rec.item;
+    document.getElementById('modal-title').textContent = `Add Line Item to #${parent.id}`;
+    document.getElementById('f-title').value = '';
+    document.getElementById('f-phase-in').value = parent.phase || '';
+    document.getElementById('f-ws-in').value = parent.workstream || '';
+    document.getElementById('f-owner-in').value = parent.owner || 'Atul';
+    document.getElementById('f-priority-in').value = parent.priority || 'MEDIUM';
+    document.getElementById('f-start').value = parent.startDate || '';
+    document.getElementById('f-end').value = parent.endDate || '';
+    document.getElementById('f-status-in').value = 'To Do';
+    document.getElementById('f-progress').value = 0;
+    document.getElementById('f-cp').value = 'false';
+    document.getElementById('f-risk').value = '';
+    document.getElementById('f-estimated').value = '';
+    document.getElementById('f-actual').value = '';
+    document.getElementById('f-paid').value = '';
+    document.getElementById('f-payment-status').value = 'Pending';
+    document.getElementById('f-vendor').value = '';
+    document.getElementById('f-notes').value = '';
+    document.getElementById('task-modal').classList.add('show');
+  };
+
+  openEditModal = function(id){
+    editingParentId = null;
+    const rec = findTaskRecord(id);
+    if (!rec) return;
+    setModalValues(rec.item, id, `Edit ${rec.parent ? 'Line Item' : 'Task'} #${id}`);
+  };
+
+  closeModal = function() {
+    document.getElementById('task-modal').classList.remove('show');
+    editingId = null;
+    editingParentId = null;
+  };
+
+  function writeTaskFields(t){
+    t.title = document.getElementById('f-title').value.trim();
+    t.phase = document.getElementById('f-phase-in').value;
+    t.workstream = document.getElementById('f-ws-in').value;
+    t.owner = document.getElementById('f-owner-in').value;
+    t.priority = document.getElementById('f-priority-in').value;
+    t.startDate = document.getElementById('f-start').value;
+    t.endDate = document.getElementById('f-end').value;
+    t.status = document.getElementById('f-status-in').value;
+    t.progress = parseInt(document.getElementById('f-progress').value)||0;
+    t.criticalPath = document.getElementById('f-cp').value === 'true';
+    t.riskNote = document.getElementById('f-risk').value;
+    t.estimatedCost = num(document.getElementById('f-estimated').value);
+    t.actualCost = num(document.getElementById('f-actual').value);
+    t.paidAmount = num(document.getElementById('f-paid').value);
+    t.paymentStatus = document.getElementById('f-payment-status').value;
+    t.vendorName = document.getElementById('f-vendor').value.trim();
+    t.notes = document.getElementById('f-notes').value;
+    if (!Array.isArray(t.subtasks)) t.subtasks = [];
+  }
+
+  saveTask = function() {
+    const title = document.getElementById('f-title').value.trim();
+    if (!title) { showToast('Title is required'); return; }
+
+    if (editingId) {
+      const rec = findTaskRecord(editingId);
+      if (!rec) return;
+      writeTaskFields(rec.item);
+      showToast(rec.parent ? 'Line item updated' : 'Task updated');
+    } else {
+      const parent = editingParentId ? findTaskRecord(editingParentId).item : {};
+      const newItem = withDefaults({
+        id: getMaxTaskIdDeep() + 1,
+        title,
+        phase: document.getElementById('f-phase-in').value,
+        workstream: document.getElementById('f-ws-in').value,
+        owner: document.getElementById('f-owner-in').value,
+        priority: document.getElementById('f-priority-in').value,
+        startDate: document.getElementById('f-start').value,
+        endDate: document.getElementById('f-end').value,
+        status: document.getElementById('f-status-in').value,
+        progress: parseInt(document.getElementById('f-progress').value)||0,
+        criticalPath: document.getElementById('f-cp').value === 'true',
+        riskNote: document.getElementById('f-risk').value,
+        estimatedCost: num(document.getElementById('f-estimated').value),
+        actualCost: num(document.getElementById('f-actual').value),
+        paidAmount: num(document.getElementById('f-paid').value),
+        paymentStatus: document.getElementById('f-payment-status').value,
+        vendorName: document.getElementById('f-vendor').value.trim(),
+        notes: document.getElementById('f-notes').value,
+        subtasks: []
+      }, parent);
+      if (editingParentId) {
+        const parentRec = findTaskRecord(editingParentId);
+        if (!parentRec) return;
+        if (!Array.isArray(parentRec.item.subtasks)) parentRec.item.subtasks = [];
+        parentRec.item.subtasks.push(newItem);
+        showToast('Line item added');
+      } else {
+        tasks.push(newItem);
+        showToast('Task added');
+      }
+    }
+    if (typeof applyDependencyDefaults === 'function') applyDependencyDefaults();
+    saveData();
+    populateFiltersFresh();
+    closeModal();
+    applyFilters();
+    renderDashboard();
+    renderCostView();
+    if (typeof renderVendors === 'function') renderVendors();
+  };
+
+  deleteTask = function(id) {
+    if (!confirm('Delete this item?')) return;
+    const rec = findTaskRecord(id);
+    if (!rec) return;
+    if (rec.parent) {
+      rec.parent.subtasks = asArray(rec.parent.subtasks).filter(st => Number(st.id) !== Number(id));
+    } else {
+      tasks = tasks.filter(t => Number(t.id) !== Number(id));
+    }
+    saveData();
+    populateFiltersFresh();
+    applyFilters();
+    renderDashboard();
+    renderCostView();
+    if (typeof renderVendors === 'function') renderVendors();
+    showToast(rec.parent ? 'Line item deleted' : 'Task deleted');
+  };
+
+  updateStatus = function(id, val) {
+    const rec = findTaskRecord(id);
+    const t = rec && rec.item;
+    if (!t) return;
+    t.status = val;
+    if (val === 'Done') t.progress = 100;
+    if (val === 'To Do' && t.progress === 100) t.progress = 0;
+    saveData();
+    renderDashboard();
+    renderCostView();
+    applyFilters();
+    showToast(`${rec.parent ? 'Line item' : 'Task'} ${id} → ${val}`);
+  };
+
+  updateProgress = function(id, val) {
+    const rec = findTaskRecord(id);
+    const t = rec && rec.item;
+    if (!t) return;
+    t.progress = parseInt(val)||0;
+    if (t.progress === 100) t.status = 'Done';
+    if (t.progress < 100 && t.status === 'Done') t.status = 'In Progress';
+    saveData();
+    renderDashboard();
+    renderCostView();
+    applyFilters();
+  };
+
+  injectChildItemStyles();
+  if (ensureStructuredParents()) saveData();
+  populateFiltersFresh();
+  renderDashboard();
+  renderCostView();
+  applyFilters();
+})();
+</script>
+
 </body>
 </html>
