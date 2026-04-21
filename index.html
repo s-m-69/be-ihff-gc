@@ -178,6 +178,76 @@ textarea.form-input{resize:vertical;min-height:60px;}
 .stat-pill.s-blocked{background:rgba(255,59,59,.12);color:var(--crit);}
 .stat-pill.s-done{background:rgba(0,230,118,.08);color:var(--ok);}
 .stat-count{font-weight:600;font-size:11px;}
+
+
+/* IMPORT / EXPORT */
+.action-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.file-input-hidden{display:none;}
+
+/* MOBILE PATCH */
+@media (max-width: 900px) {
+  .hdr-top{padding:10px 14px;flex-wrap:wrap;align-items:flex-start;}
+  .brand-lockup{width:100%;min-width:0;}
+  .event-info{min-width:0;}
+  .event-name{font-size:12px;line-height:1.25;}
+  .event-sub{font-size:9px;letter-spacing:.7px;line-height:1.4;}
+  .countdown{width:100%;justify-content:flex-start;overflow-x:auto;padding-bottom:2px;}
+  .hdr-tabs{scrollbar-width:none;}
+  .hdr-tabs::-webkit-scrollbar{display:none;}
+  .tab{padding:10px 14px;font-size:10px;}
+
+  .dash{padding:14px;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+  .kpi{padding:12px;}
+  .kpi-val{font-size:22px;}
+  .blocker-banner{margin:0 14px 12px;}
+
+  .filters{padding:10px 14px;display:grid;grid-template-columns:1fr 1fr;align-items:end;gap:10px;}
+  .search-input{width:100%;grid-column:1 / -1;}
+  .filter-group{flex-direction:column;align-items:flex-start;gap:4px;min-width:0;}
+  .filter-group select,.filter-group input,.filter-group .form-input{width:100%;}
+  .filter-sep{display:none;}
+  .action-bar{grid-column:1 / -1;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .action-bar .btn{width:100%;}
+  .stats-row{padding:10px 14px;gap:6px;}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{min-width:780px;}
+  .action-btns{opacity:1;}
+
+  #view-dashboard > div[style*="padding:0 20px 20px"],
+  #view-critical > div[style*="padding:16px 20px"],
+  #view-blockers > div[style*="padding:16px 20px"],
+  #view-products > div[style*="padding:16px 20px"]{padding-left:14px !important;padding-right:14px !important;}
+
+  #critical-list, #overdue-list{grid-template-columns:1fr !important;}
+
+  .modal{width:min(95vw,620px);max-height:92vh;}
+  .modal-hdr,.modal-body,.modal-footer{padding-left:14px;padding-right:14px;}
+  .form-grid{grid-template-columns:1fr;gap:10px;}
+  .form-group.full{grid-column:auto;}
+  .modal-footer{flex-wrap:wrap;}
+  .modal-footer .btn{flex:1;min-width:120px;}
+
+  .toast{left:14px;right:14px;bottom:14px;}
+}
+
+@media (max-width: 560px) {
+  body{font-size:11px;}
+  .hdr{position:static;}
+  .hdr-top{gap:10px;}
+  .brand{font-size:18px;}
+  .countdown{gap:6px;}
+  .cd-block{padding:4px 8px;}
+  .cd-num{font-size:16px;}
+  .dash{grid-template-columns:1fr;}
+  .filters{grid-template-columns:1fr;}
+  .action-bar{grid-template-columns:1fr 1fr;}
+  .btn{padding:8px 10px;font-size:10px;}
+  select,input[type=text],.form-input{font-size:16px;}
+  .status-sel{font-size:12px;}
+  table{min-width:700px;}
+  .task-title-cell{min-width:180px;max-width:260px;}
+}
+
 </style>
 </head>
 <body>
@@ -250,8 +320,12 @@ textarea.form-input{resize:vertical;min-height:60px;}
       <select id="f-phase" onchange="applyFilters()"><option value="">All</option></select>
     </div>
     <div class="filter-sep"></div>
-    <button class="btn btn-ghost" onclick="resetFilters()">Reset</button>
-    <button class="btn btn-accent" onclick="openAddModal()">+ Add Task</button>
+    <div class="action-bar">
+      <button class="btn btn-ghost" onclick="resetFilters()">Reset</button>
+      <button class="btn btn-ghost" onclick="exportJson()">Export JSON</button>
+      <button class="btn btn-ghost" onclick="triggerImportJson()">Import JSON</button>
+      <button class="btn btn-accent" onclick="openAddModal()">+ Add Task</button>
+    </div>
   </div>
   <div class="stats-row" id="stats-row"></div>
   <div class="table-wrap">
@@ -385,6 +459,7 @@ textarea.form-input{resize:vertical;min-height:60px;}
 </div>
 
 <div class="toast" id="toast"></div>
+<input class="file-input-hidden" type="file" id="json-import-input" accept="application/json,.json">
 
 <script>
 // ─── DATA ───────────────────────────────────────────────────────────────────
@@ -554,13 +629,15 @@ const PRODUCTS = [
 ];
 
 // ─── STATE ─────────────────────────────────────────────────────────────────
+const TASKS_STORAGE_KEY = 'ihff2026_tasks';
+const PRODUCTS_STORAGE_KEY = 'ihff2026_products';
 let tasks = [];
 let editingId = null;
 let sortKey = null;
 let sortDir = 1;
 
 function loadData() {
-  const saved = localStorage.getItem('ihff2026_tasks');
+  const saved = localStorage.getItem(TASKS_STORAGE_KEY);
   if (saved) {
     tasks = JSON.parse(saved);
   } else {
@@ -570,7 +647,71 @@ function loadData() {
 }
 
 function saveData() {
-  localStorage.setItem('ihff2026_tasks', JSON.stringify(tasks));
+  localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(tasks));
+}
+
+function getProductsData() {
+  let prodData = getProductsData();
+  return prodData;
+}
+
+function exportJson() {
+  try {
+    const payload = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      event: 'Be. IHFF 2026 — War Room',
+      tasks,
+      products: getProductsData()
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0,19).replace(/[T:]/g, '-');
+    a.href = url;
+    a.download = `ihff-war-room-${stamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast('JSON exported');
+  } catch (err) {
+    console.error(err);
+    showToast('Export failed');
+  }
+}
+
+function triggerImportJson() {
+  const input = document.getElementById('json-import-input');
+  if (input) input.click();
+}
+
+function importJsonFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data || !Array.isArray(data.tasks)) throw new Error('Invalid file');
+      tasks = data.tasks;
+      localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(tasks));
+      if (Array.isArray(data.products)) {
+        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(data.products));
+      }
+      document.getElementById('json-import-input').value = '';
+      populateFiltersFresh();
+      renderDashboard();
+      applyFilters();
+      renderCriticalPath();
+      renderBlockers();
+      renderProducts();
+      showToast('JSON imported');
+    } catch (err) {
+      console.error(err);
+      showToast('Invalid JSON file');
+    }
+  };
+  reader.readAsText(file);
 }
 
 // ─── COUNTDOWN ──────────────────────────────────────────────────────────────
@@ -677,19 +818,34 @@ function renderDashboard() {
 }
 
 // ─── FILTER SELECTS ─────────────────────────────────────────────────────────
-function populateFilters() {
-  const ws = [...new Set(tasks.map(t => t.workstream))].sort();
-  const owners = [...new Set(tasks.map(t => t.owner))].sort();
-  const phases = [...new Set(tasks.map(t => t.phase))];
+function populateFiltersFresh() {
+  const ws = [...new Set(tasks.map(t => t.workstream).filter(Boolean))].sort();
+  const owners = [...new Set(tasks.map(t => t.owner).filter(Boolean))].sort();
+  const phases = [...new Set(tasks.map(t => t.phase).filter(Boolean))];
 
   const wsEl = document.getElementById('f-ws');
-  ws.forEach(w => { const o = document.createElement('option'); o.value = w; o.textContent = w; wsEl.appendChild(o); });
-
   const ownerEl = document.getElementById('f-owner');
-  owners.forEach(w => { const o = document.createElement('option'); o.value = w; o.textContent = w; ownerEl.appendChild(o); });
-
   const phaseEl = document.getElementById('f-phase');
+
+  const currentWs = wsEl.value;
+  const currentOwner = ownerEl.value;
+  const currentPhase = phaseEl.value;
+
+  wsEl.innerHTML = '<option value=>All</option>';
+  ownerEl.innerHTML = '<option value=>All</option>';
+  phaseEl.innerHTML = '<option value=>All</option>';
+
+  ws.forEach(w => { const o = document.createElement('option'); o.value = w; o.textContent = w; wsEl.appendChild(o); });
+  owners.forEach(w => { const o = document.createElement('option'); o.value = w; o.textContent = w; ownerEl.appendChild(o); });
   phases.forEach(w => { const o = document.createElement('option'); o.value = w; o.textContent = w; phaseEl.appendChild(o); });
+
+  if (ws.includes(currentWs)) wsEl.value = currentWs;
+  if (owners.includes(currentOwner)) ownerEl.value = currentOwner;
+  if (phases.includes(currentPhase)) phaseEl.value = currentPhase;
+}
+
+function populateFilters() {
+  populateFiltersFresh();
 }
 
 // ─── TASK TABLE ──────────────────────────────────────────────────────────────
@@ -937,11 +1093,7 @@ function renderProducts() {
   const STEP_STATUSES = ['To Do','In Progress','Review','Blocked','Done'];
 
   // Load product data from localStorage
-  let prodData = JSON.parse(localStorage.getItem('ihff2026_products') || 'null');
-  if (!prodData) {
-    prodData = PRODUCTS.map(p => ({...p, steps: p.steps.map(s => ({...s}))}));
-    localStorage.setItem('ihff2026_products', JSON.stringify(prodData));
-  }
+  let prodData = getProductsData();
 
   el.innerHTML = prodData.map((prod, pi) => {
     const done = prod.steps.filter(s => s.status === 'Done').length;
@@ -993,9 +1145,9 @@ function renderProducts() {
 }
 
 function updateProductStep(pi, si, val) {
-  let prodData = JSON.parse(localStorage.getItem('ihff2026_products'));
+  let prodData = JSON.parse(localStorage.getItem(PRODUCTS_STORAGE_KEY));
   prodData[pi].steps[si].status = val;
-  localStorage.setItem('ihff2026_products', JSON.stringify(prodData));
+  localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(prodData));
   renderProducts();
   showToast('Product step updated');
 }
@@ -1084,6 +1236,7 @@ function saveTask() {
     showToast('Task added');
   }
   saveData();
+  populateFiltersFresh();
   closeModal();
   applyFilters();
   renderDashboard();
@@ -1093,6 +1246,7 @@ function deleteTask(id) {
   if (!confirm('Delete this task?')) return;
   tasks = tasks.filter(t => t.id !== id);
   saveData();
+  populateFiltersFresh();
   applyFilters();
   renderDashboard();
   showToast('Task deleted');
@@ -1142,6 +1296,13 @@ document.addEventListener('DOMContentLoaded', () => {
   populateFilters();
   renderDashboard();
   applyFilters();
+  const importInput = document.getElementById('json-import-input');
+  if (importInput) {
+    importInput.addEventListener('change', function(e) {
+      const file = e.target.files && e.target.files[0];
+      importJsonFile(file);
+    });
+  }
 });
 
 // Close modal on overlay click
