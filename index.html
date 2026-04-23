@@ -1339,8 +1339,7 @@ function updateTaskStatus(id, val) {
     t.progress = 0;
   }
   save(SK.TASKS, DB.tasks);
-  applyFilters();
-  renderDashboard();
+  refreshAllViews();
   showToast(`#${id} → ${val}`);
 }
 function liveProgress(id, val, sliderEl) {
@@ -1363,8 +1362,7 @@ function commitProgress(id, val) {
   else if(v > 0 && t.status === 'To Do') t.status = 'In Progress';
   else if(v === 0 && t.status === 'Done') t.status = 'To Do';
   save(SK.TASKS, DB.tasks);
-  applyFilters();
-  renderDashboard();
+  refreshAllViews();
 }
 
 // ─── TASK MODAL ───────────────────────────────────────────────────────────────
@@ -1473,8 +1471,7 @@ function saveTask() {
   save(SK.TASKS, DB.tasks);
   closeModal('task-modal');
   populateFilters();
-  applyFilters();
-  renderDashboard();
+  refreshAllViews();
   renderCosts();
 }
 
@@ -1486,27 +1483,43 @@ function deleteTask(id) {
   else DB.tasks = DB.tasks.filter(t=>t.id!==id);
   save(SK.TASKS, DB.tasks);
   populateFilters();
-  applyFilters();
-  renderDashboard();
+  refreshAllViews();
   renderCosts();
   showToast('Task deleted');
+}
+
+// ─── CRITICAL PATH ────────────────────────────────────────────────────────────
+// ─── SHARED REFRESH ─────────────────────────────────────────────────────────
+// Single call that keeps All Tasks, Critical Path, Blockers and Dashboard in sync.
+// Any mutation (status change, progress, edit) calls this instead of individual renders.
+function refreshAllViews() {
+  renderDashboard();
+  applyFilters();
+  renderCriticalPath();
+  renderBlockers();
 }
 
 // ─── CRITICAL PATH ────────────────────────────────────────────────────────────
 function renderCriticalPath() {
   const cp = DB.tasks.filter(t=>t.criticalPath);
   const tbody = document.getElementById('cp-tbody');
+  if(!tbody) return;
   if(!cp.length) { tbody.innerHTML='<tr><td colspan="10"><div class="empty">No critical path tasks</div></td></tr>'; return; }
   tbody.innerHTML = cp.map(t=>{
     const od = isOverdue(t);
-    return `<tr id="row-cp-${t.id}">
+    const isDone = t.status === 'Done';
+    const pct = t.progress || 0;
+    const sliderBg = `background:linear-gradient(to right,var(--accent) 0%,var(--accent) ${pct}%,var(--s3) ${pct}%,var(--s3) 100%);`;
+    return `<tr id="row-cp-${t.id}" class="${isDone?'task-done':''}">
       <td class="task-id">${t.id}</td>
-      <td><div class="task-title" onclick="jumpToTask(${t.id})" style="max-width:340px;">${t.title}</div>
-        ${t.riskNote?`<div style="font-size:10px;color:var(--warn);margin-top:2px;">⚠ ${t.riskNote}</div>`:''}</td>
+      <td>
+        <div class="task-title" onclick="openEditModal(${t.id})" style="max-width:340px;">${t.title}</div>
+        ${!isDone && t.riskNote ? `<div style="font-size:10px;color:var(--warn);margin-top:2px;">⚠ ${t.riskNote}</div>` : ''}
+      </td>
       <td><span class="ws-badge ${wsCls(t.workstream)}">${t.workstream}</span></td>
       <td><span class="owner-badge">${t.owner}</span></td>
-      <td class="date-cell ${od?'overdue':''}">${t.endDate||'—'}${od?' ⚠':''}</td>
-      <td><span class="priority-badge p-${t.priority}">${t.priority}</span></td>
+      <td class="date-cell ${od && !isDone ? 'overdue' : ''}">${t.endDate||'—'}${od && !isDone ? ' ⚠' : ''}</td>
+      <td>${isDone ? '<span style="color:var(--ok);font-size:10px;">✓ Done</span>' : `<span class="priority-badge p-${t.priority}">${t.priority}</span>`}</td>
       <td><select class="status-sel ${stCls(t.status)}" onchange="updateTaskStatus(${t.id},this.value)">
         <option ${t.status==='To Do'?'selected':''}>To Do</option>
         <option ${t.status==='In Progress'?'selected':''}>In Progress</option>
@@ -1514,43 +1527,75 @@ function renderCriticalPath() {
         <option ${t.status==='Blocked'?'selected':''}>Blocked</option>
         <option ${t.status==='Done'?'selected':''}>Done</option>
       </select></td>
-      <td><div class="progress-cell"><div class="prog-bar"><div class="prog-fill" id="pf-cp-${t.id}" style="width:${t.progress}%"></div></div><span class="prog-num">${t.progress}%</span></div>
-        <input type="range" min="0" max="100" value="${t.progress}" class="progress-slider" oninput="liveProgress(${t.id},this.value)" onchange="commitProgress(${t.id},this.value)"></td>
-      <td>${t.riskNote?`<span class="risk-flag">⚠ Risk</span>`:'—'}</td>
-      <td><div style="display:flex;gap:4px;"><button class="act-btn" onclick="openEditModal(${t.id})">✏</button></div></td>
+      <td>
+        <div class="progress-cell">
+          <div class="prog-bar"><div class="prog-fill" id="pf-cp-${t.id}" style="width:${pct}%"></div></div>
+          <span class="prog-num" id="pn-cp-${t.id}">${pct}%</span>
+        </div>
+        <input type="range" min="0" max="100" value="${pct}" class="progress-slider" style="${sliderBg}"
+          oninput="liveProgress(${t.id},this.value,this)" onchange="commitProgress(${t.id},this.value)">
+      </td>
+      <td>${!isDone && t.riskNote ? `<span class="risk-flag">⚠ Risk</span>` : '—'}</td>
+      <td><div style="display:flex;gap:4px;">
+        <button class="act-btn" onclick="openEditModal(${t.id})" title="Edit">✏</button>
+      </div></td>
     </tr>`;
   }).join('');
 }
 
 // ─── BLOCKERS VIEW ────────────────────────────────────────────────────────────
 function renderBlockers() {
-  const list = DB.tasks.filter(t=>t.status==='Blocked'||!!(t.riskNote||'').trim()||isOverdue(t));
+  const list = DB.tasks.filter(t=>
+    t.status !== 'Done' && (t.status==='Blocked' || !!(t.riskNote||'').trim() || isOverdue(t))
+  );
   const wrap = document.getElementById('blocker-table-wrap');
-  if(!list.length) { wrap.innerHTML='<div class="empty"><div class="empty-icon">✅</div>No blockers or at-risk tasks</div>'; return; }
-  const tag = t => t.status==='Blocked'?'BLOCKED':isOverdue(t)?'OVERDUE':'AT RISK';
-  const bg = t => t.status==='Blocked'?'rgba(255,59,59,.15)':isOverdue(t)?'rgba(255,170,0,.15)':'rgba(255,170,0,.1)';
-  const cl = t => t.status==='Blocked'?'var(--crit)':'var(--warn)';
-  wrap.innerHTML = `<table style="width:100%;border-collapse:collapse;min-width:800px;">
+  if(!wrap) return;
+  if(!list.length) {
+    wrap.innerHTML='<div class="empty"><div class="empty-icon">✅</div>No blockers or at-risk tasks</div>';
+    return;
+  }
+  const tag = t => t.status==='Blocked' ? 'BLOCKED' : isOverdue(t) ? 'OVERDUE' : 'AT RISK';
+  const tagBg = t => t.status==='Blocked' ? 'rgba(255,59,59,.15)' : isOverdue(t) ? 'rgba(255,170,0,.15)' : 'rgba(255,170,0,.1)';
+  const tagCl = t => t.status==='Blocked' ? 'var(--crit)' : 'var(--warn)';
+  wrap.innerHTML = `<table style="width:100%;border-collapse:collapse;min-width:980px;">
     <thead><tr>
-      ${['#','Task','Workstream','Owner','Due','Status','Risk / Reason'].map(h=>`<th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);">${h}</th>`).join('')}
+      ${['#','Task','Workstream','Owner','Due','Priority','Status','Progress','Risk / Reason',''].map(h=>`<th style="background:var(--s2);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--border);white-space:nowrap;">${h}</th>`).join('')}
     </tr></thead>
-    <tbody>${list.map(t=>`<tr style="border-bottom:1px solid var(--border);">
-      <td style="padding:7px 10px;color:var(--t3);font-size:10px;">${t.id}</td>
-      <td style="padding:7px 10px;"><div style="font-size:11px;max-width:320px;line-height:1.35;">
-        <span style="background:${bg(t)};color:${cl(t)};font-size:9px;padding:1px 5px;border-radius:2px;margin-right:4px;">${tag(t)}</span>
-        <span class="task-title" onclick="jumpToTask(${t.id})">${t.title}</span></div></td>
-      <td style="padding:7px 10px;"><span class="ws-badge ${wsCls(t.workstream)}">${t.workstream}</span></td>
-      <td style="padding:7px 10px;"><span class="owner-badge">${t.owner}</span></td>
-      <td style="padding:7px 10px;" class="date-cell ${isOverdue(t)?'overdue':''}">${t.endDate||'—'}</td>
-      <td style="padding:7px 10px;"><select class="status-sel ${stCls(t.status)}" onchange="updateTaskStatus(${t.id},this.value)">
-        <option ${t.status==='To Do'?'selected':''}>To Do</option>
-        <option ${t.status==='In Progress'?'selected':''}>In Progress</option>
-        <option ${t.status==='Review'?'selected':''}>Review</option>
-        <option ${t.status==='Blocked'?'selected':''}>Blocked</option>
-        <option ${t.status==='Done'?'selected':''}>Done</option>
-      </select></td>
-      <td style="padding:7px 10px;font-size:11px;color:var(--warn);max-width:260px;line-height:1.4;">${t.riskNote||'Past due date'}</td>
-    </tr>`).join('')}</tbody></table>`;
+    <tbody>${list.map(t=>{
+      const od = isOverdue(t);
+      const pct = t.progress || 0;
+      const sliderBg = `background:linear-gradient(to right,var(--accent) 0%,var(--accent) ${pct}%,var(--s3) ${pct}%,var(--s3) 100%);`;
+      return `<tr style="border-bottom:1px solid var(--border);" id="row-bl-${t.id}">
+        <td style="padding:7px 10px;color:var(--t3);font-size:10px;">${t.id}</td>
+        <td style="padding:7px 10px;min-width:220px;max-width:320px;">
+          <div style="display:flex;align-items:flex-start;gap:6px;">
+            <span style="background:${tagBg(t)};color:${tagCl(t)};font-size:9px;padding:1px 5px;border-radius:2px;flex-shrink:0;margin-top:2px;">${tag(t)}</span>
+            <span class="task-title" onclick="openEditModal(${t.id})" style="line-height:1.35;">${t.title}</span>
+          </div>
+        </td>
+        <td style="padding:7px 10px;"><span class="ws-badge ${wsCls(t.workstream)}">${t.workstream}</span></td>
+        <td style="padding:7px 10px;"><span class="owner-badge">${t.owner}</span></td>
+        <td style="padding:7px 10px;" class="date-cell ${od?'overdue':''}">${t.endDate||'—'}${od?' ⚠':''}</td>
+        <td style="padding:7px 10px;"><span class="priority-badge p-${t.priority}">${t.priority}</span></td>
+        <td style="padding:7px 10px;"><select class="status-sel ${stCls(t.status)}" onchange="updateTaskStatus(${t.id},this.value)">
+          <option ${t.status==='To Do'?'selected':''}>To Do</option>
+          <option ${t.status==='In Progress'?'selected':''}>In Progress</option>
+          <option ${t.status==='Review'?'selected':''}>Review</option>
+          <option ${t.status==='Blocked'?'selected':''}>Blocked</option>
+          <option ${t.status==='Done'?'selected':''}>Done</option>
+        </select></td>
+        <td style="padding:7px 10px;">
+          <div class="progress-cell">
+            <div class="prog-bar"><div class="prog-fill" id="pf-bl-${t.id}" style="width:${pct}%"></div></div>
+            <span class="prog-num" id="pn-bl-${t.id}">${pct}%</span>
+          </div>
+          <input type="range" min="0" max="100" value="${pct}" class="progress-slider" style="${sliderBg}"
+            oninput="liveProgress(${t.id},this.value,this)" onchange="commitProgress(${t.id},this.value)">
+        </td>
+        <td style="padding:7px 10px;font-size:11px;color:var(--warn);max-width:220px;line-height:1.4;">${t.riskNote||'Past due date'}</td>
+        <td style="padding:7px 10px;"><button class="act-btn" onclick="openEditModal(${t.id})" title="Edit">✏</button></td>
+      </tr>`;
+    }).join('')}</tbody></table>`;
 }
 
 // ─── PRODUCTS ────────────────────────────────────────────────────────────────
