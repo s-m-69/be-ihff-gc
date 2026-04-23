@@ -24,10 +24,16 @@ a{color:inherit;text-decoration:none;}
 .brand{font-family:var(--fh);font-weight:800;font-size:20px;color:var(--accent);letter-spacing:-1px;}
 .event-name{font-family:var(--fh);font-weight:700;font-size:13px;}
 .event-sub{font-size:10px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;}
-.countdown{display:flex;gap:8px;align-items:center;}
-.cd-block{background:var(--s3);border:1px solid var(--border2);border-radius:6px;padding:4px 10px;text-align:center;}
-.cd-num{font-family:var(--fh);font-size:18px;font-weight:800;color:var(--accent);line-height:1;}
-.cd-label{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:1px;}
+.countdown{display:flex;align-items:center;gap:0;}
+.cd-ring-wrap{position:relative;width:56px;height:56px;flex-shrink:0;}
+.cd-ring-wrap svg{position:absolute;top:0;left:0;transform:rotate(-90deg);}
+.cd-ring-track{fill:none;stroke:var(--s3);stroke-width:4;}
+.cd-ring-fill{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .6s ease;}
+.cd-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.cd-days{font-family:var(--fh);font-weight:800;font-size:14px;color:var(--accent);line-height:1;}
+.cd-dlabel{font-size:7px;color:var(--t2);text-transform:uppercase;letter-spacing:.8px;}
+.cd-meta{display:flex;flex-direction:column;gap:1px;padding-left:10px;}
+.cd-weeks{font-size:10px;color:var(--t2);}
 .hdr-tabs{display:flex;gap:0;border-top:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
 .hdr-tabs::-webkit-scrollbar{display:none;}
 .tab{padding:8px 18px;cursor:pointer;color:var(--t2);border-bottom:2px solid transparent;font-size:11px;font-family:var(--fh);font-weight:600;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;transition:all .2s;}
@@ -116,13 +122,15 @@ td{padding:7px 10px;vertical-align:middle;}
 /* PROGRESS */
 .progress-cell{display:flex;align-items:center;gap:6px;min-width:90px;}
 .prog-bar{flex:1;height:4px;background:var(--s3);border-radius:2px;overflow:hidden;}
-.prog-fill{height:100%;background:var(--accent);border-radius:2px;}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .2s;}
 .prog-num{font-size:10px;color:var(--t2);width:26px;text-align:right;}
-.progress-slider{width:96px;display:block;margin-top:4px;background:transparent;-webkit-appearance:none;appearance:none;cursor:pointer;}
-.progress-slider::-webkit-slider-runnable-track{height:4px;background:var(--s3);border-radius:999px;}
-.progress-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);margin-top:-5px;}
+.progress-slider{width:96px;display:block;margin-top:5px;-webkit-appearance:none;appearance:none;cursor:pointer;height:4px;border-radius:999px;outline:none;border:none;background:var(--s3);}
+.progress-slider::-webkit-slider-runnable-track{height:4px;border-radius:999px;}
+.progress-slider::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--accent);margin-top:-4px;box-shadow:0 0 0 2px rgba(212,245,60,.2);cursor:pointer;}
+.progress-slider:hover::-webkit-slider-thumb{background:#bfdd30;box-shadow:0 0 0 3px rgba(212,245,60,.3);}
 .progress-slider::-moz-range-track{height:4px;background:var(--s3);border-radius:999px;}
-.progress-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);border:none;}
+.progress-slider::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;}
+.progress-slider::-moz-range-progress{background:var(--accent);height:4px;border-radius:999px;}
 
 /* RISK / CP */
 .risk-flag{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--warn);}
@@ -244,6 +252,22 @@ textarea.form-input{resize:vertical;min-height:60px;}
 .ig-link{display:inline-flex;align-items:center;gap:4px;color:var(--accent3);text-decoration:none;font-size:10px;border:1px solid rgba(56,182,255,.2);padding:2px 7px;border-radius:999px;}
 .ig-link:hover{background:rgba(56,182,255,.08);}
 
+/* DONE TASK ROW */
+tbody tr.task-done td{opacity:.55;}
+tbody tr.task-done .task-title{text-decoration:line-through;color:var(--t3);}
+tbody tr.task-done .priority-badge{display:none;}
+
+/* SYNC MODAL */
+.sync-modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+.sync-drop-zone{border:2px dashed var(--border2);border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;}
+.sync-drop-zone:hover,.sync-drop-zone.drag-over{border-color:var(--accent);background:rgba(212,245,60,.04);}
+.sync-icon{font-size:32px;margin-bottom:10px;}
+.sync-status{margin-top:14px;padding:10px 14px;border-radius:8px;font-size:12px;display:none;}
+.sync-status.ok{background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);color:var(--ok);display:block;}
+.sync-status.err{background:rgba(255,59,59,.08);border:1px solid rgba(255,59,59,.2);color:var(--crit);display:block;}
+.sync-btn{background:var(--accent);color:#000;border:none;border-radius:6px;padding:8px 18px;font-family:var(--fh);font-weight:700;font-size:12px;cursor:pointer;letter-spacing:.5px;margin-top:12px;transition:background .15s;}
+.sync-btn:hover{background:#bfdd30;}
+
 /* ROW JUMP */
 .row-jump-target td{background:rgba(56,182,255,.08)!important;box-shadow:inset 0 0 0 1px rgba(56,182,255,.35);}
 
@@ -280,7 +304,10 @@ textarea.form-input{resize:vertical;min-height:60px;}
         <div class="event-sub">Pragati Maidan, New Delhi · Jun 12–14, 2026</div>
       </div>
     </div>
-    <div class="countdown" id="countdown"></div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="countdown" id="countdown"></div>
+      <button onclick="openSyncModal()" style="background:rgba(212,245,60,.1);border:1px solid rgba(212,245,60,.3);color:var(--accent);padding:5px 12px;border-radius:6px;font-family:var(--fh);font-weight:700;font-size:10px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;transition:all .15s;" onmouseover="this.style.background='rgba(212,245,60,.18)'" onmouseout="this.style.background='rgba(212,245,60,.1)'">⟳ Sync</button>
+    </div>
   </div>
   <div class="hdr-tabs" id="tab-bar">
     <div class="tab active" onclick="switchTab('dashboard')">Dashboard</div>
@@ -344,7 +371,6 @@ textarea.form-input{resize:vertical;min-height:60px;}
     <div class="action-bar">
       <button class="btn btn-ghost" onclick="resetFilters()">Reset</button>
       <button class="btn btn-ghost" onclick="exportJSON()">Export JSON</button>
-      <button class="btn btn-ghost" onclick="document.getElementById('json-import-input').click()">Import JSON</button>
       <button class="btn btn-accent" onclick="openAddModal()">+ Add Task</button>
     </div>
   </div>
@@ -550,8 +576,20 @@ textarea.form-input{resize:vertical;min-height:60px;}
   </div>
 </div>
 
+<!-- SYNC MODAL -->
+<div class="modal-overlay" id="sync-modal">
+  <div class="sync-modal">
+    <div class="modal-hdr">
+      <div class="modal-title" id="sync-modal-title">⟳ Sync</div>
+      <button class="modal-close" onclick="closeModal('sync-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="sync-modal-body">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
-<input class="file-input-hidden" type="file" id="json-import-input" accept=".json">
 
 <script>
 'use strict';
@@ -955,13 +993,28 @@ function updateCountdown() {
   if(!el) return;
   const t = today();
   const diff = EVENT_DATE - t;
-  const days = Math.max(0, Math.ceil(diff/86400000));
-  const weeks = Math.floor(days/7);
-  const rem = days % 7;
+  const totalDays = Math.max(0, Math.ceil(diff/86400000));
+  const weeks = Math.floor(totalDays/7);
+  const rem = totalDays % 7;
+  const maxDays = 120;
+  const r = 22;
+  const circ = 2 * Math.PI * r;
+  const offset = circ * (1 - Math.min(totalDays / maxDays, 1));
   el.innerHTML = `
-    <div class="cd-block"><div class="cd-num">${days}</div><div class="cd-label">Days</div></div>
-    <div class="cd-block"><div class="cd-num">${weeks}w ${rem}d</div><div class="cd-label">Remaining</div></div>
-    <div class="cd-block"><div class="cd-num" style="font-size:14px;color:var(--accent);">Jun 12</div><div class="cd-label">Event</div></div>`;
+    <div class="cd-ring-wrap">
+      <svg width="56" height="56" viewBox="0 0 56 56">
+        <circle class="cd-ring-track" cx="28" cy="28" r="${r}"/>
+        <circle class="cd-ring-fill" cx="28" cy="28" r="${r}"
+          stroke-dasharray="${circ.toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}"/>
+      </svg>
+      <div class="cd-ring-center">
+        <div class="cd-days">${totalDays}</div>
+        <div class="cd-dlabel">days</div>
+      </div>
+    </div>
+    <div class="cd-meta">
+      <div class="cd-weeks">${weeks}w ${rem}d remaining</div>
+    </div>`;
 }
 
 // ─── TAB SWITCHER ─────────────────────────────────────────────────────────────
@@ -1031,28 +1084,41 @@ function renderDashboard() {
     <div class="kpi blue"><div class="kpi-label">Total Paid</div><div class="kpi-val" style="font-size:18px;">${fmt(totPaid)}</div><div class="kpi-sub">Across all tracked layers</div></div>
     <div class="kpi yellow"><div class="kpi-label">Total Pending</div><div class="kpi-val" style="font-size:18px;">${fmt(totPending)}</div><div class="kpi-sub">Remaining to close</div></div>`;
 
-  // Blocker banner
-  const blockerTasks = roots.filter(t=>t.status==='Blocked'||!!(t.riskNote||'').trim()||isOverdue(t)).slice(0,6);
+  // Blocker banner — only non-done tasks that are blocked or have risk notes or overdue
+  const blockerTasks = DB.tasks.filter(t =>
+    t.status !== 'Done' && (t.status==='Blocked' || !!(t.riskNote||'').trim() || isOverdue(t))
+  ).slice(0, 6);
   const bannerWrap = document.getElementById('blocker-banner-wrap');
   bannerWrap.innerHTML = blockerTasks.length ? `
     <div class="blocker-banner" style="margin:0 20px 12px;">
-      <div class="blocker-title">Current blockers & risk flags</div>
-      ${blockerTasks.slice(0,4).map(t=>`<div class="blocker-item"><span class="blocker-dot"></span><span><strong>#${t.id}</strong> ${t.title}</span></div>`).join('')}
+      <div class="blocker-title">⚡ Active blockers & risk flags (${blockerTasks.length})</div>
+      ${blockerTasks.slice(0,5).map(t=>`<div class="blocker-item"><span class="blocker-dot"></span><span><strong>#${t.id} ${t.title}</strong>${isOverdue(t)?` <span style="color:var(--crit);font-size:9px;">· OVERDUE</span>`:''}${t.status==='Blocked'?` <span style="color:var(--crit);font-size:9px;">· BLOCKED</span>`:''}</span></div>`).join('')}
     </div>` : '';
 
-  // Critical cards
-  const critCards = roots.filter(t=>t.status==='Blocked'||(t.riskNote&&t.riskNote.trim())||isOverdue(t)).slice(0,8);
-  document.getElementById('critical-list').innerHTML = critCards.length
-    ? critCards.map(t=>`
-      <div style="background:rgba(255,59,59,.05);border:1px solid rgba(255,59,59,.22);border-radius:8px;padding:12px 14px;cursor:pointer;" onclick="jumpToTask(${t.id})">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;">
-          <div style="font-family:var(--fh);font-weight:700;font-size:12px;">#${t.id} ${t.title}</div>
-          <span class="priority-badge p-${t.priority}">${t.priority}</span>
-        </div>
-        <div style="font-size:10px;color:var(--t2);margin-bottom:6px;">${t.phase||'—'} · ${t.owner||'—'} · <span class="ws-badge ${wsCls(t.workstream)}">${t.workstream}</span></div>
-        <div style="font-size:11px;color:var(--warn);line-height:1.4;">${t.riskNote||'Blocked / overdue'}</div>
-      </div>`).join('')
-    : '<div style="color:var(--t2);font-size:12px;padding:16px;">✅ No blockers right now</div>';
+  // Critical cards — only non-done tasks with blockers, risk notes, or overdue
+  const critCards = DB.tasks.filter(t =>
+    t.status !== 'Done' && (t.status==='Blocked' || !!(t.riskNote||'').trim() || isOverdue(t))
+  ).slice(0, 8);
+  const critEl = document.getElementById('critical-list');
+  critEl.innerHTML = critCards.length
+    ? critCards.map(t=>{
+        const tag = t.status==='Blocked' ? `<span style="background:rgba(255,59,59,.2);color:var(--crit);font-size:9px;padding:1px 6px;border-radius:3px;font-weight:700;">BLOCKED</span>`
+          : isOverdue(t) ? `<span style="background:rgba(255,170,0,.15);color:var(--warn);font-size:9px;padding:1px 6px;border-radius:3px;font-weight:700;">OVERDUE</span>`
+          : `<span style="background:rgba(255,170,0,.1);color:var(--warn);font-size:9px;padding:1px 6px;border-radius:3px;font-weight:700;">AT RISK</span>`;
+        return `<div style="background:rgba(255,59,59,.04);border:1px solid rgba(255,59,59,.2);border-radius:8px;padding:12px 14px;cursor:pointer;transition:border-color .15s;" onclick="jumpToTask(${t.id})" onmouseover="this.style.borderColor='rgba(255,59,59,.5)'" onmouseout="this.style.borderColor='rgba(255,59,59,.2)'">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;">
+            <div style="font-family:var(--fh);font-weight:700;font-size:11px;line-height:1.3;">#${t.id} ${t.title}</div>
+            ${tag}
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px;">
+            <span class="ws-badge ${wsCls(t.workstream)}">${t.workstream}</span>
+            <span class="owner-badge">${t.owner}</span>
+            ${t.endDate?`<span style="font-size:10px;color:${isOverdue(t)?'var(--crit)':'var(--t2)'};">Due ${t.endDate}</span>`:''}
+          </div>
+          ${t.riskNote?`<div style="font-size:10px;color:var(--warn);line-height:1.4;">${t.riskNote}</div>`:''}
+        </div>`;
+      }).join('')
+    : '<div style="color:var(--t2);font-size:12px;padding:16px;text-align:center;">✅ No active blockers or risk flags</div>';
 
   // Overdue cards
   document.getElementById('overdue-list').innerHTML = overdueArr.length
@@ -1161,25 +1227,29 @@ function renderStats(visible) {
 function taskRowHtml(t, depth) {
   const od = isOverdue(t);
   const sc = stCls(t.status);
+  const isDone = t.status === 'Done';
   const isChild = depth > 0;
   const indent = depth * 20;
   const hasSubs = (t.__kids||t.subtasks||[]).length > 0;
-  return `<tr id="row-${t.id}" class="${isChild?'subtask-row':''}">
+  const pct = t.progress || 0;
+  // Slider fill gradient — shows filled portion in accent colour
+  const sliderBg = `background:linear-gradient(to right, var(--accent) 0%, var(--accent) ${pct}%, var(--s3) ${pct}%, var(--s3) 100%);`;
+  return `<tr id="row-${t.id}" class="${isChild?'subtask-row':''}${isDone?' task-done':''}">
     <td class="task-id">${t.id}</td>
     <td>
       <div style="display:flex;align-items:flex-start;gap:6px;">
         ${indent?`<span style="width:${indent}px;flex-shrink:0;"></span>`:''}
         <div>
           <div class="task-title ${isChild?'subtask-title':''}" onclick="openEditModal(${t.id})">${t.title}</div>
-          ${t.riskNote?`<div style="font-size:10px;color:var(--warn);margin-top:2px;">⚠ ${t.riskNote}</div>`:''}
+          ${!isDone && t.riskNote?`<div style="font-size:10px;color:var(--warn);margin-top:2px;">⚠ ${t.riskNote}</div>`:''}
           ${hasSubs?`<div style="font-size:10px;color:var(--t3);margin-top:2px;">↳ ${(t.__kids||t.subtasks).length} sub-items</div>`:''}
         </div>
       </div>
     </td>
     <td><span class="ws-badge ${wsCls(t.workstream)}">${t.workstream}</span></td>
     <td><span class="owner-badge">${t.owner}</span></td>
-    <td class="date-cell ${od?'overdue':''}">${t.endDate||'—'}${od?' ⚠':''}</td>
-    <td><span class="priority-badge p-${t.priority}">${t.priority}</span></td>
+    <td class="date-cell ${od&&!isDone?'overdue':''}">${t.endDate||'—'}${od&&!isDone?' ⚠':''}</td>
+    <td>${isDone ? '<span style="color:var(--ok);font-size:10px;">✓ Done</span>' : `<span class="priority-badge p-${t.priority}">${t.priority}</span>`}</td>
     <td><select class="status-sel ${sc}" onchange="updateTaskStatus(${t.id},this.value)">
       <option ${t.status==='To Do'?'selected':''}>To Do</option>
       <option ${t.status==='In Progress'?'selected':''}>In Progress</option>
@@ -1189,14 +1259,14 @@ function taskRowHtml(t, depth) {
     </select></td>
     <td>
       <div class="progress-cell">
-        <div class="prog-bar"><div class="prog-fill" id="pf-${t.id}" style="width:${t.progress}%"></div></div>
-        <span class="prog-num" id="pn-${t.id}">${t.progress}%</span>
+        <div class="prog-bar"><div class="prog-fill" id="pf-${t.id}" style="width:${pct}%"></div></div>
+        <span class="prog-num" id="pn-${t.id}">${pct}%</span>
       </div>
-      <input type="range" min="0" max="100" value="${t.progress}" class="progress-slider"
-        oninput="liveProgress(${t.id},this.value)" onchange="commitProgress(${t.id},this.value)">
+      <input type="range" min="0" max="100" value="${pct}" class="progress-slider" style="${sliderBg}"
+        oninput="liveProgress(${t.id},this.value,this)" onchange="commitProgress(${t.id},this.value)">
     </td>
     <td><span class="${t.criticalPath?'cp-yes':'cp-no'}">${t.criticalPath?'🔴 YES':'—'}</span></td>
-    <td>${t.riskNote?`<span class="risk-flag" title="${esc(t.riskNote)}">⚠ Risk</span>`:'—'}</td>
+    <td>${!isDone && t.riskNote?`<span class="risk-flag" title="${esc(t.riskNote)}">⚠ Risk</span>`:'—'}</td>
     <td>
       <div class="cost-stack">
         <div class="cost-main">${fmt(taskAct(t)||taskEst(t))}</div>
@@ -1258,19 +1328,28 @@ function resetFilters() {
 function updateTaskStatus(id, val) {
   const rec = findTask(id);
   if(!rec) return;
-  rec.t.status = val;
-  if(val==='Done') rec.t.progress = 100;
+  const t = rec.t;
+  const prev = t.status;
+  t.status = val;
+  if(val === 'Done') {
+    t.progress = 100;
+  } else if(val === 'In Progress' && (t.progress === 0 || prev === 'To Do')) {
+    t.progress = 33;
+  } else if(val === 'To Do' && t.progress === 100) {
+    t.progress = 0;
+  }
   save(SK.TASKS, DB.tasks);
   applyFilters();
   renderDashboard();
   showToast(`#${id} → ${val}`);
 }
-function liveProgress(id, val) {
+function liveProgress(id, val, sliderEl) {
   const v = Math.min(100, Math.max(0, parseInt(val)||0));
   const pf = document.getElementById('pf-'+id);
   const pn = document.getElementById('pn-'+id);
   if(pf) pf.style.width = v + '%';
   if(pn) pn.textContent = v + '%';
+  if(sliderEl) sliderEl.style.background = `linear-gradient(to right, var(--accent) 0%, var(--accent) ${v}%, var(--s3) ${v}%, var(--s3) 100%)`;
   const rec = findTask(id);
   if(rec) rec.t.progress = v;
 }
@@ -1278,9 +1357,11 @@ function commitProgress(id, val) {
   const v = Math.min(100, Math.max(0, parseInt(val)||0));
   const rec = findTask(id);
   if(!rec) return;
-  rec.t.progress = v;
-  if(v===100) rec.t.status='Done';
-  else if(v>0 && rec.t.status==='To Do') rec.t.status='In Progress';
+  const t = rec.t;
+  t.progress = v;
+  if(v === 100) t.status = 'Done';
+  else if(v > 0 && t.status === 'To Do') t.status = 'In Progress';
+  else if(v === 0 && t.status === 'Done') t.status = 'To Do';
   save(SK.TASKS, DB.tasks);
   applyFilters();
   renderDashboard();
@@ -2073,7 +2154,201 @@ function saveEntityModal() {
   closeModal('entity-modal');
 }
 
-// ─── IMPORT / EXPORT ─────────────────────────────────────────────────────────
+// ─── SYNC MASTER ─────────────────────────────────────────────────────────────
+// Default admin password: beihff2026
+// First-time: any password you type becomes the admin password.
+// Once set, only that password unlocks the admin upload section.
+const MASTER_SNAPSHOT_KEY = 'be_ihff_master_snapshot_v1';
+const MASTER_META_KEY = 'be_ihff_master_meta_v1';
+const ADMIN_HASH_KEY = 'be_ihff_admin_hash_v1';
+const DEFAULT_PASS = 'beihff2026';
+
+async function hashPass(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,32);
+}
+
+function getMasterMeta() {
+  try { return JSON.parse(localStorage.getItem(MASTER_META_KEY)||'{}'); } catch(e) { return {}; }
+}
+function hasMasterSnapshot() {
+  return !!localStorage.getItem(MASTER_SNAPSHOT_KEY);
+}
+
+// Initialise default password hash on first load
+async function initAdminPass() {
+  if(!localStorage.getItem(ADMIN_HASH_KEY)) {
+    localStorage.setItem(ADMIN_HASH_KEY, await hashPass(DEFAULT_PASS));
+  }
+}
+
+function openSyncModal() {
+  const meta = getMasterMeta();
+  const hasSnapshot = hasMasterSnapshot();
+  const modalBody = document.getElementById('sync-modal-body');
+  document.getElementById('sync-modal-title').textContent = '⟳ Sync';
+
+  modalBody.innerHTML = `
+    <div id="sync-status-area" style="margin-bottom:10px;"></div>
+
+    ${hasSnapshot ? `
+    <div style="background:rgba(212,245,60,.05);border:1px solid rgba(212,245,60,.2);border-radius:10px;padding:16px 18px;margin-bottom:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div style="font-family:var(--fh);font-weight:700;font-size:13px;color:var(--accent);margin-bottom:4px;">Master update ready</div>
+          <div style="font-size:11px;color:var(--t2);">Uploaded ${meta.uploadedAt||'—'} · ${meta.taskCount||'?'} tasks</div>
+        </div>
+        <button onclick="applyMasterSnapshot()" class="sync-btn">⟳ Apply Now</button>
+      </div>
+    </div>` : `
+    <div style="margin-bottom:16px;">
+      <div style="font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:10px;">Upload the JSON file shared by Atul to sync.</div>
+      <div class="sync-drop-zone" id="sdz-client">
+        <div class="sync-icon">📂</div>
+        <div style="font-family:var(--fh);font-weight:700;font-size:12px;margin-bottom:4px;">Drop JSON here or click to browse</div>
+        <input type="file" id="sfi-client" accept=".json" style="display:none">
+      </div>
+    </div>`}
+
+    <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:10px;">🔐 Admin — Push new master</div>
+      <div id="admin-pass-gate">
+        <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+          <div class="form-group" style="flex:1;min-width:160px;">
+            <label class="form-label">Admin Password</label>
+            <input class="form-input" type="password" id="sync-admin-pass" placeholder="Enter to unlock…" onkeydown="if(event.key==='Enter')checkAdminPass()">
+          </div>
+          <button onclick="checkAdminPass()" class="btn btn-ghost" style="margin-bottom:1px;">Unlock</button>
+        </div>
+        <div id="admin-pass-err" style="font-size:10px;color:var(--crit);margin-top:6px;display:none;">Wrong password.</div>
+      </div>
+      <div id="admin-upload-area" style="display:none;">
+        <div style="font-size:11px;color:var(--ok);margin-bottom:10px;">✓ Admin unlocked</div>
+        <div class="sync-drop-zone" id="sdz-admin" style="margin-bottom:10px;">
+          <div class="sync-icon" style="font-size:24px;">⬆</div>
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px;">Upload master JSON</div>
+          <div style="font-size:11px;color:var(--t2);">Stores as master snapshot for all clients</div>
+          <input type="file" id="sfi-admin" accept=".json" style="display:none">
+        </div>
+        <button onclick="triggerAdminUpload()" class="sync-btn">Push as Master</button>
+      </div>
+    </div>`;
+
+  document.getElementById('sync-modal').classList.add('show');
+
+  // Wire client drop zone
+  setTimeout(()=>{
+    const clientZone = document.getElementById('sdz-client');
+    const clientInp = document.getElementById('sfi-client');
+    if(clientZone && clientInp) {
+      clientZone.onclick = ()=>clientInp.click();
+      clientZone.addEventListener('dragover',e=>{e.preventDefault();clientZone.classList.add('drag-over');});
+      clientZone.addEventListener('dragleave',()=>clientZone.classList.remove('drag-over'));
+      clientZone.addEventListener('drop',e=>{e.preventDefault();clientZone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)clientSyncFile(f);});
+      clientInp.addEventListener('change',e=>{const f=e.target.files[0];if(f)clientSyncFile(f);e.target.value='';});
+    }
+    // Wire admin drop zone
+    const adminZone = document.getElementById('sdz-admin');
+    const adminInp = document.getElementById('sfi-admin');
+    if(adminZone && adminInp) {
+      adminZone.onclick = ()=>adminInp.click();
+      adminZone.addEventListener('dragover',e=>{e.preventDefault();adminZone.classList.add('drag-over');});
+      adminZone.addEventListener('dragleave',()=>adminZone.classList.remove('drag-over'));
+      adminZone.addEventListener('drop',e=>{e.preventDefault();adminZone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f){_pendingAdminFile=f;adminZone.querySelector('div:nth-child(2)').textContent='✓ '+f.name;}});
+      adminInp.addEventListener('change',e=>{const f=e.target.files[0];if(f){_pendingAdminFile=f;adminZone.querySelector('div:nth-child(2)').textContent='✓ '+f.name;}e.target.value='';});
+    }
+  }, 0);
+}
+
+async function checkAdminPass() {
+  const inp = document.getElementById('sync-admin-pass');
+  const errEl = document.getElementById('admin-pass-err');
+  const uploadArea = document.getElementById('admin-upload-area');
+  const gate = document.getElementById('admin-pass-gate');
+  if(!inp || !inp.value.trim()) return;
+  const hash = await hashPass(inp.value.trim());
+  const storedHash = localStorage.getItem(ADMIN_HASH_KEY);
+  if(hash === storedHash) {
+    gate.style.display = 'none';
+    uploadArea.style.display = 'block';
+  } else {
+    errEl.style.display = 'block';
+    inp.value = '';
+    inp.focus();
+  }
+}
+
+let _pendingAdminFile = null;
+
+function triggerAdminUpload() {
+  if(!_pendingAdminFile) { syncStatus('err','Select a JSON file first — drop it in the box above.'); return; }
+  readAndStoreAsMaster(_pendingAdminFile);
+}
+
+function readAndStoreAsMaster(file) {
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const p = JSON.parse(ev.target.result);
+      if(!Array.isArray(p.tasks)) throw new Error('Invalid');
+      localStorage.setItem(MASTER_SNAPSHOT_KEY, ev.target.result);
+      const now = new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      localStorage.setItem(MASTER_META_KEY, JSON.stringify({
+        uploadedAt: now,
+        taskCount: p.tasks.length,
+        athleteCount: (p.athletes||p.talent||[]).length,
+      }));
+      applyPayload(p);
+      _pendingAdminFile = null;
+      syncStatus('ok', `✓ Master snapshot stored · ${p.tasks.length} tasks · applied immediately`);
+      setTimeout(()=>closeModal('sync-modal'), 2500);
+    } catch(e) { syncStatus('err','✕ Invalid JSON file.'); }
+  };
+  reader.readAsText(file);
+}
+
+function applyMasterSnapshot() {
+  const raw = localStorage.getItem(MASTER_SNAPSHOT_KEY);
+  if(!raw) { syncStatus('err','No snapshot found.'); return; }
+  try {
+    applyPayload(JSON.parse(raw));
+    const meta = getMasterMeta();
+    syncStatus('ok', `✓ Synced · ${meta.taskCount||'?'} tasks · from ${meta.uploadedAt||'—'}`);
+    setTimeout(()=>closeModal('sync-modal'), 2000);
+  } catch(e) { syncStatus('err','✕ Snapshot corrupt. Ask Atul to re-push.'); }
+}
+
+function clientSyncFile(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const p = JSON.parse(ev.target.result);
+      if(!Array.isArray(p.tasks)) throw new Error('Invalid');
+      applyPayload(p);
+      syncStatus('ok', `✓ Synced · ${p.tasks.length} tasks loaded`);
+      setTimeout(()=>closeModal('sync-modal'), 2000);
+    } catch(e) { syncStatus('err','✕ Invalid file.'); }
+  };
+  reader.readAsText(file);
+}
+
+function applyPayload(p) {
+  if(Array.isArray(p.tasks)) DB.tasks = p.tasks;
+  if(Array.isArray(p.products)) DB.products = p.products;
+  if(Array.isArray(p.athletes)||Array.isArray(p.talent)) DB.athletes = p.athletes||p.talent||[];
+  if(Array.isArray(p.manpower)) DB.manpower = p.manpower;
+  if(Array.isArray(p.merch)||Array.isArray(p.merchandise)) DB.merch = p.merch||p.merchandise||[];
+  if(Array.isArray(p.samples)||Array.isArray(p.samplesModule)) DB.samples = p.samples||p.samplesModule||[];
+  if(Array.isArray(p.vendors)) DB.vendors = p.vendors;
+  saveAll();
+  fullRefresh();
+}
+
+function syncStatus(type, msg) {
+  const el = document.getElementById('sync-status-area');
+  if(el) el.innerHTML = `<div class="sync-status ${type}">${msg}</div>`;
+}
+
 function exportJSON() {
   const payload = {
     version: 1, exportedAt: new Date().toISOString(),
@@ -2089,29 +2364,6 @@ function exportJSON() {
   URL.revokeObjectURL(a.href);
   showToast('Exported');
 }
-
-document.getElementById('json-import-input').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev) {
-    try {
-      const p = JSON.parse(ev.target.result);
-      if(Array.isArray(p.tasks)) DB.tasks = p.tasks;
-      if(Array.isArray(p.products)) DB.products = p.products;
-      if(Array.isArray(p.athletes)||Array.isArray(p.talent)) DB.athletes = p.athletes||p.talent;
-      if(Array.isArray(p.manpower)) DB.manpower = p.manpower;
-      if(Array.isArray(p.merch)||Array.isArray(p.merchandise)) DB.merch = p.merch||p.merchandise;
-      if(Array.isArray(p.samples)||Array.isArray(p.samplesModule)) DB.samples = p.samples||p.samplesModule;
-      if(Array.isArray(p.vendors)) DB.vendors = p.vendors;
-      saveAll();
-      e.target.value = '';
-      fullRefresh();
-      showToast('Imported');
-    } catch(err) { showToast('Invalid JSON file'); }
-  };
-  reader.readAsText(file);
-});
 
 // ─── FULL REFRESH ─────────────────────────────────────────────────────────────
 function fullRefresh() {
@@ -2134,11 +2386,13 @@ function fullRefresh() {
 // ─── MODAL CLOSE ON OVERLAY CLICK ────────────────────────────────────────────
 document.getElementById('task-modal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal('task-modal'); });
 document.getElementById('entity-modal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal('entity-modal'); });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeModal('task-modal');closeModal('entity-modal');} });
+document.getElementById('sync-modal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal('sync-modal'); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeModal('task-modal');closeModal('entity-modal');closeModal('sync-modal');} });
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
   loadAll();
+  initAdminPass();
   updateCountdown();
   setInterval(updateCountdown, 60000);
   populateFilters();
